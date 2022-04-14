@@ -1,0 +1,11 @@
+Neos:
+  Flow:
+    security:
+      authentication:
+        providers:
+          Neos.Neos:Backend:
+            requestPatterns:
+              Shel.Neos.WorkspaceModule:Controller:
+                pattern: 'ControllerObjectName'
+                patternOptions:
+                  controllerObjectNamePattern: 'Shel\Neos\WorkspaceModule\Controller\.*'

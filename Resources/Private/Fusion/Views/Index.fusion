@@ -1,0 +1,51 @@
+Shel.Neos.WorkspaceModule.WorkspacesController {
+    index = Neos.Fusion:Component {
+        userWorkspace = ${userWorkspace}
+        workspaces = ${workspaces}
+
+        endpoints = Neos.Fusion:DataStructure {
+            deleteWorkspace = Neos.Fusion:UriBuilder {
+                action = 'delete'
+            }
+            editWorkspace = Neos.Fusion:UriBuilder {
+                action = 'edit'
+            }
+            updateWorkspace = Neos.Fusion:UriBuilder {
+                action = 'update'
+            }
+            createWorkspace = Neos.Fusion:UriBuilder {
+                action = 'create'
+            }
+            newWorkspace = Neos.Fusion:UriBuilder {
+                action = 'new'
+            }
+            getChanges = Neos.Fusion:UriBuilder {
+                action = 'getChanges'
+                format = 'json'
+            }
+        }
+
+        renderer = afx`
+            <div class="neos-content neos-container-fluid">
+                <div class="neos-row-fluid">
+                    <div
+                        id="workspace-module-app"
+                        data-endpoints={Json.stringify(props.endpoints)}
+                        data-user-workspace={props.userWorkspace.name}
+                    >
+                        <script type="application/json" id="workspaces">
+                    {Json.stringify(props.workspaces)}
+
+                        </script>
+                        Loading workspace module...
+                    </div>
+                </div>
+                <div class="neos-footer">
+                    <a class="neos-button neos-button-success" href={props.endpoints.newWorkspace}>
+                        Create new workspace
+                    </a>
+                </div>
+            </div>
+        `
+    }
+}

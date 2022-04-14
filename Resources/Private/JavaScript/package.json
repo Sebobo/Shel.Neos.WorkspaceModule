@@ -1,0 +1,33 @@
+{
+  "name": "workspace-module",
+  "version": "1.0.0",
+  "license": "GNU GPLv3",
+  "private": true,
+  "source": "index.tsx",
+  "app": "../../Public/Assets/main.js",
+  "targets": {
+    "app": {}
+  },
+  "outputFormat": "global",
+  "scripts": {
+    "postinstall": "patch-package",
+    "watch": "parcel watch",
+    "build": "parcel build"
+  },
+  "dependencies": {
+    "@parcel/transformer-react-refresh-wrap": "^2.4.1",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-modal": "^3.14.4",
+    "styled-components": "^5.3.5"
+  },
+  "neos": {
+    "buildTargetDirectory": "../../Public/Assets"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.0",
+    "@types/react": "^18.0.2",
+    "parcel": "^2.4.1",
+    "patch-package": "^6.4.7"
+  }
+}

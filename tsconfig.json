@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "target": "es2017",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "jsx": "react",
+    "typeRoots": ["./Resources/Private/JavaScript/typings"]
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

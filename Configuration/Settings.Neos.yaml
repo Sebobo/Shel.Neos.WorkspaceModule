@@ -1,0 +1,10 @@
+Neos:
+  Neos:
+    modules:
+      management:
+        submodules:
+          workspaces:
+            controller: Shel\Neos\WorkspaceModule\Controller\WorkspacesController
+            additionalResources:
+              javaScripts:
+                - 'resource://Shel.Neos.WorkspaceModule/Public/Assets/main.js'

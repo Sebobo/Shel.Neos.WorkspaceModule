@@ -1,0 +1,36 @@
+{
+  "name": "shel-neos-workspace-module",
+  "version": "1.0.0",
+  "license": "GNU GPLv3",
+  "private": true,
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "build": "yarn workspace workspace-module run build",
+    "watch": "yarn workspace workspace-module run watch"
+  },
+  "workspaces": [
+    "Resources/Private/JavaScript"
+  ],
+  "dependencies": {
+    "workspace-module": "*"
+  },
+  "devDependencies": {
+    "@neos-project/eslint-config-neos": "*",
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
+    "eslint": "^8.13.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-react-hooks": "^4.4.0",
+    "eslint-plugin-testcafe": "^0.2.1",
+    "typescript": ">=3.0.0"
+  },
+  "browserslist": [
+    "> 0.5%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

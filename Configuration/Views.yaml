@@ -1,0 +1,12 @@
+- requestFilter: 'isPackage("Shel.Neos.WorkspaceModule") && isController("Workspaces") && isFormat("html")'
+  options:
+    templateRootPathPattern: 'resource://Neos.Neos/Private/Templates/Module/Management'
+    layoutRootPathPattern: 'resource://Neos.Neos/Private/Layouts'
+    partialRootPathPattern: 'resource://Neos.Neos/Private/Partials'
+
+- requestFilter: 'isPackage("Shel.Neos.WorkspaceModule") && isController("Workspaces") && isFormat("html") && isAction("index")'
+  viewObjectName: 'Neos\Fusion\View\FusionView'
+  options:
+    fusionPathPatterns:
+      - 'resource://Neos.Fusion/Private/Fusion'
+      - 'resource://Shel.Neos.WorkspaceModule/Private/Fusion'

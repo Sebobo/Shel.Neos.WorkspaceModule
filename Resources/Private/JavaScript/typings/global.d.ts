@@ -9,6 +9,12 @@ interface NeosI18n {
     initialized: boolean;
 }
 
+type TranslateFunction = (
+    id: string,
+    fallback?: string,
+    parameters?: Record<string, string | number> | string[]
+) => string;
+
 interface NeosNotification {
     notice: (title: string) => void;
     ok: (title: string) => void;

@@ -12,6 +12,7 @@ const Table = styled.table`
     margin-top: 1em;
     border-spacing: 0;
     position: relative;
+    width: 100%;
 `;
 
 const HeaderColumn = styled.th`

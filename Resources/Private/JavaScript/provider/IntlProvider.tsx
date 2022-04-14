@@ -1,17 +1,17 @@
 import React, { createContext, ReactNode, useContext } from 'react';
 
-type ProviderProps = {
+type IntlProviderProps = {
     children: ReactNode;
-    translate: (id: string, fallback?: string, parameters?: Record<string, string | number> | string[]) => string;
+    translate: TranslateFunction;
 };
 
-type ProviderValues = {
-    translate: (id: string, fallback?: string, parameters?: Record<string, string | number> | string[]) => string;
+type IntlProviderValues = {
+    translate: TranslateFunction;
 };
 
 export const IntlContext = createContext(null);
-export const useIntl = (): ProviderValues => useContext(IntlContext);
+export const useIntl = (): IntlProviderValues => useContext(IntlContext);
 
-export function IntlProvider({ children, translate }: ProviderProps) {
-    return <IntlContext.Provider value={{ translate }}>{children}</IntlContext.Provider>;
-}
+export const IntlProvider = ({ translate, children }: IntlProviderProps) => {
+    return <IntlContext.Provider value={translate}>{children}</IntlContext.Provider>;
+};

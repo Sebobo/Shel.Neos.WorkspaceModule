@@ -1,14 +1,13 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
 import { SortBy } from '../components/WorkspaceTable';
+import { useNotify } from './NotifyProvider';
 
 type WorkspaceProviderProps = {
-    value: {
-        userWorkspace: WorkspaceName;
-        workspaces: WorkspaceList;
-        endpoints: WorkspaceEndpoints;
-    };
     children: ReactNode;
+    userWorkspace: WorkspaceName;
+    workspaceList: WorkspaceList;
+    endpoints: WorkspaceEndpoints;
 };
 
 type WorkspaceValues = {
@@ -25,10 +24,10 @@ type WorkspaceValues = {
 const WorkspaceContext = createContext(null);
 export const useWorkspaces = (): WorkspaceValues => useContext(WorkspaceContext);
 
-export const WorkspaceProvider = ({ value, children }: WorkspaceProviderProps) => {
-    const { userWorkspace, endpoints } = value;
-    const [workspaces, setWorkspaces] = React.useState(value.workspaces);
+export const WorkspaceProvider = ({ userWorkspace, endpoints, workspaceList, children }: WorkspaceProviderProps) => {
+    const [workspaces, setWorkspaces] = React.useState(workspaceList);
     const [sorting, setSorting] = useState<SortBy>(SortBy.title);
+    const notify = useNotify();
 
     const loadChangesCounts = useCallback(() => {
         if (!workspaces) return;
@@ -57,20 +56,21 @@ export const WorkspaceProvider = ({ value, children }: WorkspaceProviderProps) =
                 setWorkspaces(updatedWorkspaces);
             })
             .catch((error) => {
+                notify.error('Failed to load changes for workspaces', error.message);
                 console.error('Failed to load changes for workspaces', error);
             });
     }, [endpoints]);
 
     const deleteWorkspace = useCallback(() => {
-        console.debug('Delete workspace');
+        notify.info('Deleting workspace...');
     }, []);
     const editWorkspace = useCallback(() => {
-        console.debug('Edit workspace');
+        notify.info('Editing workspace...');
     }, []);
 
     useEffect(() => {
         loadChangesCounts();
-    }, [value.workspaces]);
+    }, [workspaceList]);
 
     return (
         <WorkspaceContext.Provider

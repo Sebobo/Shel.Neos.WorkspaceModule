@@ -1,8 +1,15 @@
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
+import { hot, setConfig } from 'react-hot-loader';
+
 import WorkspaceModule from './components/WorkspaceModule';
 import { WorkspaceProvider } from './provider/WorkspaceProvider';
 import { IntlProvider } from './provider/IntlProvider';
+import { NotifyProvider } from './provider/NotifyProvider';
+
+setConfig({
+    showReactDomPatchNotification: false,
+});
 
 window.onload = async (): Promise<void> => {
     while (!window.NeosCMS?.I18n?.initialized) {
@@ -22,12 +29,17 @@ window.onload = async (): Promise<void> => {
         return I18n.translate(id, label, 'Shel.Neos.WorkspaceModule', 'Main', args);
     };
 
+    // @ts-ignore
+    const AppWithHmr = hot(module)(WorkspaceModule);
+
     const root = createRoot(container);
     root.render(
-        <WorkspaceProvider value={{ workspaces, userWorkspace, endpoints }}>
-            <IntlProvider translate={translate}>
-                <WorkspaceModule />
-            </IntlProvider>
-        </WorkspaceProvider>
+        <IntlProvider translate={translate}>
+            <NotifyProvider notificationApi={Notification}>
+                <WorkspaceProvider workspaceList={workspaces} userWorkspace={userWorkspace} endpoints={endpoints}>
+                    <AppWithHmr />
+                </WorkspaceProvider>
+            </NotifyProvider>
+        </IntlProvider>
     );
 };

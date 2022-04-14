@@ -3,9 +3,7 @@ import * as React from 'react';
 import WorkspaceTable from './WorkspaceTable';
 import ErrorBoundary from './ErrorBoundary';
 
-type WorkspaceModuleProps = {};
-
-const WorkspaceModule: React.FC<WorkspaceModuleProps> = ({}) => {
+const WorkspaceModule: React.FC = () => {
     return (
         <ErrorBoundary>
             <WorkspaceTable />

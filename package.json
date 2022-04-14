@@ -8,7 +8,8 @@
   },
   "scripts": {
     "build": "yarn workspace workspace-module run build",
-    "watch": "yarn workspace workspace-module run watch"
+    "watch": "yarn workspace workspace-module run watch",
+    "lint": "yarn eslint Resources/Private/JavaScript"
   },
   "workspaces": [
     "Resources/Private/JavaScript"
@@ -26,6 +27,7 @@
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "^4.4.0",
     "eslint-plugin-testcafe": "^0.2.1",
+    "prettier": "^2.6.2",
     "typescript": ">=3.0.0"
   },
   "browserslist": [

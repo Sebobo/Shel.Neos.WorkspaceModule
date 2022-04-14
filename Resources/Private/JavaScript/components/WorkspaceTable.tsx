@@ -6,8 +6,6 @@ import WorkspaceTreeNode from './WorkspaceTreeNode';
 import Icon from './Icon';
 import { useWorkspaces } from '../provider/WorkspaceProvider';
 
-type WorkspaceTableProps = {};
-
 const Table = styled.table`
     margin-top: 1em;
     border-spacing: 0;
@@ -38,7 +36,7 @@ export enum SortBy {
     lastModified,
 }
 
-const WorkspaceTable: React.FC<WorkspaceTableProps> = ({}) => {
+const WorkspaceTable: React.FC = () => {
     const { sorting, setSorting } = useWorkspaces();
 
     const handleSortByTitle = useCallback(() => {

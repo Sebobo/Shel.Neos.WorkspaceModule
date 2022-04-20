@@ -3,6 +3,17 @@ declare(strict_types=1);
 
 namespace Shel\Neos\WorkspaceModule\Domain\Model;
 
+/**
+ * This file is part of the Shel.Neos.WorkspaceModule package.
+ *
+ * (c) 2022 Sebastian Helzle
+ *
+ * This package is Open Source Software. For the full copyright and license
+ * information, please view the LICENSE file which was distributed with this
+ * source code.
+ */
+
+use Doctrine\ORM\Mapping as ORM;
 use Neos\Flow\Annotations as Flow;
 
 /**
@@ -11,11 +22,13 @@ use Neos\Flow\Annotations as Flow;
 class WorkspaceDetails
 {
     /**
+     * @ORM\Column(nullable=true)
      * @var \DateTime | null
      */
     protected $lastChangedDate;
 
     /**
+     * @ORM\Column(nullable=true)
      * @var string | null
      */
     protected $lastChangedBy;
@@ -25,9 +38,16 @@ class WorkspaceDetails
      */
     protected $workspaceName;
 
-    public function __construct(string $workspaceName, \DateTime $lastChangedDate = null, string $lastChangedBy = null)
+    /**
+     * @ORM\Column(nullable=true)
+     * @var string | null
+     */
+    protected $creator;
+
+    public function __construct(string $workspaceName, string $creator = null, \DateTime $lastChangedDate = null, string $lastChangedBy = null)
     {
         $this->workspaceName = $workspaceName;
+        $this->creator = $creator;
         $this->lastChangedDate = $lastChangedDate;
         $this->lastChangedBy = $lastChangedBy;
     }
@@ -55,6 +75,16 @@ class WorkspaceDetails
     public function getWorkspaceName(): string
     {
         return $this->workspaceName;
+    }
+
+    public function getCreator(): ?string
+    {
+        return $this->creator;
+    }
+
+    public function setCreator(?string $creator): void
+    {
+        $this->creator = $creator;
     }
 
 }

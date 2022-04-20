@@ -3,9 +3,19 @@ declare(strict_types=1);
 
 namespace Shel\Neos\WorkspaceModule;
 
-use Neos\ContentRepository\Domain\Model\Workspace;
+/**
+ * This file is part of the Shel.Neos.WorkspaceModule package.
+ *
+ * (c) 2022 Sebastian Helzle
+ *
+ * This package is Open Source Software. For the full copyright and license
+ * information, please view the LICENSE file which was distributed with this
+ * source code.
+ */
+
 use Neos\Flow\Core\Bootstrap;
 use Neos\Flow\Package\Package as BasePackage;
+use Neos\Neos\Service\PublishingService;
 use Shel\Neos\WorkspaceModule\Service\WorkspaceActivityService;
 
 class Package extends BasePackage
@@ -15,10 +25,17 @@ class Package extends BasePackage
         $dispatcher = $bootstrap->getSignalSlotDispatcher();
 
         $dispatcher->connect(
-            Workspace::class,
-            'afterNodePublishing',
+            PublishingService::class,
+            'nodePublished',
             WorkspaceActivityService::class,
-            'afterNodePublishing'
+            'nodePublished'
+        );
+
+        $dispatcher->connect(
+            PublishingService::class,
+            'nodeDiscarded',
+            WorkspaceActivityService::class,
+            'nodeDiscarded'
         );
     }
 }

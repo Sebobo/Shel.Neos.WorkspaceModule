@@ -17,8 +17,11 @@ type WorkspaceValues = {
     loadChangesCounts: () => void;
     deleteWorkspace: (workspaceName: WorkspaceName) => void;
     editWorkspace: (workspaceName: WorkspaceName) => void;
+    showWorkspace: (workspaceName: WorkspaceName) => void;
     sorting: SortBy;
     setSorting: (sortBy: SortBy) => void;
+    selectedWorkspaceForDeletion: WorkspaceName | null;
+    setSelectedWorkspaceForDeletion: (workspaceName: WorkspaceName | null) => void;
 };
 
 const WorkspaceContext = createContext(null);
@@ -27,6 +30,7 @@ export const useWorkspaces = (): WorkspaceValues => useContext(WorkspaceContext)
 export const WorkspaceProvider = ({ userWorkspace, endpoints, workspaceList, children }: WorkspaceProviderProps) => {
     const [workspaces, setWorkspaces] = React.useState(workspaceList);
     const [sorting, setSorting] = useState<SortBy>(SortBy.title);
+    const [selectedWorkspaceForDeletion, setSelectedWorkspaceForDeletion] = useState<WorkspaceName | null>(null);
     const notify = useNotify();
 
     const loadChangesCounts = useCallback(() => {
@@ -61,11 +65,20 @@ export const WorkspaceProvider = ({ userWorkspace, endpoints, workspaceList, chi
             });
     }, [endpoints]);
 
-    const deleteWorkspace = useCallback(() => {
-        notify.info('Deleting workspace...');
+    const prepareWorkspaceActionUrl = useCallback((endpoint: string, workspaceName: WorkspaceName) => {
+        return endpoint.replace('---workspace---', workspaceName);
     }, []);
-    const editWorkspace = useCallback(() => {
-        notify.info('Editing workspace...');
+
+    const deleteWorkspace = useCallback((workspaceName: string) => {
+        window.open(prepareWorkspaceActionUrl(endpoints.forceDeleteWorkspace, workspaceName), '_self');
+    }, []);
+
+    const editWorkspace = useCallback((workspaceName: string) => {
+        window.open(prepareWorkspaceActionUrl(endpoints.editWorkspace, workspaceName), '_self');
+    }, []);
+
+    const showWorkspace = useCallback((workspaceName: string) => {
+        window.open(prepareWorkspaceActionUrl(endpoints.showWorkspace, workspaceName), '_self');
     }, []);
 
     useEffect(() => {
@@ -81,8 +94,11 @@ export const WorkspaceProvider = ({ userWorkspace, endpoints, workspaceList, chi
                 loadChangesCounts,
                 deleteWorkspace,
                 editWorkspace,
+                showWorkspace,
                 sorting,
                 setSorting,
+                selectedWorkspaceForDeletion,
+                setSelectedWorkspaceForDeletion,
             }}
         >
             {children}

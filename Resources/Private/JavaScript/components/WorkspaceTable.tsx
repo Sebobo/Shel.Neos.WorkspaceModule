@@ -1,6 +1,5 @@
-import * as React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { useCallback } from 'react';
 
 import WorkspaceTreeNode from './WorkspaceTreeNode';
 import Icon from './Icon';
@@ -19,6 +18,7 @@ const HeaderColumn = styled.th`
     top: 40px;
     user-select: none;
     background: var(--grayDark);
+    border-bottom: 1px solid var(--grayDark);
 `;
 
 const IconButton = styled.button`
@@ -62,7 +62,6 @@ const WorkspaceTable: React.FC = () => {
                         </IconButton>
                     </HeaderColumn>
                     <HeaderColumn>Description</HeaderColumn>
-                    <HeaderColumn>Base workspace</HeaderColumn>
                     <HeaderColumn>Creator</HeaderColumn>
                     <HeaderColumn>
                         <IconButton

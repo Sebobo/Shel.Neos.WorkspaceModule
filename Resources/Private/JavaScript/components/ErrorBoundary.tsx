@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react';
 
 interface ErrorBoundaryState {
     hasError: boolean;
+    error: Error | null;
 }
 
 interface ErrorBoundaryProps {
@@ -11,7 +12,7 @@ interface ErrorBoundaryProps {
 export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
     constructor(props) {
         super(props);
-        this.state = { hasError: false };
+        this.state = { hasError: false, error: null };
     }
 
     static getDerivedStateFromError() {
@@ -19,12 +20,21 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
     }
 
     componentDidCatch(error, errorInfo) {
+        this.setState({ error });
         console.error(error, errorInfo);
     }
 
     render() {
-        if (this.state.hasError) {
-            return <h1>Something went wrong.</h1>;
+        const { hasError, error } = this.state;
+
+        if (hasError) {
+            return (
+                <div>
+                    <h1>Something went wrong and the following error occurred:</h1>
+                    <br/>
+                    <pre>{error?.message}</pre>
+                </div>
+            );
         }
 
         return this.props.children;

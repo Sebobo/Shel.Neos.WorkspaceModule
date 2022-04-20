@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { hot, setConfig } from 'react-hot-loader';
+import ReactModal from 'react-modal';
 
 import WorkspaceModule from './components/WorkspaceModule';
 import { WorkspaceProvider } from './provider/WorkspaceProvider';
@@ -28,6 +29,8 @@ window.onload = async (): Promise<void> => {
     const translate = (id: string, label = '', args = []): string => {
         return I18n.translate(id, label, 'Shel.Neos.WorkspaceModule', 'Main', args);
     };
+
+    ReactModal.setAppElement(container);
 
     // @ts-ignore
     const AppWithHmr = hot(module)(WorkspaceModule);

@@ -6,18 +6,29 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
         endpoints = Neos.Fusion:DataStructure {
             deleteWorkspace = Neos.Fusion:UriBuilder {
                 action = 'delete'
+                arguments.workspace = '---workspace---'
+            }
+            forceDeleteWorkspace = Neos.Fusion:UriBuilder {
+                action = 'forceDelete'
+                arguments.workspace = '---workspace---'
             }
             editWorkspace = Neos.Fusion:UriBuilder {
                 action = 'edit'
+                arguments.workspace = '---workspace---'
             }
             updateWorkspace = Neos.Fusion:UriBuilder {
                 action = 'update'
+                arguments.workspace = '---workspace---'
             }
             createWorkspace = Neos.Fusion:UriBuilder {
                 action = 'create'
             }
             newWorkspace = Neos.Fusion:UriBuilder {
                 action = 'new'
+            }
+            showWorkspace = Neos.Fusion:UriBuilder {
+                action = 'show'
+                arguments.workspace = '---workspace---'
             }
             getChanges = Neos.Fusion:UriBuilder {
                 action = 'getChanges'
@@ -34,8 +45,7 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                         data-user-workspace={props.userWorkspace.name}
                     >
                         <script type="application/json" id="workspaces">
-                    {Json.stringify(props.workspaces)}
-
+                            {Json.stringify(props.workspaces)}
                         </script>
                         Loading workspace module...
                     </div>

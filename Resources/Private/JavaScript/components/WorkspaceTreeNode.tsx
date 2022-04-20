@@ -25,7 +25,7 @@ const WorkspaceTreeNode: React.FC<WorkspaceTreeNodeProps> = ({ workspaceName, le
                     case SortBy.title:
                         return a.title.localeCompare(b.title);
                     case SortBy.lastModified:
-                        return b.lastModifiedDate - a.lastModifiedDate;
+                        return b.lastChangedTimestamp < a.lastChangedTimestamp ? -1 : 1;
                 }
             });
     }, [workspaces, sorting, userWorkspace]);

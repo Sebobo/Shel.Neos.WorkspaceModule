@@ -1,4 +1,4 @@
 Shel:
   Neos:
     WorkspaceModule:
-      staleTime: 2592000 # 30 days as seconds
+      staleTime: 2419200 # 4 weeks in seconds

@@ -48,8 +48,8 @@ class WorkspaceDetails
     {
         $this->workspaceName = $workspaceName;
         $this->creator = $creator;
-        $this->lastChangedDate = $lastChangedDate;
-        $this->lastChangedBy = $lastChangedBy;
+        $this->lastChangedDate = $lastChangedDate ?? new \DateTime();
+        $this->lastChangedBy = $lastChangedBy ?? $creator;
     }
 
     public function getLastChangedDate(): ?\DateTime

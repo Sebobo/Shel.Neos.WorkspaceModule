@@ -13,18 +13,19 @@ namespace Shel\Neos\WorkspaceModule\Controller;
  * source code.
  */
 
+use Neos\ContentRepository\Utility;
 use Neos\Flow\Annotations as Flow;
 use Neos\ContentRepository\Domain\Model\Workspace;
 use Neos\Error\Messages\Message;
 use Neos\Flow\Mvc\View\JsonView;
 use Neos\Flow\Persistence\Exception\IllegalObjectTypeException;
 use Neos\Neos\Utility\User as UserUtility;
+use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
 use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
 
 class WorkspacesController extends \Neos\Neos\Controller\Module\Management\WorkspacesController
 {
     protected $viewFormatToObjectNameMap = [
-        //'html' => FusionView::class,
         'json' => JsonView::class,
     ];
 
@@ -162,5 +163,46 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             'lastChangedTimestamp' => $lastChangedTimestamp,
             'lastChangedBy' => $lastChangedBy,
         ];
+    }
+
+    /**
+     * Create action from Neos WorkspacesController but creates a new WorkspaceDetails object after workspace creation
+     *
+     * @Flow\Validate(argumentName="title", type="\Neos\Flow\Validation\Validator\NotEmptyValidator")
+     * @param string $title Human friendly title of the workspace, for example "Christmas Campaign"
+     * @param Workspace $baseWorkspace Workspace the new workspace should be based on
+     * @param string $visibility Visibility of the new workspace, must be either "internal" or "shared"
+     * @param string $description A description explaining the purpose of the new workspace
+     */
+    public function createAction($title, Workspace $baseWorkspace, $visibility, $description = ''): void
+    {
+        $workspace = $this->workspaceRepository->findOneByTitle($title);
+        if ($workspace instanceof Workspace) {
+            $this->addFlashMessage($this->translator->translateById('workspaces.workspaceWithThisTitleAlreadyExists', [], null, null, 'Modules', 'Neos.Neos'), '', Message::SEVERITY_WARNING);
+            $this->redirect('new');
+        }
+
+        $workspaceName = Utility::renderValidNodeName($title) . '-' . substr(base_convert(microtime(false), 10, 36), -5, 5);
+        while ($this->workspaceRepository->findOneByName($workspaceName) instanceof Workspace) {
+            $workspaceName = Utility::renderValidNodeName($title) . '-' . substr(base_convert(microtime(false), 10, 36), -5, 5);
+        }
+
+        if ($visibility === 'private') {
+            $owner = $this->userService->getCurrentUser();
+        } else {
+            $owner = null;
+        }
+
+        $workspace = new Workspace($workspaceName, $baseWorkspace, $owner);
+        $workspace->setTitle($title);
+        $workspace->setDescription($description);
+
+        $this->workspaceRepository->add($workspace);
+
+        // Additional code to create a new WorkspaceDetails object
+        $workspaceDetails = new WorkspaceDetails($workspace->getName(), $this->securityContext->getAccount()->getAccountIdentifier());
+        $this->workspaceDetailsRepository->add($workspaceDetails);
+
+        $this->redirect('index');
     }
 }

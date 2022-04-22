@@ -69,9 +69,10 @@ const TypeColumn = styled(Column)`
     }
 `;
 
-const Row = styled.tr<{ isUserWorkspace: boolean, isStale: boolean }>`
+const Row = styled.tr<{ isUserWorkspace: boolean; isStale: boolean }>`
     & > ${Column} {
-        background-color: ${(props) => props.isUserWorkspace ? 'var(--blueDark)' : props.isStale ? 'var(--grayDark)' : 'var(--grayMedium)'};
+        background-color: ${(props) =>
+            props.isUserWorkspace ? 'var(--blueDark)' : props.isStale ? 'var(--grayDark)' : 'var(--grayMedium)'};
     }
 `;
 
@@ -83,7 +84,8 @@ const InfoText = styled.span`
 `;
 
 const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, level }) => {
-    const { userWorkspace, workspaces, editWorkspace, setSelectedWorkspaceForDeletion, showWorkspace } = useWorkspaces();
+    const { userWorkspace, workspaces, setSelectedWorkspaceForEdit, setSelectedWorkspaceForDeletion, showWorkspace } =
+        useWorkspaces();
     const workspace = workspaces[workspaceName];
     const icon = workspace.isInternal ? 'users' : 'user';
     const isUserWorkspace = workspaceName === userWorkspace;
@@ -116,33 +118,48 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                     <Icon icon="spinner" spin />
                 ) : workspace.changesCounts.total > 0 ? (
                     <>
-                        {workspace.changesCounts.new > 0 &&
+                        {workspace.changesCounts.new > 0 && (
                             <AddedBadge title={`${workspace.changesCounts.new} new nodes were added`}>
                                 {workspace.changesCounts.new}
-                            </AddedBadge>}
-                        {workspace.changesCounts.changed > 0 &&
+                            </AddedBadge>
+                        )}
+                        {workspace.changesCounts.changed > 0 && (
                             <ChangedBadge title={`${workspace.changesCounts.changed} nodes were changed`}>
                                 {workspace.changesCounts.changed}
-                            </ChangedBadge>}
-                        {workspace.changesCounts.removed > 0 &&
+                            </ChangedBadge>
+                        )}
+                        {workspace.changesCounts.removed > 0 && (
                             <DeletedBadge title={`${workspace.changesCounts.removed} nodes were removed`}>
                                 {workspace.changesCounts.removed}
-                            </DeletedBadge>}
+                            </DeletedBadge>
+                        )}
                     </>
-                ) : nodeCountNotCoveredByChanges > 0 ?
+                ) : nodeCountNotCoveredByChanges > 0 ? (
                     <OrphanBadge title={`${nodeCountNotCoveredByChanges} nodes were changed but might be orphaned`}>
                         {nodeCountNotCoveredByChanges}
-                    </OrphanBadge> : isUserWorkspace ? '–' : (
+                    </OrphanBadge>
+                ) : isUserWorkspace ? (
+                    '–'
+                ) : (
                     'None'
                 )}
             </Column>
             <ActionColumn>
-                <button className="neos-button" type="button" title={`Show workspace ${workspace.title}`}
-                        disabled={!workspace.changesCounts?.total} onClick={() => showWorkspace(workspaceName)}>
+                <button
+                    className="neos-button"
+                    type="button"
+                    title={`Show workspace ${workspace.title}`}
+                    disabled={!workspace.changesCounts?.total}
+                    onClick={() => showWorkspace(workspaceName)}
+                >
                     <Icon icon="review" />
                 </button>
-                <button className="neos-button" type="button" title={`Edit workspace ${workspace.title}`}
-                        onClick={() => editWorkspace(workspaceName)}>
+                <button
+                    className="neos-button"
+                    type="button"
+                    title={`Edit workspace ${workspace.title}`}
+                    onClick={() => setSelectedWorkspaceForEdit(workspaceName)}
+                >
                     <Icon icon="pencil-alt" />
                 </button>
                 <button

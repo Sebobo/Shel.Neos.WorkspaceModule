@@ -43,7 +43,6 @@ type ChangesCounts = {
 
 type WorkspaceEndpoints = {
     deleteWorkspace: ActionUri; // Delete a workspace
-    forceDeleteWorkspace: ActionUri; // Force deletes a workspace including its changes and rebase dependent workspaces
     updateWorkspace: ActionUri; // Show edit dialog
     editWorkspace: ActionUri; // Update a workspace
     newWorkspace: ActionUri; // Show dialog to create new workspace

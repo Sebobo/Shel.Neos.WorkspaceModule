@@ -2,14 +2,11 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
     index = Neos.Fusion:Component {
         userWorkspace = ${userWorkspace}
         workspaces = ${workspaces}
+        csrfToken = ${csrfToken}
 
         endpoints = Neos.Fusion:DataStructure {
             deleteWorkspace = Neos.Fusion:UriBuilder {
                 action = 'delete'
-                arguments.workspace = '---workspace---'
-            }
-            forceDeleteWorkspace = Neos.Fusion:UriBuilder {
-                action = 'forceDelete'
                 arguments.workspace = '---workspace---'
             }
             editWorkspace = Neos.Fusion:UriBuilder {
@@ -18,7 +15,7 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
             }
             updateWorkspace = Neos.Fusion:UriBuilder {
                 action = 'update'
-                arguments.workspace = '---workspace---'
+                format = 'json'
             }
             createWorkspace = Neos.Fusion:UriBuilder {
                 action = 'create'
@@ -43,6 +40,7 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                         id="workspace-module-app"
                         data-endpoints={Json.stringify(props.endpoints)}
                         data-user-workspace={props.userWorkspace.name}
+                        data-csrf-token={props.csrfToken}
                     >
                         <script type="application/json" id="workspaces">
                             {Json.stringify(props.workspaces)}

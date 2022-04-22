@@ -19,6 +19,7 @@ use Neos\ContentRepository\Domain\Model\Workspace;
 use Neos\Error\Messages\Message;
 use Neos\Flow\Mvc\View\JsonView;
 use Neos\Flow\Persistence\Exception\IllegalObjectTypeException;
+use Neos\Flow\Property\TypeConverter\PersistentObjectConverter;
 use Neos\Neos\Utility\User as UserUtility;
 use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
 use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
@@ -57,6 +58,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
 
         $this->view->assign('userWorkspace', $userWorkspace);
         $this->view->assign('workspaces', $workspaceData);
+        $this->view->assign('csrfToken', $this->securityContext->getCsrfProtectionToken());
     }
 
     public function getChangesAction(): void
@@ -87,9 +89,8 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      * @throws IllegalObjectTypeException
      * @Flow\SkipCsrfProtection
      */
-    public function forceDeleteAction(Workspace $workspace): void
+    public function deleteAction(Workspace $workspace): void
     {
-        $success = false;
         if ($workspace->isPersonalWorkspace()) {
             $this->addFlashMessage('The workspace ' . $workspace->getTitle() . ' is personal and cannot be deleted', '',
                 Message::SEVERITY_ERROR);
@@ -120,13 +121,9 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             $this->workspaceRepository->remove($workspace);
             $this->addFlashMessage('The workspace "' . $workspace->getTitle() . '" has been removed, ' . count($unpublishedNodes) . ' changes have been discarded and ' . count($dependentWorkspaces) . ' dependent workspaces have been rebased',
                 '', Message::SEVERITY_WARNING);
-            $success = true;
         }
 
-        $this->view->assign('value', [
-            'success' => $success,
-            'messages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
-        ]);
+        $this->redirect('index');
     }
 
     protected function getWorkspaceInfo(Workspace $workspace): array
@@ -204,5 +201,21 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $this->workspaceDetailsRepository->add($workspaceDetails);
 
         $this->redirect('index');
+    }
+
+    protected function initializeUpdateAction(): void {
+        $workspaceConfiguration = $this->arguments['workspace']->getPropertyMappingConfiguration();
+        $workspaceConfiguration->allowAllProperties();
+        $workspaceConfiguration->setTypeConverterOption(PersistentObjectConverter::class, PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED, true);
+    }
+
+    public function updateAction(Workspace $workspace): void
+    {
+        if ($workspace->getTitle() === '') {
+            $workspace->setTitle($workspace->getName());
+        }
+
+        $this->workspaceRepository->update($workspace);
+        $this->view->assign('value', $workspace);
     }
 }

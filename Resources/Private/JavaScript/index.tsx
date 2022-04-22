@@ -20,7 +20,7 @@ window.onload = async (): Promise<void> => {
     const container = document.getElementById('workspace-module-app');
     const workspaceDataTag = document.getElementById('workspaces');
 
-    const { userWorkspace } = container.dataset;
+    const { userWorkspace, csrfToken } = container.dataset;
     const endpoints = JSON.parse(container.dataset.endpoints);
     const workspaces = JSON.parse(workspaceDataTag.textContent);
 
@@ -39,7 +39,12 @@ window.onload = async (): Promise<void> => {
     root.render(
         <IntlProvider translate={translate}>
             <NotifyProvider notificationApi={Notification}>
-                <WorkspaceProvider workspaceList={workspaces} userWorkspace={userWorkspace} endpoints={endpoints}>
+                <WorkspaceProvider
+                    workspaceList={workspaces}
+                    userWorkspace={userWorkspace}
+                    endpoints={endpoints}
+                    csrfToken={csrfToken}
+                >
                     <AppWithHmr />
                 </WorkspaceProvider>
             </NotifyProvider>

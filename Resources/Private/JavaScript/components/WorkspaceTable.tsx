@@ -19,6 +19,7 @@ const HeaderColumn = styled.th`
     user-select: none;
     background: var(--grayDark);
     border-bottom: 1px solid var(--grayDark);
+    z-index: 1;
 `;
 
 const IconButton = styled.button`

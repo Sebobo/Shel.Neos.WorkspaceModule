@@ -148,9 +148,16 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
 
         $creator = $lastChangedDate = $lastChangedBy = $lastChangedTimestamp = $isStale = null;
         if ($workspaceActivity) {
-            $creator = $workspaceActivity->getCreator();
+            if ($workspaceActivity->getCreator()) {
+                $creatorUser = $this->userService->getUser($workspaceActivity->getCreator());
+                $creator = $creatorUser ? $creatorUser->getLabel() : $workspaceActivity->getCreator();
+            }
             $isStale = $workspaceActivity->getLastChangedDate() && $workspaceActivity->getLastChangedDate()->getTimestamp() < time() - $this->staleTime;
-            $lastChangedBy = $workspaceActivity->getLastChangedBy();
+
+            if ($workspaceActivity->getLastChangedBy()) {
+                $lastChangedByUser = $this->userService->getUser($workspaceActivity->getLastChangedBy());
+                $lastChangedBy = $lastChangedByUser ? $lastChangedByUser->getLabel() : $workspaceActivity->getLastChangedBy();
+            }
             $lastChangedDate = $workspaceActivity->getLastChangedDate() ? $workspaceActivity->getLastChangedDate()->format('c') : null;
             $lastChangedTimestamp = $workspaceActivity->getLastChangedDate() ? $workspaceActivity->getLastChangedDate()->getTimestamp() : null;
         }

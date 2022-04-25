@@ -18,11 +18,13 @@ window.onload = async (): Promise<void> => {
     }
 
     const container = document.getElementById('workspace-module-app');
-    const workspaceDataTag = document.getElementById('workspaces');
 
     const { userWorkspace, csrfToken } = container.dataset;
     const endpoints = JSON.parse(container.dataset.endpoints);
-    const workspaces = JSON.parse(workspaceDataTag.textContent);
+    const userCanManageInternalWorkspaces = JSON.parse(container.dataset.userCanManageInternalWorkspaces);
+    const workspaces = JSON.parse(document.getElementById('workspaces').textContent);
+    const baseWorkspaceOptions = JSON.parse(document.getElementById('baseWorkspaceOptions').textContent);
+    const ownerOptions = JSON.parse(document.getElementById('ownerOptions').textContent);
 
     const { I18n, Notification } = window.NeosCMS;
 
@@ -41,6 +43,9 @@ window.onload = async (): Promise<void> => {
             <NotifyProvider notificationApi={Notification}>
                 <WorkspaceProvider
                     workspaceList={workspaces}
+                    baseWorkspaceOptions={baseWorkspaceOptions}
+                    userCanManageInternalWorkspaces={userCanManageInternalWorkspaces}
+                    ownerOptions={ownerOptions}
                     userWorkspace={userWorkspace}
                     endpoints={endpoints}
                     csrfToken={csrfToken}

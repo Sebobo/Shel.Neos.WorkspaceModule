@@ -7,8 +7,11 @@ type WorkspaceProviderProps = {
     children: ReactNode;
     userWorkspace: WorkspaceName;
     workspaceList: WorkspaceList;
+    baseWorkspaceOptions: Record<WorkspaceName, WorkspaceTitle>;
+    ownerOptions: Record<UserName, UserLabel>;
     endpoints: WorkspaceEndpoints;
     csrfToken: string;
+    userCanManageInternalWorkspaces: boolean;
 };
 
 type WorkspaceValues = {
@@ -26,6 +29,9 @@ type WorkspaceValues = {
     selectedWorkspaceForEdit: WorkspaceName | null;
     setSelectedWorkspaceForEdit: (workspaceName: WorkspaceName | null) => void;
     csrfToken: string;
+    baseWorkspaceOptions: Record<WorkspaceName, WorkspaceTitle>;
+    ownerOptions: Record<UserName, UserLabel>;
+    userCanManageInternalWorkspaces: boolean;
 };
 
 const WorkspaceContext = createContext(null);
@@ -35,8 +41,11 @@ export const WorkspaceProvider = ({
     userWorkspace,
     endpoints,
     workspaceList,
+    ownerOptions,
+    baseWorkspaceOptions,
     csrfToken,
     children,
+    userCanManageInternalWorkspaces,
 }: WorkspaceProviderProps) => {
     const [workspaces, setWorkspaces] = React.useState(workspaceList);
     const [sorting, setSorting] = useState<SortBy>(SortBy.lastModified);
@@ -94,7 +103,13 @@ export const WorkspaceProvider = ({
             })
                 .then((response) => response.json())
                 .then((workspace: Workspace) => {
-                    setWorkspaces({ ...workspaces, [workspace.name]: { ...workspaces[workspace.name], ...workspace } });
+                    // Keep old changes counts after updating workspace with remote data
+                    // TODO: Update changes counts for updated workspace in case of a base workspace change?
+                    const changesCounts = workspaces[workspace.name].changesCounts;
+                    setWorkspaces({
+                        ...workspaces,
+                        [workspace.name]: { ...workspaces[workspace.name], ...workspace, changesCounts },
+                    });
                     notify.ok('Workspace updated');
                     return workspace[workspace.name];
                 })
@@ -103,7 +118,7 @@ export const WorkspaceProvider = ({
                     console.error('Failed to update workspace', error);
                 });
         },
-        [csrfToken, endpoints.updateWorkspace]
+        [csrfToken, endpoints.updateWorkspace, workspaces]
     );
 
     const showWorkspace = useCallback((workspaceName: string) => {
@@ -120,6 +135,8 @@ export const WorkspaceProvider = ({
                 userWorkspace,
                 workspaces,
                 setWorkspaces,
+                baseWorkspaceOptions,
+                ownerOptions,
                 loadChangesCounts,
                 deleteWorkspace,
                 updateWorkspace,
@@ -131,6 +148,7 @@ export const WorkspaceProvider = ({
                 selectedWorkspaceForEdit,
                 setSelectedWorkspaceForEdit,
                 csrfToken,
+                userCanManageInternalWorkspaces,
             }}
         >
             {children}

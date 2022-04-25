@@ -32,7 +32,9 @@ interface Window {
 
 type ActionUri = string;
 type UserName = string;
+type UserLabel = string;
 type WorkspaceName = string;
+type WorkspaceTitle = string;
 
 type ChangesCounts = {
     new: number;
@@ -53,7 +55,7 @@ type WorkspaceEndpoints = {
 
 interface Workspace {
     name: WorkspaceName;
-    title: string;
+    title: WorkspaceTitle;
     description: string | null;
     owner: UserName | null;
     creator: UserName | null;
@@ -62,10 +64,11 @@ interface Workspace {
     lastChangedBy: UserName | null;
     baseWorkspace: {
         name: WorkspaceName;
-        title: string;
+        title: WorkspaceTitle;
     } | null;
     nodeCount: number;
     changesCounts: ChangesCounts | null;
+    isPersonal: boolean;
     isInternal: boolean;
     isStale: boolean;
     canPublish: boolean;

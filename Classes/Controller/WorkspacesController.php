@@ -20,6 +20,7 @@ use Neos\Error\Messages\Message;
 use Neos\Flow\Mvc\View\JsonView;
 use Neos\Flow\Persistence\Exception\IllegalObjectTypeException;
 use Neos\Flow\Property\TypeConverter\PersistentObjectConverter;
+use Neos\Flow\Security\Authorization\PrivilegeManagerInterface;
 use Neos\Neos\Utility\User as UserUtility;
 use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
 use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
@@ -42,6 +43,12 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      */
     protected $staleTime;
 
+    /**
+     * @Flow\Inject
+     * @var PrivilegeManagerInterface
+     */
+    protected $privilegeManager;
+
     public function indexAction(): void
     {
         $currentAccount = $this->securityContext->getAccount();
@@ -56,7 +63,16 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             return $carry;
         }, [$userWorkspace->getName() => $this->getWorkspaceInfo($userWorkspace)]);
 
+        $baseWorkspaceOptions = $this->prepareBaseWorkspaceOptions();
+        asort($baseWorkspaceOptions, SORT_FLAG_CASE | SORT_NATURAL);
+
+        $ownerOptions = $this->prepareOwnerOptions();
+        asort($ownerOptions, SORT_FLAG_CASE | SORT_NATURAL);
+
         $this->view->assign('userWorkspace', $userWorkspace);
+        $this->view->assign('baseWorkspaceOptions', $baseWorkspaceOptions);
+        $this->view->assign('userCanManageInternalWorkspaces', $this->privilegeManager->isPrivilegeTargetGranted('Neos.Neos:Backend.Module.Management.Workspaces.ManageInternalWorkspaces'));
+        $this->view->assign('ownerOptions', $ownerOptions);
         $this->view->assign('workspaces', $workspaceData);
         $this->view->assign('csrfToken', $this->securityContext->getCsrfProtectionToken());
     }
@@ -149,7 +165,8 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
                 'title' => $workspace->getBaseWorkspace()->getTitle(),
             ] : null,
             'nodeCount' => $workspace->getNodeCount(),
-            'changesCounts' => null, // Will be retrieved separately by the UI
+            'changesCounts' => null, // Will be retrieved async by the UI to speed up module loading time
+            'isPersonal' => $workspace->isPersonalWorkspace(),
             'isInternal' => $workspace->isInternalWorkspace(),
             'isStale' => $isStale,
             'canPublish' => $this->userService->currentUserCanPublishToWorkspace($workspace),
@@ -216,6 +233,6 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         }
 
         $this->workspaceRepository->update($workspace);
-        $this->view->assign('value', $workspace);
+        $this->view->assign('value', $this->getWorkspaceInfo($workspace));
     }
 }

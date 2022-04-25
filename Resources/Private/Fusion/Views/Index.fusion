@@ -1,8 +1,11 @@
 Shel.Neos.WorkspaceModule.WorkspacesController {
     index = Neos.Fusion:Component {
         userWorkspace = ${userWorkspace}
+        baseWorkspaceOptions = ${baseWorkspaceOptions}
+        ownerOptions = ${ownerOptions}
         workspaces = ${workspaces}
         csrfToken = ${csrfToken}
+        userCanManageInternalWorkspaces = ${userCanManageInternalWorkspaces}
 
         endpoints = Neos.Fusion:DataStructure {
             deleteWorkspace = Neos.Fusion:UriBuilder {
@@ -41,9 +44,16 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                         data-endpoints={Json.stringify(props.endpoints)}
                         data-user-workspace={props.userWorkspace.name}
                         data-csrf-token={props.csrfToken}
+                        data-user-can-manage-internal-workspaces={props.userCanManageInternalWorkspaces ? 'true' : 'false'}
                     >
                         <script type="application/json" id="workspaces">
                             {Json.stringify(props.workspaces)}
+                        </script>
+                        <script type="application/json" id="baseWorkspaceOptions">
+                            {Json.stringify(props.baseWorkspaceOptions)}
+                        </script>
+                        <script type="application/json" id="ownerOptions">
+                            {Json.stringify(props.ownerOptions)}
                         </script>
                         Loading workspace module...
                     </div>

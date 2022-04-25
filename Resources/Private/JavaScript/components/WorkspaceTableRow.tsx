@@ -45,6 +45,14 @@ const StaleBadge = styled(AddedBadge)`
 const Column = styled.td`
     padding: 0 0.5em;
     border-top: 1px solid var(--grayDark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`;
+
+const TextColumn = styled(Column)`
+    max-width: 1px;
+    width: 25%;
 `;
 
 const ActionColumn = styled(Column)`
@@ -96,19 +104,21 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
             <TypeColumn>
                 <Icon icon={icon} />
             </TypeColumn>
-            <Column title={workspace.name}>
-                {workspace.baseWorkspace?.name !== 'live' && (
-                    <ArrowIcon style={{ marginLeft: `${0.2 + (level - 1) * 1.2}rem`, marginRight: '0.5rem' }} />
-                )}
-                {workspace.title}
-                {workspace.isStale || isUserWorkspace ? (
-                    <>
-                        {workspace.isStale && <StaleBadge title="Workspace is stale">!</StaleBadge>}
-                        {isUserWorkspace && <InfoText>(This is your workspace)</InfoText>}
-                    </>
-                ) : null}
-            </Column>
-            <Column>{workspace.description || '–'}</Column>
+            <TextColumn title={workspace.name}>
+                <span>
+                    {workspace.baseWorkspace?.name !== 'live' && (
+                        <ArrowIcon style={{ marginLeft: `${0.2 + (level - 1) * 1.2}rem`, marginRight: '0.5rem' }} />
+                    )}
+                    {workspace.title}
+                    {workspace.isStale || isUserWorkspace ? (
+                        <>
+                            {workspace.isStale && <StaleBadge title="Workspace is stale">!</StaleBadge>}
+                            {isUserWorkspace && <InfoText>(This is your workspace)</InfoText>}
+                        </>
+                    ) : null}
+                </span>
+            </TextColumn>
+            <TextColumn title={workspace.description}>{workspace.description || '–'}</TextColumn>
             <Column>{workspace.creator || '–'}</Column>
             <Column>
                 {workspace.lastChangedBy ? `${workspace.lastChangedBy} ${formatDate(workspace.lastChangedDate)}` : '–'}

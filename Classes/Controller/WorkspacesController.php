@@ -69,12 +69,15 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $ownerOptions = $this->prepareOwnerOptions();
         asort($ownerOptions, SORT_FLAG_CASE | SORT_NATURAL);
 
-        $this->view->assign('userWorkspace', $userWorkspace);
-        $this->view->assign('baseWorkspaceOptions', $baseWorkspaceOptions);
-        $this->view->assign('userCanManageInternalWorkspaces', $this->privilegeManager->isPrivilegeTargetGranted('Neos.Neos:Backend.Module.Management.Workspaces.ManageInternalWorkspaces'));
-        $this->view->assign('ownerOptions', $ownerOptions);
-        $this->view->assign('workspaces', $workspaceData);
-        $this->view->assign('csrfToken', $this->securityContext->getCsrfProtectionToken());
+        $this->view->assignMultiple([
+            'userWorkspace' => $userWorkspace,
+            'baseWorkspaceOptions' => $baseWorkspaceOptions,
+            'userCanManageInternalWorkspaces' => $this->privilegeManager->isPrivilegeTargetGranted('Neos.Neos:Backend.Module.Management.Workspaces.ManageInternalWorkspaces'),
+            'ownerOptions' => $ownerOptions,
+            'workspaces' => $workspaceData,
+            'csrfToken' => $this->securityContext->getCsrfProtectionToken(),
+            'validation' => $this->settings['validation'],
+        ]);
     }
 
     public function getChangesAction(): void
@@ -232,12 +235,21 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
 
             $this->workspaceRepository->add($workspace);
 
-            // Additional code to create a new WorkspaceDetails object
+            // Create a new WorkspaceDetails object
             $workspaceDetails = new WorkspaceDetails($workspace->getName(), $this->securityContext->getAccount()->getAccountIdentifier());
             $this->workspaceDetailsRepository->add($workspaceDetails);
 
+            // Persist the workspace and related data or the generated workspace info will be incomplete
+            $this->persistenceManager->persistAll();
+
+            $this->addFlashMessage('The workspace "' . $workspaceName . '" has been created');
+
         }
-        $this->view->assign('value', ['success' => $success]);
+        $this->view->assign('value', [
+            'success' => $success,
+            'messages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
+            'workspace' => $this->getWorkspaceInfo($workspace),
+        ]);
     }
 
     protected function initializeUpdateAction(): void

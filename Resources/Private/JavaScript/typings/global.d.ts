@@ -36,6 +36,10 @@ interface Window {
     };
 }
 
+type WorkspaceValidation = {
+    titlePattern: string;
+};
+
 type ActionUri = string;
 type UserName = string;
 type UserLabel = string;

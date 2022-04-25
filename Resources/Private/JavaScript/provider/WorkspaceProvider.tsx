@@ -12,6 +12,7 @@ type WorkspaceProviderProps = {
     endpoints: WorkspaceEndpoints;
     csrfToken: string;
     userCanManageInternalWorkspaces: boolean;
+    validation: WorkspaceValidation;
 };
 
 type WorkspaceValues = {
@@ -19,6 +20,7 @@ type WorkspaceValues = {
     workspaces: WorkspaceList;
     setWorkspaces: (workspaces: WorkspaceList) => void;
     loadChangesCounts: () => void;
+    createWorkspace: (formData: FormData) => Promise<void>;
     deleteWorkspace: (workspaceName: WorkspaceName) => void;
     updateWorkspace: (formData: FormData) => Promise<void>;
     showWorkspace: (workspaceName: WorkspaceName) => void;
@@ -32,6 +34,9 @@ type WorkspaceValues = {
     baseWorkspaceOptions: Record<WorkspaceName, WorkspaceTitle>;
     ownerOptions: Record<UserName, UserLabel>;
     userCanManageInternalWorkspaces: boolean;
+    creationDialogVisible: boolean;
+    setCreationDialogVisible: (visible: boolean) => void;
+    validation: WorkspaceValidation;
 };
 
 const WorkspaceContext = createContext(null);
@@ -46,17 +51,19 @@ export const WorkspaceProvider = ({
     csrfToken,
     children,
     userCanManageInternalWorkspaces,
+    validation,
 }: WorkspaceProviderProps) => {
     const [workspaces, setWorkspaces] = React.useState(workspaceList);
     const [sorting, setSorting] = useState<SortBy>(SortBy.lastModified);
     const [selectedWorkspaceForDeletion, setSelectedWorkspaceForDeletion] = useState<WorkspaceName | null>(null);
     const [selectedWorkspaceForEdit, setSelectedWorkspaceForEdit] = useState<WorkspaceName | null>(null);
+    const [creationDialogVisible, setCreationDialogVisible] = useState(false);
     const notify = useNotify();
 
     const handleFlashMessages = useCallback(
         (messages: FlashMessage[]) => {
             messages.forEach(({ title, message, severity }) => {
-                switch (severity) {
+                switch (severity.toLowerCase()) {
                     case 'ok':
                         notify.ok(title || message);
                         break;
@@ -192,6 +199,52 @@ export const WorkspaceProvider = ({
         [csrfToken, endpoints.updateWorkspace]
     );
 
+    const createWorkspace = useCallback(
+        async (formData: FormData): Promise<void> => {
+            return fetch(endpoints.createWorkspace, {
+                method: 'POST',
+                credentials: 'include',
+                body: formData,
+            })
+                .then((response) => response.json())
+                .then(
+                    ({
+                        success,
+                        workspace,
+                        messages,
+                    }: {
+                        success: boolean;
+                        workspace: Workspace;
+                        messages: FlashMessage[];
+                    }) => {
+                        if (success) {
+                            setWorkspaces((workspaces) => {
+                                return {
+                                    ...workspaces,
+                                    [workspace.name]: {
+                                        ...workspace,
+                                        // Set changes to zero, we don't need to fetch it from server
+                                        changesCounts: {
+                                            changed: 0,
+                                            new: 0,
+                                            removed: 0,
+                                            total: 0,
+                                        },
+                                    },
+                                };
+                            });
+                        }
+                        handleFlashMessages(messages);
+                    }
+                )
+                .catch((error) => {
+                    notify.error('Failed to create workspace', error.message);
+                    console.error('Failed to create workspace', error);
+                });
+        },
+        [csrfToken, endpoints.createWorkspace]
+    );
+
     const showWorkspace = useCallback((workspaceName: string) => {
         window.open(prepareWorkspaceActionUrl(endpoints.showWorkspace, workspaceName), '_self');
     }, []);
@@ -220,6 +273,10 @@ export const WorkspaceProvider = ({
                 setSelectedWorkspaceForEdit,
                 csrfToken,
                 userCanManageInternalWorkspaces,
+                creationDialogVisible,
+                setCreationDialogVisible,
+                validation,
+                createWorkspace,
             }}
         >
             {children}

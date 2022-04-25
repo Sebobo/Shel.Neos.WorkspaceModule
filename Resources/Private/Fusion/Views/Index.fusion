@@ -6,6 +6,7 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
         workspaces = ${workspaces}
         csrfToken = ${csrfToken}
         userCanManageInternalWorkspaces = ${userCanManageInternalWorkspaces}
+        validation = ${validation}
 
         endpoints = Neos.Fusion:DataStructure {
             deleteWorkspace = Neos.Fusion:UriBuilder {
@@ -19,6 +20,7 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
             }
             createWorkspace = Neos.Fusion:UriBuilder {
                 action = 'create'
+                format = 'json'
             }
             showWorkspace = Neos.Fusion:UriBuilder {
                 action = 'show'
@@ -36,9 +38,10 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                     <div
                         id="workspace-module-app"
                         data-endpoints={Json.stringify(props.endpoints)}
-                        data-user-workspace={props.userWorkspace.name}
-                        data-csrf-token={props.csrfToken}
+                        data-user-workspace={Json.stringify(props.userWorkspace.name)}
+                        data-csrf-token={Json.stringify(props.csrfToken)}
                         data-user-can-manage-internal-workspaces={props.userCanManageInternalWorkspaces ? 'true' : 'false'}
+                        data-validation={Json.stringify(props.validation)}
                     >
                         <script type="application/json" id="workspaces">
                             {Json.stringify(props.workspaces)}
@@ -51,11 +54,6 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                         </script>
                         Loading workspace module...
                     </div>
-                </div>
-                <div class="neos-footer">
-                    <a class="neos-button neos-button-success" href={props.endpoints.newWorkspace}>
-                        Create new workspace
-                    </a>
                 </div>
             </div>
         `

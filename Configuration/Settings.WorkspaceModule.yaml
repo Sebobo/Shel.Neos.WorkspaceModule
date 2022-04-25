@@ -2,3 +2,5 @@ Shel:
   Neos:
     WorkspaceModule:
       staleTime: 2419200 # 4 weeks in seconds
+      validation:
+        titlePattern: '[A-Z][\s\w\d\-\.\[\]\(\)_]+(?<!\s)'

@@ -31,6 +31,7 @@ const EditWorkspaceDialog: React.FC = () => {
         baseWorkspaceOptions,
         ownerOptions,
         userCanManageInternalWorkspaces,
+        validation,
     } = useWorkspaces();
     const [isLoading, setIsLoading] = useState(false);
     const [workspaceTitle, setWorkspaceTitle] = useState<string>('');
@@ -98,6 +99,7 @@ const EditWorkspaceDialog: React.FC = () => {
                         value={workspaceTitle}
                         onChange={handleChangeTitle}
                         maxLength={200}
+                        pattern={validation.titlePattern}
                     />
                 </label>
                 <label>

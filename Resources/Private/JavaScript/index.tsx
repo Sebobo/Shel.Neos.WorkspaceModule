@@ -19,9 +19,18 @@ window.onload = async (): Promise<void> => {
 
     const container = document.getElementById('workspace-module-app');
 
-    const { userWorkspace, csrfToken } = container.dataset;
-    const endpoints = JSON.parse(container.dataset.endpoints);
-    const userCanManageInternalWorkspaces = JSON.parse(container.dataset.userCanManageInternalWorkspaces);
+    const { userWorkspace, csrfToken, endpoints, userCanManageInternalWorkspaces, validation } = Object.keys(
+        container.dataset
+    ).reduce((carry, key) => {
+        carry[key] = JSON.parse(container.dataset[key]);
+        return carry;
+    }, {}) as unknown as {
+        userWorkspace: WorkspaceName;
+        csrfToken: string;
+        endpoints: WorkspaceEndpoints;
+        userCanManageInternalWorkspaces: boolean;
+        validation: WorkspaceValidation;
+    };
     const workspaces = JSON.parse(document.getElementById('workspaces').textContent);
     const baseWorkspaceOptions = JSON.parse(document.getElementById('baseWorkspaceOptions').textContent);
     const ownerOptions = JSON.parse(document.getElementById('ownerOptions').textContent);
@@ -49,6 +58,7 @@ window.onload = async (): Promise<void> => {
                     userWorkspace={userWorkspace}
                     endpoints={endpoints}
                     csrfToken={csrfToken}
+                    validation={validation}
                 >
                     <AppWithHmr />
                 </WorkspaceProvider>

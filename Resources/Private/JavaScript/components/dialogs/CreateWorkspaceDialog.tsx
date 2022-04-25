@@ -39,6 +39,20 @@ const EditForm = styled.form`
     }
 `;
 
+const ValidationMessage = styled.div`
+    color: red;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+
+    & ul {
+        padding: 0 1rem;
+    }
+
+    & li {
+        list-style-type: disc;
+    }
+`;
+
 const CreateWorkspaceDialog: React.FC = () => {
     const {
         csrfToken,
@@ -90,7 +104,16 @@ const CreateWorkspaceDialog: React.FC = () => {
                         value={workspaceTitle}
                     />
                     {!titleField.current?.validity.valid && (
-                        <span className="neos-label neos-label-error">INVALID!</span>
+                        <ValidationMessage>
+                            <b>Allowed title pattern: </b>
+                            <ul>
+                                <li>Numbers</li>
+                                <li>Letters (upper & lowercase)</li>
+                                <li>Special characters: - _ [ ] . ( )</li>
+                                <li>First character needs to be an uppercase letter</li>
+                                <li>No trailing whitespace</li>
+                            </ul>
+                        </ValidationMessage>
                     )}
                 </label>
                 <label>

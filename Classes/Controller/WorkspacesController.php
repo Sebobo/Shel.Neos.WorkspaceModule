@@ -107,6 +107,10 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      */
     public function deleteAction(Workspace $workspace): void
     {
+        $success = false;
+        /** @var Workspace[] $rebasedWorkspaces */
+        $rebasedWorkspaces = [];
+
         if ($workspace->isPersonalWorkspace()) {
             $this->addFlashMessage('The workspace ' . $workspace->getTitle() . ' is personal and cannot be deleted', '',
                 Message::SEVERITY_ERROR);
@@ -114,13 +118,14 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             $liveWorkspace = $this->workspaceRepository->findByIdentifier('live');
 
             // Fetch and delete dependent workspaces for target workspace
+            /** @var Workspace[] $dependentWorkspaces */
             $dependentWorkspaces = $this->workspaceRepository->findByBaseWorkspace($workspace);
-            /** @var Workspace $dependentWorkspace */
             foreach ($dependentWorkspaces as $dependentWorkspace) {
                 $dependentWorkspace->setBaseWorkspace($liveWorkspace);
                 $this->workspaceRepository->update($dependentWorkspace);
                 $this->addFlashMessage('Workspace "' . $dependentWorkspace->getTitle() . '" has been rebased to "live" as it depends on workspace "' . $workspace->getTitle() . '"',
                     '', Message::SEVERITY_WARNING);
+                $rebasedWorkspaces[] = $dependentWorkspace;
             }
 
             // Fetch and discard unpublished nodes in target workspace
@@ -135,11 +140,17 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             }
 
             $this->workspaceRepository->remove($workspace);
-            $this->addFlashMessage('The workspace "' . $workspace->getTitle() . '" has been removed, ' . count($unpublishedNodes) . ' changes have been discarded and ' . count($dependentWorkspaces) . ' dependent workspaces have been rebased',
-                '', Message::SEVERITY_WARNING);
+            $this->addFlashMessage('The workspace "' . $workspace->getTitle() . '" has been removed, ' . count($unpublishedNodes) . ' changes have been discarded and ' . count($dependentWorkspaces) . ' dependent workspaces have been rebased');
+            $success = true;
         }
 
-        $this->redirect('index');
+        $this->view->assign('value', [
+            'success' => $success,
+            'messages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
+            'rebasedWorkspaces' => array_map(static function ($workspace) {
+                return $workspace->getName();
+            }, $rebasedWorkspaces),
+        ]);
     }
 
     protected function getWorkspaceInfo(Workspace $workspace): array
@@ -197,37 +208,41 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      */
     public function createAction($title, Workspace $baseWorkspace, $visibility, $description = ''): void
     {
+        $success = true;
+
         $workspace = $this->workspaceRepository->findOneByTitle($title);
         if ($workspace instanceof Workspace) {
             $this->addFlashMessage($this->translator->translateById('workspaces.workspaceWithThisTitleAlreadyExists', [], null, null, 'Modules', 'Neos.Neos'), '', Message::SEVERITY_WARNING);
-            $this->redirect('new');
-        }
-
-        $workspaceName = Utility::renderValidNodeName($title) . '-' . substr(base_convert(microtime(false), 10, 36), -5, 5);
-        while ($this->workspaceRepository->findOneByName($workspaceName) instanceof Workspace) {
-            $workspaceName = Utility::renderValidNodeName($title) . '-' . substr(base_convert(microtime(false), 10, 36), -5, 5);
-        }
-
-        if ($visibility === 'private') {
-            $owner = $this->userService->getCurrentUser();
+            $success = false;
         } else {
-            $owner = null;
+            $workspaceName = Utility::renderValidNodeName($title) . '-' . substr(base_convert(microtime(false), 10, 36), -5, 5);
+            while ($this->workspaceRepository->findOneByName($workspaceName) instanceof Workspace) {
+                $workspaceName = Utility::renderValidNodeName($title) . '-' . substr(base_convert(microtime(false), 10, 36), -5, 5);
+            }
+
+            if ($visibility === 'private') {
+                $owner = $this->userService->getCurrentUser();
+            } else {
+                $owner = null;
+            }
+
+            $workspace = new Workspace($workspaceName, $baseWorkspace, $owner);
+            $workspace->setTitle($title);
+            $workspace->setDescription($description);
+
+            $this->workspaceRepository->add($workspace);
+
+            // Additional code to create a new WorkspaceDetails object
+            $workspaceDetails = new WorkspaceDetails($workspace->getName(), $this->securityContext->getAccount()->getAccountIdentifier());
+            $this->workspaceDetailsRepository->add($workspaceDetails);
+
         }
-
-        $workspace = new Workspace($workspaceName, $baseWorkspace, $owner);
-        $workspace->setTitle($title);
-        $workspace->setDescription($description);
-
-        $this->workspaceRepository->add($workspace);
-
-        // Additional code to create a new WorkspaceDetails object
-        $workspaceDetails = new WorkspaceDetails($workspace->getName(), $this->securityContext->getAccount()->getAccountIdentifier());
-        $this->workspaceDetailsRepository->add($workspaceDetails);
-
-        $this->redirect('index');
+        $this->view->assign('value', ['success' => $success]);
     }
 
-    protected function initializeUpdateAction(): void {
+    protected function initializeUpdateAction(): void
+    {
+        parent::initializeUpdateAction();
         $workspaceConfiguration = $this->arguments['workspace']->getPropertyMappingConfiguration();
         $workspaceConfiguration->allowAllProperties();
         $workspaceConfiguration->setTypeConverterOption(PersistentObjectConverter::class, PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED, true);

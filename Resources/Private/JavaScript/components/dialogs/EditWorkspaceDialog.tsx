@@ -126,6 +126,15 @@ const EditWorkspaceDialog: React.FC = () => {
                             ) : null
                         )}
                     </select>
+                    {selectedWorkspace.changesCounts.total > 1 && (
+                        <p style={{ marginTop: '.5em' }}>
+                            <i
+                                className="fas fa-exclamation-triangle"
+                                style={{ color: 'var(--warningText)', marginRight: '.5em' }}
+                            ></i>{' '}
+                            You cannot change the base workspace of workspace with unpublished changes.
+                        </p>
+                    )}
                 </label>
                 {!selectedWorkspace.isPersonal && (
                     <label>

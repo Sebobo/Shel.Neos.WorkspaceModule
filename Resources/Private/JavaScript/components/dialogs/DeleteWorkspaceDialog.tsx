@@ -4,8 +4,12 @@ import styled from 'styled-components';
 import { useWorkspaces } from '../../provider/WorkspaceProvider';
 import { DialogHeader, StyledModal, ActionBar } from './StyledModal';
 
-const RebasedWorkspaceWrapper = styled.p`
+const RebasedWorkspaceWrapper = styled.div`
     margin: 1rem 0;
+
+    & ul {
+        margin: 1rem 0;
+    }
 
     & li {
         list-style-type: disc;
@@ -49,11 +53,19 @@ const DeleteWorkspaceDialog: React.FC = () => {
                         className="fas fa-exclamation-triangle"
                         style={{ color: 'var(--warningText)', marginRight: '.5em' }}
                     ></i>{' '}
-                    This action will also rebase the following workspaces:
+                    The following workspaces will be rebased onto the <strong>live</strong> workspace:
                     <ul>
                         {dependentWorkspaces.map((child) => (
                             <li key={child.title}>{child.title}</li>
                         ))}
+                        {selectedWorkspace.dependentWorkspacesCount > dependentWorkspaces.length && (
+                            <li>
+                                <strong>
+                                    {selectedWorkspace.dependentWorkspacesCount - dependentWorkspaces.length}
+                                </strong>{' '}
+                                private workspace(s)
+                            </li>
+                        )}
                     </ul>
                 </RebasedWorkspaceWrapper>
             )}

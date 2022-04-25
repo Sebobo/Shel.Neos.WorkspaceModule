@@ -53,6 +53,27 @@ export const WorkspaceProvider = ({
     const [selectedWorkspaceForEdit, setSelectedWorkspaceForEdit] = useState<WorkspaceName | null>(null);
     const notify = useNotify();
 
+    const handleFlashMessages = useCallback(
+        (messages: FlashMessage[]) => {
+            messages.forEach(({ title, message, severity }) => {
+                switch (severity) {
+                    case 'ok':
+                        notify.ok(title || message);
+                        break;
+                    case 'warning':
+                        notify.warning(title, message);
+                        break;
+                    case 'error':
+                        notify.error(title, message);
+                        break;
+                    default:
+                        notify.info(title || message);
+                }
+            });
+        },
+        [notify]
+    );
+
     const loadChangesCounts = useCallback(() => {
         if (!workspaces) return;
         fetch(endpoints.getChanges, {
@@ -89,10 +110,56 @@ export const WorkspaceProvider = ({
         return endpoint.replace('---workspace---', workspaceName);
     }, []);
 
-    const deleteWorkspace = useCallback((workspaceName: string) => {
-        // FIXME: Must be a post action
-        window.open(prepareWorkspaceActionUrl(endpoints.deleteWorkspace, workspaceName), '_self');
-    }, []);
+    const deleteWorkspace = useCallback(
+        async (workspaceName: string): Promise<void> => {
+            return fetch(prepareWorkspaceActionUrl(endpoints.deleteWorkspace, workspaceName), {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                },
+                body: JSON.stringify({ __csrfToken: csrfToken }),
+            })
+                .then((response) => response.json())
+                .then(
+                    ({
+                        success,
+                        rebasedWorkspaces,
+                        messages = [],
+                    }: {
+                        success: boolean;
+                        rebasedWorkspaces: Workspace[];
+                        messages: FlashMessage[];
+                    }) => {
+                        if (success) {
+                            setWorkspaces((workspaces) => {
+                                const updatedWorkspaces = { ...workspaces };
+
+                                // Removed deleted workspace from list
+                                delete updatedWorkspaces[workspaceName];
+
+                                // Update base workspace for all rebased workspaces
+                                rebasedWorkspaces.forEach((rebasedWorkspace) => {
+                                    if (updatedWorkspaces[rebasedWorkspace.name]) {
+                                        updatedWorkspaces[rebasedWorkspace.name].baseWorkspace = {
+                                            name: 'live',
+                                            title: 'Live',
+                                        };
+                                    }
+                                });
+                                return updatedWorkspaces;
+                            });
+                        }
+                        handleFlashMessages(messages);
+                    }
+                )
+                .catch((error) => {
+                    notify.error('Failed to delete workspace', error.message);
+                    console.error('Failed to delete workspace', error);
+                });
+        },
+        [csrfToken, endpoints.deleteWorkspace]
+    );
 
     const updateWorkspace = useCallback(
         async (formData: FormData): Promise<void> => {
@@ -104,11 +171,15 @@ export const WorkspaceProvider = ({
                 .then((response) => response.json())
                 .then((workspace: Workspace) => {
                     // Keep old changes counts after updating workspace with remote data
-                    // TODO: Update changes counts for updated workspace in case of a base workspace change?
-                    const changesCounts = workspaces[workspace.name].changesCounts;
-                    setWorkspaces({
-                        ...workspaces,
-                        [workspace.name]: { ...workspaces[workspace.name], ...workspace, changesCounts },
+                    setWorkspaces((workspaces) => {
+                        return {
+                            ...workspaces,
+                            [workspace.name]: {
+                                ...workspaces[workspace.name],
+                                ...workspace,
+                                changesCounts: workspaces[workspace.name].changesCounts,
+                            },
+                        };
                     });
                     notify.ok('Workspace updated');
                     return workspace[workspace.name];
@@ -118,7 +189,7 @@ export const WorkspaceProvider = ({
                     console.error('Failed to update workspace', error);
                 });
         },
-        [csrfToken, endpoints.updateWorkspace, workspaces]
+        [csrfToken, endpoints.updateWorkspace]
     );
 
     const showWorkspace = useCallback((workspaceName: string) => {

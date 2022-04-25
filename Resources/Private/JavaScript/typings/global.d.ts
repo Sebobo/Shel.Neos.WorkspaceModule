@@ -9,6 +9,12 @@ interface NeosI18n {
     initialized: boolean;
 }
 
+type FlashMessage = {
+    title: string;
+    message: string;
+    severity: 'error' | 'info' | 'ok' | 'warning';
+};
+
 type TranslateFunction = (
     id: string,
     fallback?: string,
@@ -46,8 +52,6 @@ type ChangesCounts = {
 type WorkspaceEndpoints = {
     deleteWorkspace: ActionUri; // Delete a workspace
     updateWorkspace: ActionUri; // Show edit dialog
-    editWorkspace: ActionUri; // Update a workspace
-    newWorkspace: ActionUri; // Show dialog to create new workspace
     createWorkspace: ActionUri; // Create new workspace
     showWorkspace: ActionUri; // Show changes in workspace
     getChanges: ActionUri; // Load number of changes for all workspaces

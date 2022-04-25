@@ -11,10 +11,7 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
             deleteWorkspace = Neos.Fusion:UriBuilder {
                 action = 'delete'
                 arguments.workspace = '---workspace---'
-            }
-            editWorkspace = Neos.Fusion:UriBuilder {
-                action = 'edit'
-                arguments.workspace = '---workspace---'
+                format = 'json'
             }
             updateWorkspace = Neos.Fusion:UriBuilder {
                 action = 'update'
@@ -22,9 +19,6 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
             }
             createWorkspace = Neos.Fusion:UriBuilder {
                 action = 'create'
-            }
-            newWorkspace = Neos.Fusion:UriBuilder {
-                action = 'new'
             }
             showWorkspace = Neos.Fusion:UriBuilder {
                 action = 'show'

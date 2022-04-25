@@ -74,15 +74,17 @@ const CreateWorkspaceDialog: React.FC = () => {
 
     const handleClose = useCallback(() => {
         setCreationDialogVisible(false);
-    }, []);
+        setWorkspaceTitle('');
+        createForm.current.reset();
+    }, [createForm.current, setCreationDialogVisible, setWorkspaceTitle]);
 
     const handleCommit = useCallback(() => {
         setIsLoading(true);
         createWorkspace(new FormData(createForm.current)).then(() => {
             setIsLoading(false);
-            setCreationDialogVisible(false);
+            handleClose();
         });
-    }, [createWorkspace]);
+    }, [createWorkspace, handleClose]);
 
     if (!creationDialogVisible) return null;
 

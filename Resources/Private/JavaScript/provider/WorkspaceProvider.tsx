@@ -143,6 +143,12 @@ export const WorkspaceProvider = ({
                             setWorkspaces((workspaces) => {
                                 const updatedWorkspaces = { ...workspaces };
 
+                                if (updatedWorkspaces[workspaceName].baseWorkspace.name !== 'live') {
+                                    // Update dependent workspace count of previous base workspace
+                                    updatedWorkspaces[updatedWorkspaces[workspaceName].baseWorkspace.name]
+                                        .dependentWorkspacesCount--;
+                                }
+
                                 // Removed deleted workspace from list
                                 delete updatedWorkspaces[workspaceName];
 
@@ -187,6 +193,16 @@ export const WorkspaceProvider = ({
                 .then((workspace: Workspace) => {
                     // Keep old changes counts after updating workspace with remote data
                     setWorkspaces((workspaces) => {
+                        // Update dependent workspace count of previous and new base workspace
+                        if (workspaces[workspace.name].baseWorkspace.name !== workspace.baseWorkspace.name) {
+                            if (workspaces[workspace.name].baseWorkspace.name !== 'live') {
+                                workspaces[workspaces[workspace.name].baseWorkspace.name].dependentWorkspacesCount--;
+                            }
+                            if (workspace.baseWorkspace.name !== 'live') {
+                                workspaces[workspace.baseWorkspace.name].dependentWorkspacesCount++;
+                            }
+                        }
+
                         return {
                             ...workspaces,
                             [workspace.name]: {
@@ -229,7 +245,7 @@ export const WorkspaceProvider = ({
                     }) => {
                         if (success) {
                             setWorkspaces((workspaces) => {
-                                return {
+                                const updatedWorkspaces = {
                                     ...workspaces,
                                     [workspace.name]: {
                                         ...workspace,
@@ -242,6 +258,11 @@ export const WorkspaceProvider = ({
                                         },
                                     },
                                 };
+                                if (workspace.baseWorkspace.name !== 'live') {
+                                    // Update dependent workspace count on base workspace
+                                    updatedWorkspaces[workspace.baseWorkspace.name].dependentWorkspacesCount++;
+                                }
+                                return updatedWorkspaces;
                             });
                             setBaseWorkspaceOptions(baseWorkspaceOptions);
                         }

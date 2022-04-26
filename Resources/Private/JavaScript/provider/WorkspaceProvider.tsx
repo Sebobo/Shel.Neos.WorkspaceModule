@@ -7,7 +7,7 @@ type WorkspaceProviderProps = {
     children: ReactNode;
     userWorkspace: WorkspaceName;
     workspaceList: WorkspaceList;
-    baseWorkspaceOptions: Record<WorkspaceName, WorkspaceTitle>;
+    baseWorkspaceOptions: BaseWorkspaceOptions;
     ownerOptions: Record<UserName, UserLabel>;
     endpoints: WorkspaceEndpoints;
     csrfToken: string;
@@ -31,7 +31,7 @@ type WorkspaceValues = {
     selectedWorkspaceForEdit: WorkspaceName | null;
     setSelectedWorkspaceForEdit: (workspaceName: WorkspaceName | null) => void;
     csrfToken: string;
-    baseWorkspaceOptions: Record<WorkspaceName, WorkspaceTitle>;
+    baseWorkspaceOptions: BaseWorkspaceOptions;
     ownerOptions: Record<UserName, UserLabel>;
     userCanManageInternalWorkspaces: boolean;
     creationDialogVisible: boolean;
@@ -47,12 +47,13 @@ export const WorkspaceProvider = ({
     endpoints,
     workspaceList,
     ownerOptions,
-    baseWorkspaceOptions,
+    baseWorkspaceOptions: initialBaseWorkspaceOptions,
     csrfToken,
     children,
     userCanManageInternalWorkspaces,
     validation,
 }: WorkspaceProviderProps) => {
+    const [baseWorkspaceOptions, setBaseWorkspaceOptions] = React.useState(initialBaseWorkspaceOptions);
     const [workspaces, setWorkspaces] = React.useState(workspaceList);
     const [sorting, setSorting] = useState<SortBy>(SortBy.lastModified);
     const [selectedWorkspaceForDeletion, setSelectedWorkspaceForDeletion] = useState<WorkspaceName | null>(null);
@@ -156,6 +157,13 @@ export const WorkspaceProvider = ({
                                 });
                                 return updatedWorkspaces;
                             });
+                            // Remove the workspace also from the list of selectable base workspaces
+                            setBaseWorkspaceOptions((baseWorkspaceOptions) => {
+                                if (baseWorkspaceOptions[workspaceName]) {
+                                    delete baseWorkspaceOptions[workspaceName];
+                                }
+                                return baseWorkspaceOptions;
+                            });
                         }
                         handleFlashMessages(messages);
                     }
@@ -212,10 +220,12 @@ export const WorkspaceProvider = ({
                         success,
                         workspace,
                         messages,
+                        baseWorkspaceOptions,
                     }: {
                         success: boolean;
                         workspace: Workspace;
                         messages: FlashMessage[];
+                        baseWorkspaceOptions: BaseWorkspaceOptions;
                     }) => {
                         if (success) {
                             setWorkspaces((workspaces) => {
@@ -233,6 +243,7 @@ export const WorkspaceProvider = ({
                                     },
                                 };
                             });
+                            setBaseWorkspaceOptions(baseWorkspaceOptions);
                         }
                         handleFlashMessages(messages);
                     }

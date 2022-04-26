@@ -85,3 +85,4 @@ interface Workspace {
 }
 
 type WorkspaceList = Record<WorkspaceName, Workspace>;
+type BaseWorkspaceOptions = Record<WorkspaceName, WorkspaceTitle>;

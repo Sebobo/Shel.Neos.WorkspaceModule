@@ -63,17 +63,11 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             return $carry;
         }, [$userWorkspace->getName() => $this->getWorkspaceInfo($userWorkspace)]);
 
-        $baseWorkspaceOptions = $this->prepareBaseWorkspaceOptions();
-        asort($baseWorkspaceOptions, SORT_FLAG_CASE | SORT_NATURAL);
-
-        $ownerOptions = $this->prepareOwnerOptions();
-        asort($ownerOptions, SORT_FLAG_CASE | SORT_NATURAL);
-
         $this->view->assignMultiple([
             'userWorkspace' => $userWorkspace,
-            'baseWorkspaceOptions' => $baseWorkspaceOptions,
+            'baseWorkspaceOptions' => $this->prepareBaseWorkspaceOptions(),
             'userCanManageInternalWorkspaces' => $this->privilegeManager->isPrivilegeTargetGranted('Neos.Neos:Backend.Module.Management.Workspaces.ManageInternalWorkspaces'),
-            'ownerOptions' => $ownerOptions,
+            'ownerOptions' => $this->prepareOwnerOptions(),
             'workspaces' => $workspaceData,
             'csrfToken' => $this->securityContext->getCsrfProtectionToken(),
             'validation' => $this->settings['validation'],
@@ -245,13 +239,39 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             $this->addFlashMessage('The workspace "' . $workspaceName . '" has been created');
 
         }
+
         $this->view->assign('value', [
             'success' => $success,
             'messages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
             'workspace' => $this->getWorkspaceInfo($workspace),
+            // Include a new list of base workspace options which might contain the new workspace depending on its visibility
+            'baseWorkspaceOptions' => $this->prepareBaseWorkspaceOptions(),
         ]);
     }
 
+    /**
+     * @inheritDoc
+     */
+    protected function prepareBaseWorkspaceOptions(Workspace $excludedWorkspace = null): array
+    {
+        $options = parent::prepareBaseWorkspaceOptions($excludedWorkspace);
+        asort($options, SORT_FLAG_CASE | SORT_NATURAL);
+        return $options;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function prepareOwnerOptions(): array
+    {
+        $options = parent::prepareOwnerOptions();
+        asort($options, SORT_FLAG_CASE | SORT_NATURAL);
+        return $options;
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected function initializeUpdateAction(): void
     {
         parent::initializeUpdateAction();
@@ -260,6 +280,9 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $workspaceConfiguration->setTypeConverterOption(PersistentObjectConverter::class, PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED, true);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function updateAction(Workspace $workspace): void
     {
         if ($workspace->getTitle() === '') {

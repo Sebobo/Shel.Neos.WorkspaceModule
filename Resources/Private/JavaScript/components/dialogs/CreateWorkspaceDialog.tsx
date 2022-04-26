@@ -105,7 +105,7 @@ const CreateWorkspaceDialog: React.FC = () => {
                         onChange={handleTitleChange}
                         value={workspaceTitle}
                     />
-                    {!titleField.current?.validity.valid && (
+                    {workspaceTitle && !titleField.current?.validity.valid && (
                         <ValidationMessage>
                             <b>Allowed title pattern: </b>
                             <ul>

@@ -158,7 +158,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                 <button
                     className="neos-button"
                     type="button"
-                    title={`Show workspace ${workspace.title}`}
+                    title={`Show changes in workspace ${workspace.title}`}
                     disabled={!workspace.changesCounts?.total}
                     onClick={() => showWorkspace(workspaceName)}
                 >

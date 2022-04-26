@@ -48,6 +48,7 @@ const Column = styled.td`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    background-color: var(--column-color);
 `;
 
 const TextColumn = styled(Column)`
@@ -57,7 +58,7 @@ const TextColumn = styled(Column)`
 
 const ActionColumn = styled(Column)`
     padding: 0;
-    background-color: var(--grayLight);
+    --column-color: var(--grayMedium);
 
     & .neos-button[disabled] {
         opacity: 1;
@@ -78,10 +79,8 @@ const TypeColumn = styled(Column)`
 `;
 
 const Row = styled.tr<{ isUserWorkspace: boolean; isStale: boolean }>`
-    & > ${Column} {
-        background-color: ${(props) =>
-            props.isUserWorkspace ? 'var(--blueDark)' : props.isStale ? 'var(--grayDark)' : 'var(--grayMedium)'};
-    }
+    --column-color: ${(props) =>
+        props.isUserWorkspace ? 'var(--blueDark)' : props.isStale ? 'var(--grayDark)' : 'var(--grayMedium)'};
 `;
 
 const InfoText = styled.span`

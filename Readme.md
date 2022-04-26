@@ -7,6 +7,24 @@ This Neos CMS plugin provides an alternative workspace module with added feature
 * Tracks and shows workspace creator, last editor and last publish date
 * Can remove unpublished changes and rebase dependent workspaces on delete
 
+## Screenshots
+
+### Module overview 
+
+![Module overview](Documentation/Overview.png)
+
+### Creation dialog
+
+![Creation dialog](Documentation/CreateDialog.png)
+
+### Editing dialog
+
+![Edit dialog](Documentation/EditDialog.png)
+
+### Deletion dialog
+
+![Deletion dialog](Documentation/DeleteDialog.png)
+
 ## Installation
 
 Run

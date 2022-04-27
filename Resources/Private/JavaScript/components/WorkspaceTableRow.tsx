@@ -91,8 +91,14 @@ const InfoText = styled.span`
 `;
 
 const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, level }) => {
-    const { userWorkspace, workspaces, setSelectedWorkspaceForEdit, setSelectedWorkspaceForDeletion, showWorkspace } =
-        useWorkspaces();
+    const {
+        userWorkspace,
+        workspaces,
+        setSelectedWorkspaceForEdit,
+        setSelectedWorkspaceForDeletion,
+        showWorkspace,
+        translate,
+    } = useWorkspaces();
     const workspace = workspaces[workspaceName];
     const icon = workspace.isInternal ? 'users' : 'user';
     const isUserWorkspace = workspaceName === userWorkspace;
@@ -111,8 +117,8 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                     {workspace.title}
                     {workspace.isStale || isUserWorkspace ? (
                         <>
-                            {workspace.isStale && <StaleBadge title="Workspace is stale">!</StaleBadge>}
-                            {isUserWorkspace && <InfoText>(This is your workspace)</InfoText>}
+                            {workspace.isStale && <StaleBadge title={translate('badge.isStale')}></StaleBadge>}
+                            {isUserWorkspace && <InfoText>{translate('badge.isUserWorkspace')}</InfoText>}
                         </>
                     ) : null}
                 </span>
@@ -128,36 +134,62 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                 ) : workspace.changesCounts.total > 0 ? (
                     <>
                         {workspace.changesCounts.new > 0 && (
-                            <AddedBadge title={`${workspace.changesCounts.new} new nodes were added`}>
+                            <AddedBadge
+                                title={translate(
+                                    'badge.changes.new',
+                                    `${workspace.changesCounts.new} new nodes were added`,
+                                    { count: workspace.changesCounts.new }
+                                )}
+                            >
                                 {workspace.changesCounts.new}
                             </AddedBadge>
                         )}
                         {workspace.changesCounts.changed > 0 && (
-                            <ChangedBadge title={`${workspace.changesCounts.changed} nodes were changed`}>
+                            <ChangedBadge
+                                title={translate(
+                                    'badge.changes.changed',
+                                    `${workspace.changesCounts.changed} nodes were changed`,
+                                    { count: workspace.changesCounts.changed }
+                                )}
+                            >
                                 {workspace.changesCounts.changed}
                             </ChangedBadge>
                         )}
                         {workspace.changesCounts.removed > 0 && (
-                            <DeletedBadge title={`${workspace.changesCounts.removed} nodes were removed`}>
+                            <DeletedBadge
+                                title={translate(
+                                    'badge.changes.removed',
+                                    `${workspace.changesCounts.removed} nodes were removed`,
+                                    { count: workspace.changesCounts.removed }
+                                )}
+                            >
                                 {workspace.changesCounts.removed}
                             </DeletedBadge>
                         )}
                     </>
                 ) : nodeCountNotCoveredByChanges > 0 ? (
-                    <OrphanBadge title={`${nodeCountNotCoveredByChanges} nodes were changed but might be orphaned`}>
+                    <OrphanBadge
+                        title={translate(
+                            'badge.changes.unknown',
+                            `${nodeCountNotCoveredByChanges} nodes were changed but might be orphaned`,
+                            { count: nodeCountNotCoveredByChanges }
+                        )}
+                    >
                         {nodeCountNotCoveredByChanges}
                     </OrphanBadge>
                 ) : isUserWorkspace ? (
                     '–'
                 ) : (
-                    'None'
+                    translate('table.column.changes.empty')
                 )}
             </Column>
             <ActionColumn>
                 <button
                     className="neos-button"
                     type="button"
-                    title={`Show changes in workspace ${workspace.title}`}
+                    title={translate('table.column.action.show', `Show changes in workspace ${workspace.title}`, {
+                        workspace: workspace.title,
+                    })}
                     disabled={!workspace.changesCounts?.total}
                     onClick={() => showWorkspace(workspaceName)}
                 >
@@ -166,7 +198,9 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                 <button
                     className="neos-button"
                     type="button"
-                    title={`Edit workspace ${workspace.title}`}
+                    title={translate('table.column.action.edit', `Edit workspace ${workspace.title}`, {
+                        workspace: workspace.name,
+                    })}
                     onClick={() => setSelectedWorkspaceForEdit(workspaceName)}
                 >
                     <Icon icon="pencil-alt" />
@@ -174,7 +208,9 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                 <button
                     className="neos-button neos-button-danger"
                     type="button"
-                    title={`Delete workspace ${workspace.title}`}
+                    title={translate('table.column.action.delete', `Delete workspace ${workspace.title}`, {
+                        workspace: workspace.name,
+                    })}
                     disabled={!workspace.canManage}
                     onClick={() => setSelectedWorkspaceForDeletion(workspaceName)}
                 >

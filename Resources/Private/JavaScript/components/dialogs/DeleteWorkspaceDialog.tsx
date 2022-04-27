@@ -18,7 +18,7 @@ const RebasedWorkspaceWrapper = styled.div`
 `;
 
 const DeleteWorkspaceDialog: React.FC = () => {
-    const { selectedWorkspaceForDeletion, setSelectedWorkspaceForDeletion, deleteWorkspace, workspaces } =
+    const { selectedWorkspaceForDeletion, setSelectedWorkspaceForDeletion, deleteWorkspace, workspaces, translate } =
         useWorkspaces();
 
     const selectedWorkspace = useMemo(() => workspaces[selectedWorkspaceForDeletion], [selectedWorkspaceForDeletion]);
@@ -39,13 +39,22 @@ const DeleteWorkspaceDialog: React.FC = () => {
 
     return selectedWorkspaceForDeletion ? (
         <StyledModal isOpen onRequestClose={handleClose}>
-            <DialogHeader>Delete "{selectedWorkspace.title}"?</DialogHeader>
+            <DialogHeader>
+                {translate('dialog.delete.header', `Delete "${selectedWorkspace.title}"?`, {
+                    workspace: selectedWorkspace.title,
+                })}
+            </DialogHeader>
 
             {selectedWorkspace.changesCounts.total > 0 && (
-                <p>
-                    Deleting this workspace will also delete <strong>{selectedWorkspace.changesCounts.total}</strong>{' '}
-                    unpublished changes.
-                </p>
+                <p
+                    dangerouslySetInnerHTML={{
+                        __html: translate(
+                            'dialog.delete.unpublishedChanges',
+                            `Deleting this workspace will also discard ${selectedWorkspace.changesCounts.total} unpublished changes.`,
+                            { count: selectedWorkspace.changesCounts.total }
+                        ),
+                    }}
+                />
             )}
             {selectedWorkspace.dependentWorkspacesCount > 0 && (
                 <RebasedWorkspaceWrapper>
@@ -53,30 +62,38 @@ const DeleteWorkspaceDialog: React.FC = () => {
                         className="fas fa-exclamation-triangle"
                         style={{ color: 'var(--warningText)', marginRight: '.5em' }}
                     ></i>{' '}
-                    The following workspaces will be rebased onto the <strong>live</strong> workspace:
+                    <span dangerouslySetInnerHTML={{ __html: translate('dialog.delete.rebasedWorkspaces') }} />
                     <ul>
                         {dependentWorkspaces.map((child) => (
                             <li key={child.title}>{child.title}</li>
                         ))}
                         {selectedWorkspace.dependentWorkspacesCount > dependentWorkspaces.length && (
-                            <li>
-                                <strong>
-                                    {selectedWorkspace.dependentWorkspacesCount - dependentWorkspaces.length}
-                                </strong>{' '}
-                                private workspace(s)
-                            </li>
+                            <li
+                                dangerouslySetInnerHTML={{
+                                    __html: translate(
+                                        'dialog.delete.privateWorkspaces',
+                                        `${
+                                            selectedWorkspace.dependentWorkspacesCount - dependentWorkspaces.length
+                                        } private workspace(s)`,
+                                        {
+                                            count:
+                                                selectedWorkspace.dependentWorkspacesCount - dependentWorkspaces.length,
+                                        }
+                                    ),
+                                }}
+                            />
                         )}
                     </ul>
                 </RebasedWorkspaceWrapper>
             )}
-            <p>This action cannot be undone.</p>
+            <p>{translate('dialog.delete.pointOfNoReturn')}</p>
 
             <ActionBar>
                 <button type="button" className="neos-button" onClick={handleClose}>
-                    Cancel
+                    {translate('dialog.action.cancel')}
                 </button>
                 <button type="button" className="neos-button neos-button-danger" onClick={handleDelete}>
-                    Delete this workspace
+                    {translate('dialog.action.delete')}
                 </button>
             </ActionBar>
         </StyledModal>

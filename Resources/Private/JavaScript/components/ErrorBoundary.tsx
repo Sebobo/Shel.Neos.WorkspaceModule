@@ -31,7 +31,7 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
             return (
                 <div>
                     <h1>Something went wrong and the following error occurred:</h1>
-                    <br/>
+                    <br />
                     <pre>{error?.message}</pre>
                 </div>
             );

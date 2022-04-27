@@ -38,7 +38,7 @@ export enum SortBy {
 }
 
 const WorkspaceTable: React.FC = () => {
-    const { sorting, setSorting } = useWorkspaces();
+    const { sorting, setSorting, translate } = useWorkspaces();
 
     const handleSortByTitle = useCallback(() => {
         setSorting(SortBy.title);
@@ -59,22 +59,22 @@ const WorkspaceTable: React.FC = () => {
                             onClick={handleSortByTitle}
                             style={sorting === SortBy.title ? { color: 'var(--blue)' } : {}}
                         >
-                            Title <Icon icon="sort-alpha-down" />
+                            {translate('table.header.title')} <Icon icon="sort-alpha-down" />
                         </IconButton>
                     </HeaderColumn>
-                    <HeaderColumn>Description</HeaderColumn>
-                    <HeaderColumn>Creator</HeaderColumn>
+                    <HeaderColumn>{translate('table.header.description')}</HeaderColumn>
+                    <HeaderColumn>{translate('table.header.creator')}</HeaderColumn>
                     <HeaderColumn>
                         <IconButton
                             type="button"
                             onClick={handleSortByLastModified}
                             style={sorting === SortBy.lastModified ? { color: 'var(--blue)' } : {}}
                         >
-                            Last modified <Icon icon="sort" />
+                            {translate('table.header.lastModified')} <Icon icon="sort" />
                         </IconButton>
                     </HeaderColumn>
-                    <HeaderColumn>Changes</HeaderColumn>
-                    <HeaderColumn>Actions</HeaderColumn>
+                    <HeaderColumn>{translate('table.header.changes')}</HeaderColumn>
+                    <HeaderColumn>{translate('table.header.actions')}</HeaderColumn>
                 </tr>
             </thead>
             <tbody>

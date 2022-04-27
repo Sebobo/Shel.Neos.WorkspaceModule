@@ -13,6 +13,7 @@ type WorkspaceProviderProps = {
     csrfToken: string;
     userCanManageInternalWorkspaces: boolean;
     validation: WorkspaceValidation;
+    translate: (id: string, label?: string, args?: any[] | Record<string, string | number>) => string;
 };
 
 type WorkspaceValues = {
@@ -37,6 +38,7 @@ type WorkspaceValues = {
     creationDialogVisible: boolean;
     setCreationDialogVisible: (visible: boolean) => void;
     validation: WorkspaceValidation;
+    translate: (id: string, label?: string, args?: any[] | Record<string, string | number>) => string;
 };
 
 const WorkspaceContext = createContext(null);
@@ -52,6 +54,7 @@ export const WorkspaceProvider = ({
     children,
     userCanManageInternalWorkspaces,
     validation,
+    translate,
 }: WorkspaceProviderProps) => {
     const [baseWorkspaceOptions, setBaseWorkspaceOptions] = React.useState(initialBaseWorkspaceOptions);
     const [workspaces, setWorkspaces] = React.useState(workspaceList);
@@ -309,6 +312,7 @@ export const WorkspaceProvider = ({
                 setCreationDialogVisible,
                 validation,
                 createWorkspace,
+                translate,
             }}
         >
             {children}

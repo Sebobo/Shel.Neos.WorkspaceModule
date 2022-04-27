@@ -59,6 +59,7 @@ window.onload = async (): Promise<void> => {
                     endpoints={endpoints}
                     csrfToken={csrfToken}
                     validation={validation}
+                    translate={translate}
                 >
                     <AppWithHmr />
                 </WorkspaceProvider>

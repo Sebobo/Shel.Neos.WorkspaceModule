@@ -12,7 +12,7 @@ const WorkspaceCount = styled.div`
 `;
 
 const Footer: React.FC = () => {
-    const { setCreationDialogVisible, workspaces } = useWorkspaces();
+    const { setCreationDialogVisible, workspaces, translate } = useWorkspaces();
 
     const workspaceCount = useMemo(() => {
         return Object.values(workspaces).reduce(
@@ -40,10 +40,14 @@ const Footer: React.FC = () => {
                 className="neos-button neos-button-success"
                 onClick={() => setCreationDialogVisible(true)}
             >
-                Create new workspace
+                {translate('footer.action.create')}
             </button>
             <WorkspaceCount>
-                {workspaceCount.total} workspaces ({workspaceCount.internal} public, {workspaceCount.private} private)
+                {translate(
+                    'footer.workspaceCount',
+                    `${workspaceCount.total} workspaces (${workspaceCount.internal} public, ${workspaceCount.private} private)`,
+                    workspaceCount
+                )}
             </WorkspaceCount>
         </div>
     );

@@ -8,3 +8,9 @@ Neos:
             additionalResources:
               javaScripts:
                 - 'resource://Shel.Neos.WorkspaceModule/Public/Assets/main.js'
+
+    userInterface:
+      translation:
+        autoInclude:
+          Shel.Neos.WorkspaceModule:
+            - 'Main'

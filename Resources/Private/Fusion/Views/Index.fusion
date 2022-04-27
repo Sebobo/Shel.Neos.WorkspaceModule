@@ -52,7 +52,7 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                         <script type="application/json" id="ownerOptions">
                             {Json.stringify(props.ownerOptions)}
                         </script>
-                        Loading workspace module...
+                        {I18n.translate('module.loadingText', 'Loading workspace module…', {}, 'Main', 'Shel.Neos.WorkspaceModule')}
                     </div>
                 </div>
             </div>

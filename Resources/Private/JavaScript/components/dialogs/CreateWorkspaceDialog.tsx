@@ -61,6 +61,7 @@ const CreateWorkspaceDialog: React.FC = () => {
         setCreationDialogVisible,
         baseWorkspaceOptions,
         validation,
+        translate,
     } = useWorkspaces();
     const [isLoading, setIsLoading] = useState(false);
     const [workspaceTitle, setWorkspaceTitle] = useState('');
@@ -69,7 +70,6 @@ const CreateWorkspaceDialog: React.FC = () => {
 
     const handleTitleChange = useCallback(() => {
         setWorkspaceTitle(titleField.current?.value || '');
-        // TODO: Show validation message if needed
     }, [titleField.current]);
 
     const handleClose = useCallback(() => {
@@ -90,11 +90,11 @@ const CreateWorkspaceDialog: React.FC = () => {
 
     return (
         <StyledModal isOpen onRequestClose={handleClose}>
-            <DialogHeader>Create new workspace</DialogHeader>
+            <DialogHeader>{translate('dialog.create.header')}</DialogHeader>
             <EditForm ref={createForm}>
                 <input type="hidden" name={'__csrfToken'} value={csrfToken} />
                 <label>
-                    Title
+                    {translate('workspace.title.label')}
                     <input
                         type="text"
                         name={'moduleArguments[title]'}
@@ -106,24 +106,17 @@ const CreateWorkspaceDialog: React.FC = () => {
                         value={workspaceTitle}
                     />
                     {workspaceTitle && !titleField.current?.validity.valid && (
-                        <ValidationMessage>
-                            <b>Allowed title pattern: </b>
-                            <ul>
-                                <li>Numbers</li>
-                                <li>Letters (upper & lowercase)</li>
-                                <li>Special characters: - _ [ ] . ( )</li>
-                                <li>First character needs to be an uppercase letter</li>
-                                <li>No trailing whitespace</li>
-                            </ul>
-                        </ValidationMessage>
+                        <ValidationMessage
+                            dangerouslySetInnerHTML={{ __html: translate('workspace.title.validation') }}
+                        />
                     )}
                 </label>
                 <label>
-                    Description
+                    {translate('workspace.description.label')}
                     <input type="text" name={'moduleArguments[description]'} maxLength={500} />
                 </label>
                 <label>
-                    Base Workspace
+                    {translate('workspace.baseWorkspace.label')}
                     <select name={'moduleArguments[baseWorkspace]'} defaultValue="live">
                         {Object.keys(baseWorkspaceOptions).map((workspaceName) => (
                             <option key={workspaceName} value={workspaceName}>
@@ -133,22 +126,22 @@ const CreateWorkspaceDialog: React.FC = () => {
                     </select>
                 </label>
                 <FormGroup>
-                    <label className="neos-control-label">Visiblity</label>
+                    <label className="neos-control-label">{translate('workspace.visibility.label')}</label>
                     <RadioLabel className="neos-radio">
                         <input type="radio" name="moduleArguments[visibility]" defaultChecked value="internal" />
                         <span />
-                        <span>Public – Any logged in editor can see and modify this workspace.</span>
+                        <span>{translate('workspace.visibility.internal')}</span>
                     </RadioLabel>
                     <RadioLabel className="neos-radio">
                         <input type="radio" name="moduleArguments[visibility]" value="private" />
                         <span />
-                        <span>Private – Only reviewers and administrators can access and modify this workspace.</span>
+                        <span>{translate('workspace.visibility.private')}</span>
                     </RadioLabel>
                 </FormGroup>
             </EditForm>
             <ActionBar>
                 <button type="button" className="neos-button" onClick={handleClose}>
-                    Cancel
+                    {translate('dialog.action.cancel')}
                 </button>
                 <button
                     type="button"
@@ -156,7 +149,7 @@ const CreateWorkspaceDialog: React.FC = () => {
                     onClick={handleCommit}
                     disabled={isLoading || !titleField.current?.validity.valid}
                 >
-                    Save changes
+                    {translate('dialog.action.create')}
                 </button>
             </ActionBar>
         </StyledModal>

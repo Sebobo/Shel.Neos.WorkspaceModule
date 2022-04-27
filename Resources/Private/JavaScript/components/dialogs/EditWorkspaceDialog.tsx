@@ -21,6 +21,20 @@ const EditForm = styled.form`
     }
 `;
 
+const ValidationMessage = styled.div`
+    color: red;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+
+    & ul {
+        padding: 0 1rem;
+    }
+
+    & li {
+        list-style-type: disc;
+    }
+`;
+
 const EditWorkspaceDialog: React.FC = () => {
     const {
         workspaces,
@@ -32,6 +46,7 @@ const EditWorkspaceDialog: React.FC = () => {
         ownerOptions,
         userCanManageInternalWorkspaces,
         validation,
+        translate,
     } = useWorkspaces();
     const [isLoading, setIsLoading] = useState(false);
     const [workspaceTitle, setWorkspaceTitle] = useState<string>('');
@@ -39,6 +54,7 @@ const EditWorkspaceDialog: React.FC = () => {
     const [workspaceBaseWorkspace, setWorkspaceBaseWorkspace] = useState<WorkspaceName>('');
     const [workspaceOwner, setWorkspaceOwner] = useState<string>('');
     const editForm = useRef<HTMLFormElement>(null);
+    const titleField = useRef<HTMLInputElement>(null);
 
     const selectedWorkspace = useMemo(() => workspaces[selectedWorkspaceForEdit], [selectedWorkspaceForEdit]);
 
@@ -87,23 +103,34 @@ const EditWorkspaceDialog: React.FC = () => {
 
     return selectedWorkspaceForEdit ? (
         <StyledModal isOpen onRequestClose={handleClose}>
-            <DialogHeader>Edit "{selectedWorkspace.title}"</DialogHeader>
+            <DialogHeader>
+                {translate('dialog.edit.header', `Edit "${selectedWorkspace.title}"`, {
+                    workspace: selectedWorkspace.title,
+                })}
+            </DialogHeader>
             <EditForm ref={editForm}>
                 <input type="hidden" name={'__csrfToken'} value={csrfToken} />
                 <input type="hidden" name={'moduleArguments[workspace][__identity]'} value={selectedWorkspace.name} />
                 <label>
-                    Title
+                    {translate('workspace.title.label')}
                     <input
                         type="text"
                         name={'moduleArguments[workspace][title]'}
                         value={workspaceTitle}
                         onChange={handleChangeTitle}
                         maxLength={200}
+                        required
+                        ref={titleField}
                         pattern={validation.titlePattern}
                     />
+                    {workspaceTitle && !titleField.current?.validity.valid && (
+                        <ValidationMessage
+                            dangerouslySetInnerHTML={{ __html: translate('workspace.title.validation') }}
+                        />
+                    )}
                 </label>
                 <label>
-                    Description
+                    {translate('workspace.description.label')}
                     <input
                         type="text"
                         name={'moduleArguments[workspace][description]'}
@@ -113,7 +140,7 @@ const EditWorkspaceDialog: React.FC = () => {
                     />
                 </label>
                 <label>
-                    Base Workspace
+                    {translate('workspace.baseWorkspace.label')}
                     <select
                         name={'moduleArguments[workspace][baseWorkspace]'}
                         value={workspaceBaseWorkspace}
@@ -140,7 +167,7 @@ const EditWorkspaceDialog: React.FC = () => {
                 </label>
                 {!selectedWorkspace.isPersonal && (
                     <label>
-                        Owner
+                        {translate('workspace.owner.label')}
                         <select
                             name={'moduleArguments[workspace][owner]'}
                             value={workspaceOwner}
@@ -158,23 +185,23 @@ const EditWorkspaceDialog: React.FC = () => {
                 <p>
                     <Icon icon="info-circle" style={{ color: 'var(--blue)', marginRight: '.5em' }} />
                     {selectedWorkspace.isPersonal
-                        ? 'This is a personal workspace and only the owner can access and modify this workspace.'
+                        ? translate('workspace.visibility.isPersonal')
                         : selectedWorkspace.isInternal
-                        ? 'Any logged in editor can see and modify this workspace.'
-                        : 'Only reviewers and administrators can access and modify this workspace.'}
+                        ? translate('workspace.visibility.private.info')
+                        : translate('workspace.visibility.internal.info')}
                 </p>
             </EditForm>
             <ActionBar>
                 <button type="button" className="neos-button" onClick={handleClose}>
-                    Cancel
+                    {translate('dialog.action.cancel')}
                 </button>
                 <button
                     type="button"
                     className="neos-button neos-button-primary"
                     onClick={handleCommit}
-                    disabled={isLoading}
+                    disabled={isLoading || !titleField.current?.validity.valid}
                 >
-                    Save changes
+                    {translate('dialog.action.update')}
                 </button>
             </ActionBar>
         </StyledModal>

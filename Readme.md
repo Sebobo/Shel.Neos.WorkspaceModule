@@ -42,7 +42,7 @@ Then apply database migrations
 ## Support
 
 * Neos 5.3 - 8.x
-* PostGreSQL & MySQL / MariaDB
+* PostgreSQL & MySQL / MariaDB
                                 
 ## Detailed feature list
                            

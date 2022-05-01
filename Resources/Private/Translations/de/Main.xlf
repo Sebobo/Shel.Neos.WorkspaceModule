@@ -38,7 +38,7 @@
             </trans-unit>
             <trans-unit id="table.column.action.show">
                 <source>Show changes in workspace {workspace}</source>
-                <target>Änderungen im Arbeitsbereich {workspace} zeigen</target>
+                <target>Änderungen im Arbeitsbereich {workspace} anzeigen</target>
             </trans-unit>
             <trans-unit id="table.column.action.edit">
                 <source>Edit workspace {workspace}</source>

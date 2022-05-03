@@ -1,0 +1,29 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    name: 'Neos workspace module tests'
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Run linting
+        run: yarn lint
+
+      - name: Build sources
+        run: yarn build

@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { ActionBar, DialogHeader, StyledModal } from './StyledModal';
 import { useWorkspaces } from '../../provider/WorkspaceProvider';
 import styled from 'styled-components';
-import Icon from '../Icon';
 
 const RadioLabel = styled.label``;
 

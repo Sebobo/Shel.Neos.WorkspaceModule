@@ -7,7 +7,7 @@ Neos:
             controller: Shel\Neos\WorkspaceModule\Controller\WorkspacesController
             additionalResources:
               javaScripts:
-                - 'resource://Shel.Neos.WorkspaceModule/Public/Assets/main.js'
+                Shel.Neos.WorkspaceModule: 'resource://Shel.Neos.WorkspaceModule/Public/Assets/main.js'
 
     userInterface:
       translation:

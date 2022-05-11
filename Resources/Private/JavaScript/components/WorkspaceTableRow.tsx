@@ -187,13 +187,19 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                 <button
                     className="neos-button"
                     type="button"
-                    title={translate('table.column.action.show', `Show changes in workspace ${workspace.title}`, {
-                        workspace: workspace.title,
-                    })}
+                    title={translate(
+                        workspace.changesCounts?.total
+                            ? 'table.column.action.show.title'
+                            : 'table.column.action.show.disabled.title',
+                        `Show changes in workspace ${workspace.title}`,
+                        {
+                            workspace: workspace.title,
+                        }
+                    )}
                     disabled={!workspace.changesCounts?.total}
                     onClick={() => showWorkspace(workspaceName)}
                 >
-                    <Icon icon="review" />
+                    <Icon icon="review" /> {translate('table.column.action.show')}
                 </button>
                 <button
                     className="neos-button"

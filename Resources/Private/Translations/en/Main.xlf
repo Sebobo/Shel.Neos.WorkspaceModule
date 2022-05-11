@@ -29,7 +29,13 @@
                 <source>None</source>
             </trans-unit>
             <trans-unit id="table.column.action.show">
+                <source>Review</source>
+            </trans-unit>
+            <trans-unit id="table.column.action.show.title">
                 <source>Show changes in workspace {workspace}</source>
+            </trans-unit>
+            <trans-unit id="table.column.action.show.disabled.title">
+                <source>No changes to review</source>
             </trans-unit>
             <trans-unit id="table.column.action.edit">
                 <source>Edit workspace {workspace}</source>

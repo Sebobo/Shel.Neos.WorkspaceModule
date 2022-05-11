@@ -37,8 +37,16 @@
                 <target>Keine</target>
             </trans-unit>
             <trans-unit id="table.column.action.show">
+                <source>Review</source>
+                <target>Überprüfen</target>
+            </trans-unit>
+            <trans-unit id="table.column.action.show.title">
                 <source>Show changes in workspace {workspace}</source>
                 <target>Änderungen im Arbeitsbereich {workspace} anzeigen</target>
+            </trans-unit>
+            <trans-unit id="table.column.action.show.disabled.title">
+                <source>No changes to review</source>
+                <target>Keine Änderungen zur Überprüfung</target>
             </trans-unit>
             <trans-unit id="table.column.action.edit">
                 <source>Edit workspace {workspace}</source>

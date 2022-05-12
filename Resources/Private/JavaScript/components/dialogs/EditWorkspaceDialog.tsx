@@ -54,9 +54,12 @@ const EditWorkspaceDialog: React.FC = () => {
     const [workspaceBaseWorkspace, setWorkspaceBaseWorkspace] = useState<WorkspaceName>('');
     const [workspaceOwner, setWorkspaceOwner] = useState<string>('');
     const editForm = useRef<HTMLFormElement>(null);
-    const titleField = useRef<HTMLInputElement>(null);
 
     const selectedWorkspace = useMemo(() => workspaces[selectedWorkspaceForEdit], [selectedWorkspaceForEdit]);
+    const titleValid = useMemo(() => {
+        const regex = new RegExp(validation.titlePattern);
+        return regex.test(workspaceTitle);
+    }, [workspaceTitle]);
 
     const handleChangeTitle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setWorkspaceTitle(event.target.value);
@@ -99,9 +102,11 @@ const EditWorkspaceDialog: React.FC = () => {
         setWorkspaceDescription(selectedWorkspace.description || '');
         setWorkspaceBaseWorkspace(selectedWorkspace.baseWorkspace.name || '');
         setWorkspaceOwner(selectedWorkspace.owner || '');
-    }, [selectedWorkspaceForEdit]);
+    }, [selectedWorkspace]);
 
-    return selectedWorkspaceForEdit ? (
+    console.debug(titleValid, 'titleField.current?.validity.valid');
+
+    return selectedWorkspace ? (
         <StyledModal isOpen onRequestClose={handleClose}>
             <DialogHeader>
                 {translate('dialog.edit.header', `Edit "${selectedWorkspace.title}"`, {
@@ -116,14 +121,12 @@ const EditWorkspaceDialog: React.FC = () => {
                     <input
                         type="text"
                         name={'moduleArguments[workspace][title]'}
-                        value={workspaceTitle}
+                        defaultValue={selectedWorkspace.title}
                         onChange={handleChangeTitle}
                         maxLength={200}
                         required
-                        ref={titleField}
-                        pattern={validation.titlePattern}
                     />
-                    {workspaceTitle && !titleField.current?.validity.valid && (
+                    {workspaceTitle && !titleValid && (
                         <ValidationMessage
                             dangerouslySetInnerHTML={{ __html: translate('workspace.title.validation') }}
                         />
@@ -199,7 +202,7 @@ const EditWorkspaceDialog: React.FC = () => {
                     type="button"
                     className="neos-button neos-button-primary"
                     onClick={handleCommit}
-                    disabled={isLoading || !titleField.current?.validity.valid}
+                    disabled={isLoading || !titleValid}
                 >
                     {translate('dialog.action.update')}
                 </button>

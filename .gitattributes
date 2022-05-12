@@ -1,3 +1,6 @@
 *.map binary
 main.js binary
 main.css binary
+
+.yarn export-ignore
+.github export-ignore

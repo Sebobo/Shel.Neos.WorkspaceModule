@@ -62,7 +62,14 @@ const DeleteWorkspaceDialog: React.FC = () => {
                         className="fas fa-exclamation-triangle"
                         style={{ color: 'var(--warningText)', marginRight: '.5em' }}
                     ></i>{' '}
-                    <span dangerouslySetInnerHTML={{ __html: translate('dialog.delete.rebasedWorkspaces') }} />
+                    <span
+                        dangerouslySetInnerHTML={{
+                            __html: translate(
+                                'dialog.delete.rebasedWorkspaces',
+                                'The following workspaces will be rebased onto the <strong>live</strong> workspace:'
+                            ),
+                        }}
+                    />
                     <ul>
                         {dependentWorkspaces.map((child) => (
                             <li key={child.title}>{child.title}</li>
@@ -86,14 +93,14 @@ const DeleteWorkspaceDialog: React.FC = () => {
                     </ul>
                 </RebasedWorkspaceWrapper>
             )}
-            <p>{translate('dialog.delete.pointOfNoReturn')}</p>
+            <p>{translate('dialog.delete.pointOfNoReturn', 'This action cannot be undone.')}</p>
 
             <ActionBar>
                 <button type="button" className="neos-button" onClick={handleClose}>
-                    {translate('dialog.action.cancel')}
+                    {translate('dialog.action.cancel', 'Cancel')}
                 </button>
                 <button type="button" className="neos-button neos-button-danger" onClick={handleDelete}>
-                    {translate('dialog.action.delete')}
+                    {translate('dialog.action.delete', 'Delete')}
                 </button>
             </ActionBar>
         </StyledModal>

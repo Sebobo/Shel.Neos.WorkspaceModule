@@ -7,20 +7,23 @@
     "node": ">=16"
   },
   "scripts": {
-    "build": "yarn workspace workspace-module run build",
-    "watch": "yarn workspace workspace-module run watch",
-    "lint": "yarn eslint Resources/Private/JavaScript"
+    "build": "yarn workspace @workspace-module/app build",
+    "watch": "yarn workspace @workspace-module/app watch",
+    "lint": "yarn eslint Resources/Private/JavaScript",
+    "dev": "yarn workspace @workspace-module/dev-server dev"
   },
   "workspaces": [
-    "Resources/Private/JavaScript"
+    "Resources/Private/JavaScript",
+    "Tests/dev-server"
   ],
   "dependencies": {
-    "workspace-module": "*"
+    "@workspace-module/app": "*"
   },
   "devDependencies": {
     "@neos-project/eslint-config-neos": "*",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
+    "@workspace-module/dev-server": "*",
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",

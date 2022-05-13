@@ -1,10 +1,11 @@
 {
-  "name": "workspace-module",
+  "name": "@workspace-module/app",
   "version": "1.0.0",
   "license": "GNU GPLv3",
   "private": true,
   "source": "index.tsx",
   "app": "../../Public/Assets/main.js",
+  "types": "typings/global.d.ts",
   "targets": {
     "app": {}
   },

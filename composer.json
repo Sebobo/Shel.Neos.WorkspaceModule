@@ -25,7 +25,8 @@
   "archive": {
     "exclude": [
       "/.yarn",
-      "/.github"
+      "/.github",
+      "/Tests"
     ]
   }
 }

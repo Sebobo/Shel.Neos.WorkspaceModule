@@ -104,8 +104,6 @@ const EditWorkspaceDialog: React.FC = () => {
         setWorkspaceOwner(selectedWorkspace.owner || '');
     }, [selectedWorkspace]);
 
-    console.debug(titleValid, 'titleField.current?.validity.valid');
-
     return selectedWorkspace ? (
         <StyledModal isOpen onRequestClose={handleClose}>
             <DialogHeader>

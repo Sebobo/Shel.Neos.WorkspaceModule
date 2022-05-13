@@ -40,7 +40,7 @@ const Footer: React.FC = () => {
                 className="neos-button neos-button-success"
                 onClick={() => setCreationDialogVisible(true)}
             >
-                {translate('footer.action.create')}
+                {translate('footer.action.create', 'Create new workspace')}
             </button>
             <WorkspaceCount>
                 {translate(

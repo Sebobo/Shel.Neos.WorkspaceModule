@@ -89,11 +89,11 @@ const CreateWorkspaceDialog: React.FC = () => {
 
     return (
         <StyledModal isOpen onRequestClose={handleClose}>
-            <DialogHeader>{translate('dialog.create.header')}</DialogHeader>
+            <DialogHeader>{translate('dialog.create.header', 'Create new workspace')}</DialogHeader>
             <EditForm ref={createForm}>
                 <input type="hidden" name={'__csrfToken'} value={csrfToken} />
                 <label>
-                    {translate('workspace.title.label')}
+                    {translate('workspace.title.label', 'Title')}
                     <input
                         type="text"
                         name={'moduleArguments[title]'}
@@ -111,11 +111,11 @@ const CreateWorkspaceDialog: React.FC = () => {
                     )}
                 </label>
                 <label>
-                    {translate('workspace.description.label')}
+                    {translate('workspace.description.label', 'Description')}
                     <input type="text" name={'moduleArguments[description]'} maxLength={500} />
                 </label>
                 <label>
-                    {translate('workspace.baseWorkspace.label')}
+                    {translate('workspace.baseWorkspace.label', 'Base workspace')}
                     <select name={'moduleArguments[baseWorkspace]'} defaultValue="live">
                         {Object.keys(baseWorkspaceOptions).map((workspaceName) => (
                             <option key={workspaceName} value={workspaceName}>
@@ -125,22 +125,24 @@ const CreateWorkspaceDialog: React.FC = () => {
                     </select>
                 </label>
                 <FormGroup>
-                    <label className="neos-control-label">{translate('workspace.visibility.label')}</label>
+                    <label className="neos-control-label">
+                        {translate('workspace.visibility.label', 'Visibility')}
+                    </label>
                     <RadioLabel className="neos-radio">
                         <input type="radio" name="moduleArguments[visibility]" defaultChecked value="internal" />
                         <span />
-                        <span>{translate('workspace.visibility.internal')}</span>
+                        <span>{translate('workspace.visibility.internal', 'Internal')}</span>
                     </RadioLabel>
                     <RadioLabel className="neos-radio">
                         <input type="radio" name="moduleArguments[visibility]" value="private" />
                         <span />
-                        <span>{translate('workspace.visibility.private')}</span>
+                        <span>{translate('workspace.visibility.private', 'Private')}</span>
                     </RadioLabel>
                 </FormGroup>
             </EditForm>
             <ActionBar>
                 <button type="button" className="neos-button" onClick={handleClose}>
-                    {translate('dialog.action.cancel')}
+                    {translate('dialog.action.cancel', 'Cancel')}
                 </button>
                 <button
                     type="button"
@@ -148,7 +150,7 @@ const CreateWorkspaceDialog: React.FC = () => {
                     onClick={handleCommit}
                     disabled={isLoading || !titleField.current?.validity.valid}
                 >
-                    {translate('dialog.action.create')}
+                    {translate('dialog.action.create', 'Create')}
                 </button>
             </ActionBar>
         </StyledModal>

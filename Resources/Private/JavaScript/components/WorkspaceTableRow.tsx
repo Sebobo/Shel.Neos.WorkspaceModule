@@ -117,8 +117,19 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                     {workspace.title}
                     {workspace.isStale || isUserWorkspace ? (
                         <>
-                            {workspace.isStale && <StaleBadge title={translate('badge.isStale')}></StaleBadge>}
-                            {isUserWorkspace && <InfoText>{translate('badge.isUserWorkspace')}</InfoText>}
+                            {workspace.isStale && (
+                                <StaleBadge
+                                    title={translate(
+                                        'badge.isStale',
+                                        'This workspace has not been used for a long time'
+                                    )}
+                                >
+                                    <Icon icon="exclamation" />
+                                </StaleBadge>
+                            )}
+                            {isUserWorkspace && (
+                                <InfoText>{translate('badge.isUserWorkspace', 'This is your workspace')}</InfoText>
+                            )}
                         </>
                     ) : null}
                 </span>
@@ -180,7 +191,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                 ) : isUserWorkspace ? (
                     '–'
                 ) : (
-                    translate('table.column.changes.empty')
+                    translate('table.column.changes.empty', 'None')
                 )}
             </Column>
             <ActionColumn>
@@ -199,7 +210,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                     disabled={!workspace.changesCounts?.total}
                     onClick={() => showWorkspace(workspaceName)}
                 >
-                    <Icon icon="review" /> {translate('table.column.action.show')}
+                    <Icon icon="review" /> {translate('table.column.action.show', 'Show')}
                 </button>
                 <button
                     className="neos-button"

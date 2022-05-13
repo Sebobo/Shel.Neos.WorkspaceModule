@@ -115,7 +115,7 @@ const EditWorkspaceDialog: React.FC = () => {
                 <input type="hidden" name={'__csrfToken'} value={csrfToken} />
                 <input type="hidden" name={'moduleArguments[workspace][__identity]'} value={selectedWorkspace.name} />
                 <label>
-                    {translate('workspace.title.label')}
+                    {translate('workspace.title.label', 'Title')}
                     <input
                         type="text"
                         name={'moduleArguments[workspace][title]'}
@@ -126,12 +126,14 @@ const EditWorkspaceDialog: React.FC = () => {
                     />
                     {workspaceTitle && !titleValid && (
                         <ValidationMessage
-                            dangerouslySetInnerHTML={{ __html: translate('workspace.title.validation') }}
+                            dangerouslySetInnerHTML={{
+                                __html: translate('workspace.title.validation', 'The title does not match the pattern'),
+                            }}
                         />
                     )}
                 </label>
                 <label>
-                    {translate('workspace.description.label')}
+                    {translate('workspace.description.label', 'Description')}
                     <input
                         type="text"
                         name={'moduleArguments[workspace][description]'}
@@ -141,7 +143,7 @@ const EditWorkspaceDialog: React.FC = () => {
                     />
                 </label>
                 <label>
-                    {translate('workspace.baseWorkspace.label')}
+                    {translate('workspace.baseWorkspace.label', 'Base Workspace')}
                     <select
                         name={'moduleArguments[workspace][baseWorkspace]'}
                         value={workspaceBaseWorkspace}
@@ -168,7 +170,7 @@ const EditWorkspaceDialog: React.FC = () => {
                 </label>
                 {!selectedWorkspace.isPersonal && (
                     <label>
-                        {translate('workspace.owner.label')}
+                        {translate('workspace.owner.label', 'Owner')}
                         <select
                             name={'moduleArguments[workspace][owner]'}
                             value={workspaceOwner}
@@ -186,15 +188,15 @@ const EditWorkspaceDialog: React.FC = () => {
                 <p>
                     <Icon icon="info-circle" style={{ color: 'var(--blue)', marginRight: '.5em' }} />
                     {selectedWorkspace.isPersonal
-                        ? translate('workspace.visibility.isPersonal')
+                        ? translate('workspace.visibility.isPersonal', 'This workspace is personal')
                         : selectedWorkspace.isInternal
-                        ? translate('workspace.visibility.private.info')
-                        : translate('workspace.visibility.internal.info')}
+                        ? translate('workspace.visibility.private.info', 'This workspace is private')
+                        : translate('workspace.visibility.internal.info', 'This workspace is internal')}
                 </p>
             </EditForm>
             <ActionBar>
                 <button type="button" className="neos-button" onClick={handleClose}>
-                    {translate('dialog.action.cancel')}
+                    {translate('dialog.action.cancel', 'Cancel')}
                 </button>
                 <button
                     type="button"
@@ -202,7 +204,7 @@ const EditWorkspaceDialog: React.FC = () => {
                     onClick={handleCommit}
                     disabled={isLoading || !titleValid}
                 >
-                    {translate('dialog.action.update')}
+                    {translate('dialog.action.update', 'Update')}
                 </button>
             </ActionBar>
         </StyledModal>

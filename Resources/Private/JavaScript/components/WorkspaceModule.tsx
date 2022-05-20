@@ -2,10 +2,8 @@ import * as React from 'react';
 
 import WorkspaceTable from './WorkspaceTable';
 import ErrorBoundary from './ErrorBoundary';
-import DeleteWorkspaceDialog from './dialogs/DeleteWorkspaceDialog';
-import EditWorkspaceDialog from './dialogs/EditWorkspaceDialog';
+import { DeleteWorkspaceDialog, EditWorkspaceDialog, CreateWorkspaceDialog } from './dialogs';
 import Footer from './Footer';
-import CreateWorkspaceDialog from './dialogs/CreateWorkspaceDialog';
 
 const WorkspaceModule: React.FC = () => {
     return (

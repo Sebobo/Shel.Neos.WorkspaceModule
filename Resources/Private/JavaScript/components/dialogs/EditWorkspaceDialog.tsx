@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import styled from 'styled-components';
+
 import { ActionBar, DialogHeader, StyledModal } from './StyledModal';
 import { useWorkspaces } from '../../provider/WorkspaceProvider';
-import styled from 'styled-components';
-import Icon from '../Icon';
+import { ValidationMessage, Icon } from '../presentationals';
 
 const EditForm = styled.form`
     width: 400px;
@@ -18,20 +19,6 @@ const EditForm = styled.form`
         display: block;
         width: 100%;
         margin-top: 0.3rem;
-    }
-`;
-
-const ValidationMessage = styled.div`
-    color: red;
-    font-size: 0.8rem;
-    margin-top: 0.5rem;
-
-    & ul {
-        padding: 0 1rem;
-    }
-
-    & li {
-        list-style-type: disc;
     }
 `;
 

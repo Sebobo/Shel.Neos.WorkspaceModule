@@ -1,17 +1,9 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { ActionBar, DialogHeader, StyledModal } from './StyledModal';
-import { useWorkspaces } from '../../provider/WorkspaceProvider';
 import styled from 'styled-components';
 
-const RadioLabel = styled.label``;
-
-const FormGroup = styled.div`
-    margin-top: 1rem;
-    & > span {
-        display: block;
-        margin-bottom: 0.5em;
-    }
-`;
+import { ActionBar, DialogHeader, StyledModal } from './StyledModal';
+import { useWorkspaces } from '../../provider/WorkspaceProvider';
+import { FormGroup, ValidationMessage, RadioLabel } from '../presentationals';
 
 const EditForm = styled.form`
     width: 400px;
@@ -35,20 +27,6 @@ const EditForm = styled.form`
         display: block;
         width: 100%;
         margin-top: 0.3rem;
-    }
-`;
-
-const ValidationMessage = styled.div`
-    color: red;
-    font-size: 0.8rem;
-    margin-top: 0.5rem;
-
-    & ul {
-        padding: 0 1rem;
-    }
-
-    & li {
-        list-style-type: disc;
     }
 `;
 

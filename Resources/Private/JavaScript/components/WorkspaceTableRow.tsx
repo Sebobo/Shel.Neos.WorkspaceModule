@@ -1,43 +1,32 @@
 import * as React from 'react';
-
-import Icon from './Icon';
 import styled from 'styled-components';
+
 import { useWorkspaces } from '../provider/WorkspaceProvider';
 import { formatDate } from '../helper/format';
-import ArrowIcon from './ArrowIcon';
+import { ArrowIcon, Badge, Icon } from './presentationals';
 
 type WorkspaceTableRowProps = {
     workspaceName: WorkspaceName;
     level: number;
 };
 
-const AddedBadge = styled.span`
+const AddedBadge = styled(Badge)`
     background-color: var(--green);
-    border-radius: 15%;
-    color: var(--textOnGray);
-    padding: 0.2em 0.5em;
-    width: 33%;
-    user-select: none;
-    cursor: help;
-
-    & + * {
-        margin-left: 0.5em;
-    }
 `;
 
-const ChangedBadge = styled(AddedBadge)`
+const ChangedBadge = styled(Badge)`
     background-color: var(--warningText);
 `;
 
-const DeletedBadge = styled(AddedBadge)`
+const DeletedBadge = styled(Badge)`
     background-color: var(--errorText);
 `;
 
-const OrphanBadge = styled(AddedBadge)`
+const OrphanBadge = styled(Badge)`
     background-color: var(--grayLight);
 `;
 
-const StaleBadge = styled(AddedBadge)`
+const StaleBadge = styled(Badge)`
     background-color: var(--warningText);
     margin-left: 0.5em;
 `;

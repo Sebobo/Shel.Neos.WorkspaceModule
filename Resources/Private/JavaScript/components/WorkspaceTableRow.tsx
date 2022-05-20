@@ -94,7 +94,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
     const nodeCountNotCoveredByChanges = workspace.nodeCount - (workspace.changesCounts?.total || 0) - 1;
 
     return (
-        <Row isUserWorkspace={isUserWorkspace} isStale={workspace.isStale}>
+        <Row isUserWorkspace={isUserWorkspace} isStale={workspace.isStale} id={`workspace-${workspace.name}`}>
             <TypeColumn>
                 <Icon icon={icon} />
             </TypeColumn>

@@ -34,22 +34,24 @@ import { loadFixtures } from './fixtures';
 
     const baseWorkspaceOptionsData = document.createElement('script');
     baseWorkspaceOptionsData.id = 'baseWorkspaceOptions';
-    baseWorkspaceOptionsData.innerText = '{}';
+    baseWorkspaceOptionsData.type = 'application/json';
+    baseWorkspaceOptionsData.innerText = JSON.stringify(fixtures.baseWorkspaceOptions);
     container.appendChild(baseWorkspaceOptionsData);
 
     const ownerOptionsData = document.createElement('script');
     ownerOptionsData.id = 'ownerOptions';
+    ownerOptionsData.type = 'application/json';
     ownerOptionsData.innerText = '{}';
     container.appendChild(ownerOptionsData);
 
     container.dataset.endpoints = JSON.stringify({
-        deleteWorkspace: '/deleteWorkspace',
-        updateWorkspace: '/updateWorkspace',
+        deleteWorkspace: '/deleteWorkspace?workspace=---workspace---',
+        updateWorkspace: '/updateWorkspace?workspace=---workspace---',
         createWorkspace: '/createWorkspace',
-        showWorkspace: '/showWorkspace',
+        showWorkspace: '/showWorkspace?workspace=---workspace---',
         getChanges: '/getChanges',
     });
-    container.dataset.userWorkspace = JSON.stringify('user-shelzle');
+    container.dataset.userWorkspace = JSON.stringify('user-sskinner');
     container.dataset.csrfToken = JSON.stringify('abc');
     container.dataset.userCanManageInteralWorkspaces = JSON.stringify(true);
     container.dataset.validation = JSON.stringify({});

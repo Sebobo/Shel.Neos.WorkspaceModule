@@ -66,10 +66,10 @@ interface Workspace {
     title: WorkspaceTitle;
     description: string | null;
     owner: UserName | null;
-    creator: UserName | null;
+    creator: UserLabel | null;
     lastChangedDate: string | null;
     lastChangedTimestamp: number | null;
-    lastChangedBy: UserName | null;
+    lastChangedBy: UserLabel | null;
     baseWorkspace: {
         name: WorkspaceName;
         title: WorkspaceTitle;

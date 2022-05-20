@@ -43,6 +43,12 @@ bundler.watch().then(() => {
         });
     });
 
+    app.get('/showWorkspace', (req, res) => {
+        const workspaceName = req.query.workspace.toString();
+        const workspace = workspaces[workspaceName];
+        res.send(`Viewing changes in workspace "${workspace.title}" is not implemented yet!`);
+    });
+
     app.listen(port, () => {
         console.log(`Success! Your application is running on port ${port}.`);
     });

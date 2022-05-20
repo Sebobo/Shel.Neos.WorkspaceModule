@@ -1,0 +1,5 @@
+{
+  "$schema": "https://on.cypress.io/cypress.schema.json",
+  "integrationFolder": "Tests/integration",
+  "baseUrl": "http://localhost:4000"
+}

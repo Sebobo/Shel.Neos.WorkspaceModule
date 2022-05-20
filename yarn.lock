@@ -6528,6 +6528,7 @@ __metadata:
     "@typescript-eslint/parser": ^5.19.0
     "@workspace-module/app": "*"
     "@workspace-module/dev-server": "*"
+    cypress: ^9.6.1
     eslint: ^8.13.0
     eslint-config-prettier: ^8.5.0
     eslint-plugin-prettier: ^4.0.0

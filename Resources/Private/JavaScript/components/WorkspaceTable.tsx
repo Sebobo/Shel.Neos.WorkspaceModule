@@ -49,7 +49,7 @@ const WorkspaceTable: React.FC = () => {
     }, []);
 
     return (
-        <Table>
+        <Table id="workspaceTable">
             <thead>
                 <tr>
                     <HeaderColumn> </HeaderColumn>

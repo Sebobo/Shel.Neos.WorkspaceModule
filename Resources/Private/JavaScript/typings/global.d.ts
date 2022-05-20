@@ -67,7 +67,7 @@ interface Workspace {
     description: string | null;
     owner: UserName | null;
     creator: UserName | null;
-    lastChangedDate: number | null;
+    lastChangedDate: string | null;
     lastChangedTimestamp: number | null;
     lastChangedBy: UserName | null;
     baseWorkspace: {

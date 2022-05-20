@@ -6,6 +6,9 @@ const IconSvg = styled.svg`
     vertical-align: middle;
 `;
 
+/**
+ * This icon is not available in the Font Awesome 5 library and is therefore separated from the Icon component.
+ */
 const ArrowIcon = ({ style }) => {
     return (
         <IconSvg style={style} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="10" height="14">

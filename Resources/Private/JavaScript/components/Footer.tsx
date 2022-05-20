@@ -36,6 +36,7 @@ const Footer: React.FC = () => {
     return (
         <div className="neos-footer">
             <button
+                id="createButton"
                 type="button"
                 className="neos-button neos-button-success"
                 onClick={() => setCreationDialogVisible(true)}

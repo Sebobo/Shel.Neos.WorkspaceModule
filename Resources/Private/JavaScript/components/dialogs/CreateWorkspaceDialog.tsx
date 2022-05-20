@@ -66,7 +66,7 @@ const CreateWorkspaceDialog: React.FC = () => {
     if (!creationDialogVisible) return null;
 
     return (
-        <StyledModal isOpen onRequestClose={handleClose}>
+        <StyledModal isOpen onRequestClose={handleClose} id="createWorkspaceDialog">
             <DialogHeader>{translate('dialog.create.header', 'Create new workspace')}</DialogHeader>
             <EditForm ref={createForm}>
                 <input type="hidden" name={'__csrfToken'} value={csrfToken} />
@@ -124,6 +124,7 @@ const CreateWorkspaceDialog: React.FC = () => {
                 </button>
                 <button
                     type="button"
+                    id="createWorkspaceDialogCreate"
                     className="neos-button neos-button-primary"
                     onClick={handleCommit}
                     disabled={isLoading || !titleField.current?.validity.valid}

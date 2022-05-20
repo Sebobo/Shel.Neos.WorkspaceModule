@@ -10,7 +10,8 @@
     "build": "yarn workspace @workspace-module/app build",
     "watch": "yarn workspace @workspace-module/app watch",
     "lint": "yarn eslint Resources/Private/JavaScript",
-    "dev": "yarn workspace @workspace-module/dev-server dev"
+    "dev": "yarn workspace @workspace-module/dev-server dev",
+    "test:integration": "yarn cypress run"
   },
   "workspaces": [
     "Resources/Private/JavaScript",
@@ -24,6 +25,7 @@
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
     "@workspace-module/dev-server": "*",
+    "cypress": "^9.6.1",
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",

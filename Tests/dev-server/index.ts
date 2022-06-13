@@ -6,7 +6,7 @@ import { loadFixtures } from './fixtures';
     const container = document.getElementById('workspace-module-app');
 
     // Create Neos API mock
-    window.NeosCMS = {
+    (window as AppWindow).NeosCMS = {
         I18n: {
             initialized: true,
             // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-unused-vars

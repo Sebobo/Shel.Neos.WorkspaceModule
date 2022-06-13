@@ -191,7 +191,7 @@ function generateBaseWorkspaceOptions(workspaces: WorkspaceList): BaseWorkspaceO
         {
             live: 'Live',
         }
-    )
+    );
 }
 
 const loadFixtures = () => {

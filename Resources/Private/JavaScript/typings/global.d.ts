@@ -29,12 +29,13 @@ interface NeosNotification {
     info: (title: string) => void;
 }
 
-interface Window {
-    NeosCMS: {
-        I18n: NeosI18n;
-        Notification: NeosNotification;
+type AppWindow = Window &
+    typeof globalThis & {
+        NeosCMS: {
+            I18n: NeosI18n;
+            Notification: NeosNotification;
+        };
     };
-}
 
 type WorkspaceValidation = {
     titlePattern: string;

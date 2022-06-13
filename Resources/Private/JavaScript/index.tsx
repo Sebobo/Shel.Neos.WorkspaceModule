@@ -13,7 +13,7 @@ setConfig({
 });
 
 window.onload = async (): Promise<void> => {
-    while (!window.NeosCMS?.I18n?.initialized) {
+    while (!(window as AppWindow).NeosCMS?.I18n?.initialized) {
         await new Promise((resolve) => setTimeout(resolve, 50));
     }
 
@@ -35,7 +35,7 @@ window.onload = async (): Promise<void> => {
     const baseWorkspaceOptions = JSON.parse(document.getElementById('baseWorkspaceOptions').textContent);
     const ownerOptions = JSON.parse(document.getElementById('ownerOptions').textContent);
 
-    const { I18n, Notification } = window.NeosCMS;
+    const { I18n, Notification } = (window as AppWindow).NeosCMS;
 
     const translate = (id: string, label = '', args = []): string => {
         return I18n.translate(id, label, 'Shel.Neos.WorkspaceModule', 'Main', args);

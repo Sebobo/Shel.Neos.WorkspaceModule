@@ -138,13 +138,13 @@
                 <source>Public – Any logged in editor can see and modify this workspace.</source>
             </trans-unit>
             <trans-unit id="workspace.visibility.internal.info">
-                <source>Only reviewers and administrators can access and modify this workspace.</source>
+                <source>Any logged in editor can see and modify this workspace.</source>
             </trans-unit>
             <trans-unit id="workspace.visibility.private">
                 <source>Private – Only reviewers and administrators can access and modify this workspace.</source>
             </trans-unit>
             <trans-unit id="workspace.visibility.private.info">
-                <source>Any logged in editor can see and modify this workspace.</source>
+                <source>Only reviewers and administrators can access and modify this workspace.</source>
             </trans-unit>
             <trans-unit id="workspace.visibility.isPersonal">
                 <source>This is a personal workspace and only the owner can access and modify this workspace.</source>

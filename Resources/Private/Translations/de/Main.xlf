@@ -128,7 +128,7 @@
             </trans-unit>
             <trans-unit id="dialog.delete.rebasedWorkspaces" >
                 <source><![CDATA[The following workspaces will be rebased onto the <strong>live</strong> workspace:]]></source>
-                <target><![CDATA[Die folgenden Arbeitsbereiche werden auf den <strong>Live</strong>-Arbeitsbereich verschoben:]]></target>
+                <target><![CDATA[Die folgenden Arbeitsbereiche werden den <strong>Live</strong>-Arbeitsbereich verschoben:]]></target>
             </trans-unit>
             <trans-unit id="dialog.delete.privateWorkspaces">
                 <source><![CDATA[<strong>{count}</strong> private workspace(s)]]></source>
@@ -176,20 +176,20 @@
                 <target>Öffentlich - eingeloggte Redakteur*innen können diesen Arbeitsbereich sehen und ändern.</target>
             </trans-unit>
             <trans-unit id="workspace.visibility.internal.info">
-                <source>Only reviewers and administrators can access and modify this workspace.</source>
-                <target>Nur Prüfer*innen und Administrator*innen können auf diesen Arbeitsbereich zugreifen und ihn ändern.</target>
+                <source>Any logged in editor can see and modify this workspace.</source>
+                <target>Eingeloggte Redakteur*innen können diesen Arbeitsbereich sehen und ändern.</target>
             </trans-unit>
             <trans-unit id="workspace.visibility.private">
                 <source>Private – Only reviewers and administrators can access and modify this workspace.</source>
                 <target>Privat - nur Prüfer*innen und Administrator*innen können auf diesen Arbeitsbereich zugreifen und ihn ändern.</target>
             </trans-unit>
             <trans-unit id="workspace.visibility.private.info">
-                <source>Any logged in editor can see and modify this workspace.</source>
-                <target>Eingeloggte Redakteur*innen können diesen Arbeitsbereich sehen und ändern.</target>
+                <source>Only reviewers and administrators can access and modify this workspace.</source>
+                <target>Nur Prüfer*innen und Administrator*innen können auf diesen Arbeitsbereich zugreifen und ihn ändern.</target>
             </trans-unit>
             <trans-unit id="workspace.visibility.isPersonal">
                 <source>This is a personal workspace and only the owner can access and modify this workspace.</source>
-                <target>Dies ist ein persönlicher Arbeitsbereich, auf den Eigentümer*innen einsehen und ändern können.</target>
+                <target>Dies ist ein persönlicher Arbeitsbereich, den Eigentümer*innen einsehen und ändern können.</target>
             </trans-unit>
         </body>
     </file>

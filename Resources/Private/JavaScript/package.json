@@ -5,9 +5,10 @@
   "private": true,
   "source": "index.tsx",
   "app": "../../Public/Assets/main.js",
-  "types": "typings/global.d.ts",
   "targets": {
-    "app": {}
+    "app": {
+      "publicUrl": "../../Public/Assets"
+    }
   },
   "outputFormat": "global",
   "scripts": {
@@ -16,20 +17,20 @@
     "build": "parcel build"
   },
   "dependencies": {
-    "@parcel/transformer-react-refresh-wrap": "^2.4.1",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-modal": "^3.14.4",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "react-modal": "^3.15.1",
     "styled-components": "^5.3.5"
   },
   "neos": {
     "buildTargetDirectory": "../../Public/Assets"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.0",
-    "@types/react": "^18.0.2",
-    "parcel": "^2.4.1",
+    "@babel/core": "^7.18.5",
+    "@parcel/transformer-react-refresh-wrap": "^2.6.0",
+    "@types/react": "^18.0.12",
     "patch-package": "^6.4.7",
-    "react-hot-loader": "^4.13.0"
+    "react-hot-loader": "^4.13.0",
+    "typescript": "^4.7.3"
   }
 }

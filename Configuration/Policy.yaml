@@ -20,6 +20,9 @@ privilegeTargets:
       label: Allowed to manage internal workspaces
       matcher: 'method(Shel\Neos\WorkspaceModule\Controller\Module\Management\WorkspacesController->(publishWorkspace|discardWorkspace|edit|update|delete)Action(workspace.owner === null))'
 
+    'Shel.Neos.WorkspaceModule:Backend.Module.Management.Workspaces.ManageSharedWorkspaces':
+      matcher: 'method(Shel\Neos\WorkspaceModule\Controller\Module\Management\WorkspacesController->(publishWorkspace|discardWorkspace|edit|update|delete)Action(workspace.owner === null))'
+
     'Shel.Neos.WorkspaceModule:Backend.Module.Management.Workspaces.ManageAllPrivateWorkspaces':
       label: Allowed to manage all private workspaces
       matcher: 'method(Shel\Neos\WorkspaceModule\Controller\Module\Management\WorkspacesController->(publishWorkspace|discardWorkspace|edit|update|delete)Action()) && evaluate(this.workspace.owner !== current.userInformation.backendUser, this.workspace.personalWorkspace === false)'

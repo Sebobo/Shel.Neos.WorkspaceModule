@@ -2,7 +2,7 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
     index = Neos.Fusion:Component {
         userWorkspace = ${userWorkspace}
         baseWorkspaceOptions = ${baseWorkspaceOptions}
-        ownerOptions = ${ownerOptions}
+        userList = ${userList}
         workspaces = ${workspaces}
         csrfToken = ${csrfToken}
         userCanManageInternalWorkspaces = ${userCanManageInternalWorkspaces}
@@ -49,8 +49,8 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                         <script type="application/json" id="baseWorkspaceOptions">
                             {Json.stringify(props.baseWorkspaceOptions)}
                         </script>
-                        <script type="application/json" id="ownerOptions">
-                            {Json.stringify(props.ownerOptions)}
+                        <script type="application/json" id="userList">
+                            {Json.stringify(props.userList)}
                         </script>
                         {I18n.translate('module.loadingText', 'Loading workspace module…', {}, 'Main', 'Shel.Neos.WorkspaceModule')}
                     </div>

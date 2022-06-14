@@ -5,7 +5,6 @@ namespace Neos\Flow\Persistence\Doctrine\Migrations;
 
 use Doctrine\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Migrations\AbortMigrationException;
 
 class Version20220412145046 extends AbstractMigration
 {
@@ -15,9 +14,6 @@ class Version20220412145046 extends AbstractMigration
         return 'Adds table for tracking workspace activity';
     }
 
-    /**
-     * @throws AbortMigrationException
-     */
     public function up(Schema $schema): void
     {
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on "postgresql".');
@@ -25,9 +21,6 @@ class Version20220412145046 extends AbstractMigration
         $this->addSql('CREATE TABLE shel_neos_workspacemodule_domain_model_workspacedetails (persistence_object_identifier VARCHAR(40) NOT NULL, lastchangeddate TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, lastchangedby VARCHAR(255) NOT NULL, workspacename VARCHAR(255) NOT NULL, PRIMARY KEY(persistence_object_identifier))');
     }
 
-    /**
-     * @throws AbortMigrationException
-     */
     public function down(Schema $schema): void
     {
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on "postgresql".');

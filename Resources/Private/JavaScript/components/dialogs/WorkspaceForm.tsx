@@ -2,8 +2,10 @@ import React, { ChangeEvent, useCallback, useMemo, useRef, useState } from 'reac
 import styled from 'styled-components';
 
 import { useWorkspaces } from '../../provider/WorkspaceProvider';
-import { FormGroup, Icon, RadioLabel, ValidationMessage } from '../presentationals';
+import { RadioLabel, ValidationMessage } from '../presentationals';
 import { ActionBar } from './StyledModal';
+import BaseWorkspaceSelection from './sections/BaseWorkspaceSelection';
+import AccessControl from './sections/AccessControl';
 
 const Form = styled.form`
     width: 400px;
@@ -28,6 +30,33 @@ const Form = styled.form`
         width: 100%;
         margin-top: 0.3rem;
     }
+
+    .neos.neos-module & select {
+        height: auto;
+        min-height: var(--spacing-GoldenUnit);
+
+        & option {
+            padding: 3px 0;
+            margin: 3px 0;
+
+            &::before {
+                content: ' ';
+                display: inline-block;
+                margin-right: 0.3rem;
+                width: 1em;
+                text-align: center;
+            }
+
+            &:checked {
+                background-color: transparent;
+                color: var(--textOnGray);
+
+                &::before {
+                    content: '✓';
+                }
+            }
+        }
+    }
 `;
 
 type FormProps = {
@@ -39,12 +68,9 @@ type FormProps = {
 };
 
 const WorkspaceForm: React.FC<FormProps> = ({ enabled, onSubmit, onCancel, submitLabel, workspace }) => {
-    const { csrfToken, translate, validation, baseWorkspaceOptions, userCanManageInternalWorkspaces, ownerOptions } =
-        useWorkspaces();
+    const { csrfToken, translate, validation } = useWorkspaces();
     const workspaceForm = useRef<HTMLFormElement>(null);
-    const ownerField = useRef<HTMLSelectElement>(null);
     const [title, setTitle] = useState(workspace?.title ? workspace.title : '');
-    const [owner, setOwner] = useState(workspace?.owner ? workspace.owner : '');
 
     const updateTitle = useCallback((event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.value) {
@@ -52,25 +78,10 @@ const WorkspaceForm: React.FC<FormProps> = ({ enabled, onSubmit, onCancel, submi
         }
     }, []);
 
-    const updateOwner = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
-        if (event.target.value) {
-            setOwner(event.target.value);
-        }
-    }, []);
-
-    const currentOwner = useMemo(() => {
-        return workspace?.owner ? Object.keys(ownerOptions).find((name) => ownerOptions[name] === workspace.owner) : '';
-    }, [workspace?.owner]);
-
     const titleIsValid = useMemo(() => {
         const regex = new RegExp(validation.titlePattern);
         return regex.test(title);
     }, [title]);
-
-    const selectableBaseWorkspaceNames = useMemo(() => {
-        const workspaceNames = Object.keys(baseWorkspaceOptions);
-        return workspace ? workspaceNames.filter((workspaceName) => workspaceName !== workspace.name) : workspaceNames;
-    }, [workspace, baseWorkspaceOptions]);
 
     const handleSubmit = useCallback(() => {
         onSubmit(new FormData(workspaceForm.current));
@@ -105,76 +116,8 @@ const WorkspaceForm: React.FC<FormProps> = ({ enabled, onSubmit, onCancel, submi
                     maxLength={500}
                 />
             </label>
-            <label>
-                {translate('workspace.baseWorkspace.label', 'Base Workspace')}
-                <select
-                    name={'moduleArguments[workspace][baseWorkspace]'}
-                    disabled={workspace?.changesCounts.total > 1}
-                    defaultValue={workspace?.baseWorkspace.name || ''}
-                >
-                    {selectableBaseWorkspaceNames.map((workspaceName) => (
-                        <option key={workspaceName} value={workspaceName}>
-                            {baseWorkspaceOptions[workspaceName]}
-                        </option>
-                    ))}
-                </select>
-                {workspace?.changesCounts.total > 1 && (
-                    <p style={{ marginTop: '.5em' }}>
-                        <i
-                            className="fas fa-exclamation-triangle"
-                            style={{ color: 'var(--warningText)', marginRight: '.5em' }}
-                        ></i>{' '}
-                        You cannot change the base workspace of workspace with unpublished changes.
-                    </p>
-                )}
-            </label>
-            {/*TODO: Allow setting an owner already during creation */}
-            {workspace ? (
-                <>
-                    {!workspace.isPersonal && (
-                        <label>
-                            {translate('workspace.owner.label', 'Owner')}
-                            <select
-                                name={'moduleArguments[workspace][owner]'}
-                                disabled={!userCanManageInternalWorkspaces}
-                                defaultValue={currentOwner}
-                                ref={ownerField}
-                                onChange={updateOwner}
-                            >
-                                {Object.keys(ownerOptions).map((userName) => (
-                                    <option key={userName} value={userName}>
-                                        {ownerOptions[userName]}
-                                    </option>
-                                ))}
-                            </select>
-                        </label>
-                    )}
-                    <p>
-                        <Icon icon="info-circle" style={{ color: 'var(--blue)', marginRight: '.5em' }} />
-                        {workspace.isPersonal
-                            ? translate('workspace.visibility.isPersonal', 'This workspace is personal')
-                            : owner
-                            ? translate('workspace.visibility.private.info', 'This workspace is private')
-                            : translate('workspace.visibility.internal.info', 'This workspace is internal')}
-                    </p>
-                </>
-            ) : (
-                <FormGroup>
-                    <label className="neos-control-label">
-                        {translate('workspace.visibility.label', 'Visibility')}
-                    </label>
-                    <RadioLabel className="neos-radio">
-                        <input type="radio" name="moduleArguments[visibility]" defaultChecked value="internal" />
-                        <span />
-                        <span>{translate('workspace.visibility.internal', 'Internal')}</span>
-                    </RadioLabel>
-                    <RadioLabel className="neos-radio">
-                        <input type="radio" name="moduleArguments[visibility]" value="private" />
-                        <span />
-                        <span>{translate('workspace.visibility.private', 'Private')}</span>
-                    </RadioLabel>
-                </FormGroup>
-            )}
+            <BaseWorkspaceSelection workspace={workspace} />
+            <AccessControl workspace={workspace} />
             <ActionBar>
                 <button type="button" className="neos-button" onClick={onCancel}>
                     {translate('dialog.action.cancel', 'Cancel')}

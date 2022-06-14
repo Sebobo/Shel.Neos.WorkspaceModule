@@ -13,6 +13,7 @@ namespace Shel\Neos\WorkspaceModule\Service;
  * source code.
  */
 
+use Neos\ContentRepository\Domain\Repository\WorkspaceRepository;
 use Neos\Flow\Annotations as Flow;
 use Neos\ContentRepository\Domain\Model\NodeInterface;
 use Neos\ContentRepository\Domain\Model\Workspace;
@@ -56,6 +57,12 @@ class WorkspaceActivityService
      */
     protected $persistenceManager;
 
+    /**
+     * @Flow\Inject
+     * @var WorkspaceRepository
+     */
+    protected $workspaceRepository;
+
     public function nodePublished(NodeInterface $node, Workspace $targetWorkspace = null): void
     {
         if (!$targetWorkspace) {
@@ -81,7 +88,8 @@ class WorkspaceActivityService
                 $workspaceDetails->setLastChangedBy($currentUser);
                 $this->workspaceDetailsRepository->update($workspaceDetails);
             } else {
-                $workspaceDetails = new WorkspaceDetails($updatedWorkspace, null, new \DateTime(), $currentUser);
+                $workspace = $this->workspaceRepository->findByIdentifier($updatedWorkspace);
+                $workspaceDetails = new WorkspaceDetails($workspace, null, new \DateTime(), $currentUser);
                 $this->workspaceDetailsRepository->add($workspaceDetails);
             }
         }

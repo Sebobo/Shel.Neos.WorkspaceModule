@@ -33,7 +33,7 @@ window.onload = async (): Promise<void> => {
     };
     const workspaces = JSON.parse(document.getElementById('workspaces').textContent);
     const baseWorkspaceOptions = JSON.parse(document.getElementById('baseWorkspaceOptions').textContent);
-    const ownerOptions = JSON.parse(document.getElementById('ownerOptions').textContent);
+    const userList = JSON.parse(document.getElementById('userList').textContent);
 
     const { I18n, Notification } = (window as AppWindow).NeosCMS;
 
@@ -54,7 +54,7 @@ window.onload = async (): Promise<void> => {
                     workspaceList={workspaces}
                     baseWorkspaceOptions={baseWorkspaceOptions}
                     userCanManageInternalWorkspaces={userCanManageInternalWorkspaces}
-                    ownerOptions={ownerOptions}
+                    userList={userList}
                     userWorkspace={userWorkspace}
                     endpoints={endpoints}
                     csrfToken={csrfToken}

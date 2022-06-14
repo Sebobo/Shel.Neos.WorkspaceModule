@@ -90,7 +90,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $workspaces = $this->workspaceRepository->findAll()->toArray();
 
         $changesByWorkspace = array_reduce($workspaces, function ($carry, Workspace $workspace) {
-            if ($this->userService->currentUserCanManageWorkspace($workspace)) {
+            if ($workspace->isInternalWorkspace() || $this->userService->currentUserCanManageWorkspace($workspace)) {
                 $carry[$workspace->getName()] = $this->computeChangesCount($workspace);
             }
             return $carry;

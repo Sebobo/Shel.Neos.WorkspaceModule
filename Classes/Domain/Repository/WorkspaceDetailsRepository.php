@@ -13,14 +13,14 @@ namespace Shel\Neos\WorkspaceModule\Domain\Repository;
  * source code.
  */
 
+use Neos\ContentRepository\Domain\Model\Workspace;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Persistence\QueryResultInterface;
 use Neos\Flow\Persistence\Repository;
 use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
 
 /**
- * @method WorkspaceDetails findOneByIdentifier(string $identifier)
- * @method WorkspaceDetails findOneByWorkspaceName(string $workspaceName)
+ * @method WorkspaceDetails findOneByWorkspace(Workspace $workspace)
  * @method QueryResultInterface findAll()
  *
  * @Flow\Scope("singleton")

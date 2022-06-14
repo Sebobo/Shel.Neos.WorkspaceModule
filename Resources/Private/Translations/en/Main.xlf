@@ -6,6 +6,15 @@
                 <source>Loading workspace module…</source>
             </trans-unit>
 
+            <trans-unit id="table.column.access.private">
+                <source>This workspace is owned by {owner}</source>
+            </trans-unit>
+            <trans-unit id="table.column.access.internal">
+                <source>This is a shared workspace</source>
+            </trans-unit>
+            <trans-unit id="table.column.access.acl">
+                <source>This workspace is owned by {owner} but allows access to additional users</source>
+            </trans-unit>
             <trans-unit id="table.header.title">
                 <source>Title</source>
             </trans-unit>
@@ -130,6 +139,9 @@
             </trans-unit>
             <trans-unit id="workspace.owner.label">
                 <source>Owner</source>
+            </trans-unit>
+            <trans-unit id="workspace.acl.label">
+                <source>Allow access for additional users:</source>
             </trans-unit>
             <trans-unit id="workspace.visibility.label">
                 <source>Visibility</source>

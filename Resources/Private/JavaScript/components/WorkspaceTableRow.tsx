@@ -89,13 +89,25 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
         translate,
     } = useWorkspaces();
     const workspace = workspaces[workspaceName];
-    const icon = workspace.isInternal ? 'users' : 'user';
+    const icon = workspace.isInternal ? 'users' : workspace.acl.length > 0 ? 'user-plus' : 'user';
     const isUserWorkspace = workspaceName === userWorkspace;
     const nodeCountNotCoveredByChanges = workspace.nodeCount - (workspace.changesCounts?.total || 0) - 1;
 
     return (
         <Row isUserWorkspace={isUserWorkspace} isStale={workspace.isStale} id={`workspace-${workspace.name}`}>
-            <TypeColumn>
+            <TypeColumn
+                title={
+                    workspace.acl.length > 0
+                        ? translate('table.column.access.acl')
+                        : workspace.owner
+                        ? translate(
+                              'table.column.access.private',
+                              `This workspace is owned by ${workspace.owner.label}`,
+                              { owner: workspace.owner.label }
+                          )
+                        : translate('table.column.access.internal')
+                }
+            >
                 <Icon icon={icon} />
             </TypeColumn>
             <TextColumn title={workspace.name}>
@@ -124,9 +136,10 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                 </span>
             </TextColumn>
             <TextColumn title={workspace.description}>{workspace.description || '–'}</TextColumn>
-            <Column>{workspace.creator || '–'}</Column>
+            <Column>{workspace.creator?.label || '–'}</Column>
             <Column>
-                {workspace.lastChangedBy ? `${workspace.lastChangedBy} ${formatDate(workspace.lastChangedDate)}` : '–'}
+                {workspace.lastChangedBy ? workspace.lastChangedBy?.label + ' ' : ''}
+                {workspace.lastChangedDate ? formatDate(workspace.lastChangedDate) : '–'}
             </Column>
             <Column>
                 {workspace.changesCounts === null ? (

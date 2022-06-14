@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Shel\Neos\WorkspaceModule\Domain\Model;
@@ -13,8 +14,12 @@ namespace Shel\Neos\WorkspaceModule\Domain\Model;
  * source code.
  */
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Neos\ContentRepository\Domain\Model\Workspace;
 use Neos\Flow\Annotations as Flow;
+use Neos\Neos\Domain\Model\User;
 
 /**
  * @Flow\Entity
@@ -34,9 +39,11 @@ class WorkspaceDetails
     protected $lastChangedBy;
 
     /**
-     * @var string
+     * @ORM\Id
+     * @ORM\OneToOne
+     * @var Workspace
      */
-    protected $workspaceName;
+    protected $workspace;
 
     /**
      * @ORM\Column(nullable=true)
@@ -44,12 +51,24 @@ class WorkspaceDetails
      */
     protected $creator;
 
-    public function __construct(string $workspaceName, string $creator = null, \DateTime $lastChangedDate = null, string $lastChangedBy = null)
-    {
-        $this->workspaceName = $workspaceName;
+    /**
+     * @ORM\ManyToMany
+     * @var ArrayCollection<User>
+     */
+    protected $acl = [];
+
+    public function __construct(
+        Workspace $workspace,
+        string $creator = null,
+        \DateTime $lastChangedDate = null,
+        string $lastChangedBy = null,
+        ArrayCollection $acl = null
+    ) {
+        $this->workspace = $workspace;
         $this->creator = $creator;
         $this->lastChangedDate = $lastChangedDate ?? new \DateTime();
         $this->lastChangedBy = $lastChangedBy ?? $creator;
+        $this->acl = $acl ?? new ArrayCollection();
     }
 
     public function getLastChangedDate(): ?\DateTime
@@ -72,9 +91,9 @@ class WorkspaceDetails
         $this->lastChangedBy = $lastChangedBy;
     }
 
-    public function getWorkspaceName(): string
+    public function getWorkspace(): Workspace
     {
-        return $this->workspaceName;
+        return $this->workspace;
     }
 
     public function getCreator(): ?string
@@ -85,6 +104,22 @@ class WorkspaceDetails
     public function setCreator(?string $creator): void
     {
         $this->creator = $creator;
+    }
+
+    /**
+     * @param User[] $acl
+     */
+    public function setAcl(array $acl): void
+    {
+        $this->acl = $acl;
+    }
+
+    /**
+     * @return User[]
+     */
+    public function getAcl(): array
+    {
+        return $this->acl instanceof Collection ? $this->acl->toArray() : $this->acl;
     }
 
 }

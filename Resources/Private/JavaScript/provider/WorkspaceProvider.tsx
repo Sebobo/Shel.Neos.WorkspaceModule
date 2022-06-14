@@ -8,7 +8,7 @@ type WorkspaceProviderProps = {
     userWorkspace: WorkspaceName;
     workspaceList: WorkspaceList;
     baseWorkspaceOptions: BaseWorkspaceOptions;
-    ownerOptions: Record<UserName, UserLabel>;
+    userList: UserList;
     endpoints: WorkspaceEndpoints;
     csrfToken: string;
     userCanManageInternalWorkspaces: boolean;
@@ -33,7 +33,7 @@ type WorkspaceValues = {
     setSelectedWorkspaceForEdit: (workspaceName: WorkspaceName | null) => void;
     csrfToken: string;
     baseWorkspaceOptions: BaseWorkspaceOptions;
-    ownerOptions: Record<UserName, UserLabel>;
+    userList: UserList;
     userCanManageInternalWorkspaces: boolean;
     creationDialogVisible: boolean;
     setCreationDialogVisible: (visible: boolean) => void;
@@ -48,7 +48,7 @@ export const WorkspaceProvider = ({
     userWorkspace,
     endpoints,
     workspaceList,
-    ownerOptions,
+    userList,
     baseWorkspaceOptions: initialBaseWorkspaceOptions,
     csrfToken,
     children,
@@ -295,7 +295,7 @@ export const WorkspaceProvider = ({
                 workspaces,
                 setWorkspaces,
                 baseWorkspaceOptions,
-                ownerOptions,
+                userList: userList,
                 loadChangesCounts,
                 deleteWorkspace,
                 updateWorkspace,

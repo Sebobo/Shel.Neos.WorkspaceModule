@@ -221,6 +221,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                         workspace: workspace.name,
                     })}
                     onClick={() => setSelectedWorkspaceForEdit(workspaceName)}
+                    disabled={!workspace.canManage}
                 >
                     <Icon icon="pencil-alt" />
                 </button>

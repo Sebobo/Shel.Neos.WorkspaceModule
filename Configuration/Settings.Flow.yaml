@@ -9,3 +9,7 @@ Neos:
                 pattern: 'ControllerObjectName'
                 patternOptions:
                   controllerObjectNamePattern: 'Shel\Neos\WorkspaceModule\Controller\.*'
+
+    aop:
+      globalObjects:
+        workspaceDetails: Shel\Neos\WorkspaceModule\WorkspaceDetailsContext

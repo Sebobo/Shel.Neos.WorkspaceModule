@@ -68,28 +68,27 @@ class WorkspaceActivityService
         if (!$targetWorkspace) {
             return;
         }
-        $this->updatedWorkspaces[$targetWorkspace->getName()] = true;
+        $this->updatedWorkspaces[$targetWorkspace->getName()] = $targetWorkspace;
     }
 
     public function nodeDiscarded(NodeInterface $node): void
     {
-        $this->updatedWorkspaces[$node->getWorkspace()->getName()] = true;
+        $this->updatedWorkspaces[$node->getWorkspace()->getName()] = $node->getWorkspace();
     }
 
     public function shutdownObject(): void
     {
         $currentUser = $this->securityContext->getAccount()->getAccountIdentifier();
 
-        foreach (array_keys($this->updatedWorkspaces) as $updatedWorkspace) {
-            $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspaceName($updatedWorkspace);
+        foreach ($this->updatedWorkspaces as $updatedWorkspace) {
+            $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($updatedWorkspace);
 
             if ($workspaceDetails) {
                 $workspaceDetails->setLastChangedDate(new \DateTime());
                 $workspaceDetails->setLastChangedBy($currentUser);
                 $this->workspaceDetailsRepository->update($workspaceDetails);
             } else {
-                $workspace = $this->workspaceRepository->findByIdentifier($updatedWorkspace);
-                $workspaceDetails = new WorkspaceDetails($workspace, null, new \DateTime(), $currentUser);
+                $workspaceDetails = new WorkspaceDetails($updatedWorkspace, null, new \DateTime(), $currentUser);
                 $this->workspaceDetailsRepository->add($workspaceDetails);
             }
         }

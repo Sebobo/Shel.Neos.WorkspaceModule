@@ -71,7 +71,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
 
         $workspaceData = array_reduce($this->workspaceRepository->findAll()->toArray(),
             function (array $carry, Workspace $workspace) {
-                if ($workspace->isInternalWorkspace() || $this->userService->currentUserCanManageWorkspace($workspace)) {
+                if ($this->userCanAccessWorkspace($workspace)) {
                     $carry[$workspace->getName()] = $this->getWorkspaceInfo($workspace);
                 }
                 return $carry;
@@ -98,7 +98,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $workspaces = $this->workspaceRepository->findAll()->toArray();
 
         $changesByWorkspace = array_reduce($workspaces, function ($carry, Workspace $workspace) {
-            if ($workspace->isInternalWorkspace() || $this->userService->currentUserCanManageWorkspace($workspace)) {
+            if ($this->userCanAccessWorkspace($workspace)) {
                 $carry[$workspace->getName()] = $this->computeChangesCount($workspace);
             }
             return $carry;
@@ -217,7 +217,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
                 'id' => $this->getUserId($lastChangedBy),
                 'label' => $lastChangedBy->getLabel(),
             ] : null,
-            'acl' => array_map(fn (User $user) => [
+            'acl' => array_map(fn(User $user) => [
                 'id' => $this->getUserId($user),
                 'label' => $user->getLabel(),
             ], $acl),
@@ -263,7 +263,8 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             $this->workspaceRepository->add($workspace);
 
             // Create a new WorkspaceDetails object
-            $workspaceDetails = new WorkspaceDetails($workspace, $this->securityContext->getAccount()->getAccountIdentifier());
+            $workspaceDetails = new WorkspaceDetails($workspace,
+                $this->securityContext->getAccount()->getAccountIdentifier());
             $this->workspaceDetailsRepository->add($workspaceDetails);
 
             // Persist the workspace and related data or the generated workspace info will be incomplete
@@ -331,7 +332,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
 
         // Update access control list
         $acl = $workspace->getOwner() ? $this->request->getArgument('acl') ?? [] : [];
-        $allowedUsers = array_map(fn ($userName) => $this->userRepository->findByIdentifier($userName), $acl);
+        $allowedUsers = array_map(fn($userName) => $this->userRepository->findByIdentifier($userName), $acl);
         $workspaceDetails->setAcl($allowedUsers);
 
         $this->workspaceRepository->update($workspace);
@@ -381,9 +382,19 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $this->redirect('show', null, null, ['workspace' => $selectedWorkspace]);
     }
 
+    public function discardWorkspaceAction(Workspace $workspace): void
+    {
+        parent::discardWorkspaceAction($workspace);
+    }
+
     protected function getUserId(User $user): string
     {
         return $this->persistenceManager->getIdentifierByObject($user);
+    }
+
+    protected function userCanAccessWorkspace(Workspace $workspace): bool
+    {
+        return $workspace->getName() !== 'live' && ($workspace->isInternalWorkspace() || $this->userService->currentUserCanReadWorkspace($workspace));
     }
 
 }

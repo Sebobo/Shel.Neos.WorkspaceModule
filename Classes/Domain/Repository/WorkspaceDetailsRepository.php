@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Shel\Neos\WorkspaceModule\Domain\Repository;
@@ -15,8 +16,10 @@ namespace Shel\Neos\WorkspaceModule\Domain\Repository;
 
 use Neos\ContentRepository\Domain\Model\Workspace;
 use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Persistence\Exception\InvalidQueryException;
 use Neos\Flow\Persistence\QueryResultInterface;
 use Neos\Flow\Persistence\Repository;
+use Neos\Neos\Domain\Model\User;
 use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
 
 /**
@@ -27,4 +30,12 @@ use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
  */
 class WorkspaceDetailsRepository extends Repository
 {
+    /**
+     * @throws InvalidQueryException
+     */
+    public function findAllowedForUser(User $user): QueryResultInterface
+    {
+        $query = $this->createQuery();
+        return $query->matching($query->contains('acl', $user))->execute();
+    }
 }

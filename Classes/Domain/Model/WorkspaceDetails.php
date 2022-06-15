@@ -39,8 +39,8 @@ class WorkspaceDetails
     protected $lastChangedBy;
 
     /**
-     * @ORM\Id
      * @ORM\OneToOne
+     * @Flow\Identity
      * @var Workspace
      */
     protected $workspace;

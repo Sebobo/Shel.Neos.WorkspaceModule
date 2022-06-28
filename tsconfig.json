@@ -2,22 +2,17 @@
   "compilerOptions": {
     "skipLibCheck": true,
     "target": "ES2020",
-    "module": "CommonJS",
+    "module": "ESNext",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "jsx": "react",
     "typeRoots": ["./Resources/Private/JavaScript/typings"]
   },
+  "include": [
+    "Resources/Private/JavaScript/**/*"
+  ],
   "exclude": [
     "node_modules"
-  ],
-  "references": [
-    {
-      "path": "./Resources/Private/JavaScript"
-    },
-    {
-      "path": "./Tests/dev-server"
-    }
   ]
 }

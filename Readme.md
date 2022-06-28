@@ -1,11 +1,12 @@
 # An alternative workspace module with additional features for Neos CMS
 
-This Neos CMS plugin provides an alternative workspace module with added features.
+This Neos CMS plugin provides an alternative workspace module with added features:
 
 * New hierarchical workspace list
 * New dialogs for creation, deletion and editing of workspaces
 * Tracks and shows workspace creator, last editor and last publish date
 * Can remove unpublished changes and rebase dependent workspaces on delete
+* Share private workspaces with selected users
 
 ## Screenshots
 
@@ -62,6 +63,7 @@ Then apply database migrations
 * New workspace creation and editing dialog
   * New workspace will be created as public (internal) by default
   * Configurable workspace title validation
+  * Select users to share a private workspace with
 
 ## Planned features
 

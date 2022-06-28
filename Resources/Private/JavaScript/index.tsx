@@ -31,6 +31,16 @@ window.onload = async (): Promise<void> => {
         userCanManageInternalWorkspaces: boolean;
         validation: WorkspaceValidation;
     };
+
+    const workspacesDataElement = document.getElementById('workspaces');
+    const baseWorkspaceOptionsDataElement = document.getElementById('baseWorkspaceOptions');
+    const userListDataElement = document.getElementById('userList');
+
+    if (!workspacesDataElement || !baseWorkspaceOptionsDataElement || !userListDataElement) {
+        container.innerText = 'Workspace module is missing required data elements';
+        return;
+    }
+
     const workspaces = JSON.parse(document.getElementById('workspaces').textContent);
     const baseWorkspaceOptions = JSON.parse(document.getElementById('baseWorkspaceOptions').textContent);
     const userList = JSON.parse(document.getElementById('userList').textContent);

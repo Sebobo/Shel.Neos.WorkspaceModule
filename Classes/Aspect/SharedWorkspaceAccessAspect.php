@@ -43,6 +43,8 @@ class SharedWorkspaceAccessAspect
     protected $persistenceManager;
 
     /**
+     * Adjust workspace permission check for shared workspaces
+     *
      * @Flow\Around("method(Neos\Neos\Domain\Service\UserService->currentUserCanReadWorkspace())")
      * @Flow\Around("method(Neos\Neos\Domain\Service\UserService->currentUserCanPublishToWorkspace())")
      */
@@ -66,6 +68,8 @@ class SharedWorkspaceAccessAspect
     }
 
     /**
+     * Adjust workspace permission check for shared workspaces in the Neos UI
+     *
      * @Flow\Around("method(Neos\Neos\Ui\ContentRepository\Service\WorkspaceService->getAllowedTargetWorkspaces())")
      * @return Workspace[]
      * @throws PropertyNotAccessibleException

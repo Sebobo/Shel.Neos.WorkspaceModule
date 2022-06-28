@@ -143,6 +143,12 @@
             <trans-unit id="workspace.acl.label">
                 <source>Allow access for additional users:</source>
             </trans-unit>
+            <trans-unit id="workspace.acl.filter.placeholder">
+                <source>Filter by name</source>
+            </trans-unit>
+            <trans-unit id="workspace.acl.filter.empty">
+                <source>No users found</source>
+            </trans-unit>
             <trans-unit id="workspace.visibility.label">
                 <source>Visibility</source>
             </trans-unit>
@@ -160,6 +166,10 @@
             </trans-unit>
             <trans-unit id="workspace.visibility.isPersonal">
                 <source>This is a personal workspace and only the owner can access and modify this workspace.</source>
+            </trans-unit>
+
+            <trans-unit id="message.workspaceUpdated">
+                <source>The workspace "{workspaceName}" has been updated</source>
             </trans-unit>
         </body>
     </file>

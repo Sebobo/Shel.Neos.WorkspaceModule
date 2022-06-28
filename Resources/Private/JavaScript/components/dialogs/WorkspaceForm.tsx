@@ -22,6 +22,7 @@ const Form = styled.form`
     }
 
     .neos.neos-module & input[type='text'],
+    .neos.neos-module & input[type='search'],
     .neos.neos-module & select {
         display: block;
         width: 100%;

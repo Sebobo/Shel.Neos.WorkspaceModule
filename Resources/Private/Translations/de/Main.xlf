@@ -183,6 +183,14 @@
                 <source>Allow access for additional users:</source>
                 <target>Den Zugriff für weitere Benutzer erlauben:</target>
             </trans-unit>
+            <trans-unit id="workspace.acl.filter.placeholder">
+                <source>Filter by name</source>
+                <target>Nach Namen filtern</target>
+            </trans-unit>
+            <trans-unit id="workspace.acl.filter.empty">
+                <source>No users found</source>
+                <target>Keine Benutzer gefunden</target>
+            </trans-unit>
             <trans-unit id="workspace.visibility.label">
                 <source>Visibility</source>
                 <target>Sichtbarkeit</target>
@@ -206,6 +214,11 @@
             <trans-unit id="workspace.visibility.isPersonal">
                 <source>This is a personal workspace and only the owner can access and modify this workspace.</source>
                 <target>Dies ist ein persönlicher Arbeitsbereich, den Eigentümer*innen einsehen und ändern können.</target>
+            </trans-unit>
+
+            <trans-unit id="message.workspaceUpdated">
+                <source>The workspace "{workspaceName}" has been updated</source>
+                <target>Der Arbeitsbereich "{workspaceName}" wurde aktualisiert</target>
             </trans-unit>
         </body>
     </file>

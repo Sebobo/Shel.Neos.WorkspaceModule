@@ -5,5 +5,6 @@ import Icon from './Icon';
 import ArrowIcon from './ArrowIcon';
 import Badge from './Badge';
 import CheckBoxLabel from './CheckBoxLabel';
+import SearchField from './SearchField';
 
-export { ValidationMessage, RadioLabel, FormGroup, Icon, ArrowIcon, Badge, CheckBoxLabel };
+export { ValidationMessage, RadioLabel, FormGroup, Icon, ArrowIcon, Badge, CheckBoxLabel, SearchField };

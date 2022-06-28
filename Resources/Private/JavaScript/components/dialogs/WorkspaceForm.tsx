@@ -2,7 +2,7 @@ import React, { ChangeEvent, useCallback, useMemo, useRef, useState } from 'reac
 import styled from 'styled-components';
 
 import { useWorkspaces } from '../../provider/WorkspaceProvider';
-import { RadioLabel, ValidationMessage } from '../presentationals';
+import { CheckBoxLabel, RadioLabel, ValidationMessage } from '../presentationals';
 import { ActionBar } from './StyledModal';
 import BaseWorkspaceSelection from './sections/BaseWorkspaceSelection';
 import AccessControl from './sections/AccessControl';
@@ -12,16 +12,13 @@ const Form = styled.form`
     max-width: 100%;
 
     & label {
-        display: block;
+        display: flex;
         margin-bottom: 0.5rem;
+        flex-direction: column;
     }
 
-    & ${RadioLabel} {
-        display: flex;
-
-        & input {
-            margin-right: 0.5rem;
-        }
+    & ${RadioLabel}, & ${CheckBoxLabel} {
+        flex-direction: row;
     }
 
     .neos.neos-module & input[type='text'],

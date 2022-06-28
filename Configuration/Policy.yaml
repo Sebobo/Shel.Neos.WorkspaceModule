@@ -10,15 +10,6 @@ privilegeTargets:
     'Shel.Neos.WorkspaceModule:Backend.CreateWorkspaces':
       matcher: 'method(Neos\Neos\Controller\Service\WorkspacesController->(new|create)Action()) || method(Shel\Neos\WorkspaceModule\Controller\Module\Management\WorkspacesController->(create|new)Action())'
 
-#    'Shel.Neos.WorkspaceModule:Backend.Module.Management.Workspaces.ManageOwnWorkspaces':
-#      matcher: 'method(Shel\Neos\WorkspaceModule\Controller\WorkspacesController->(publishWorkspace|discardWorkspace|edit|update|delete)Action(workspace.owner === current.userInformation.backendUser))'
-#
-#    'Shel.Neos.WorkspaceModule:Backend.Module.Management.Workspaces.ManageInternalWorkspaces':
-#      matcher: 'method(Shel\Neos\WorkspaceModule\Controller\WorkspacesController->(publishWorkspace|discardWorkspace|edit|update|delete)Action(workspace.owner === null))'
-#
-#    'Shel.Neos.WorkspaceModule:Backend.Module.Management.Workspaces.ManageAllPrivateWorkspaces':
-#      matcher: 'method(Shel\Neos\WorkspaceModule\Controller\WorkspacesController->(publishWorkspace|discardWorkspace|edit|update|delete)Action()) && evaluate(this.workspace.owner !== current.userInformation.backendUser, this.workspace.personalWorkspace === false)'
-
     'Shel.Neos.WorkspaceModule:Backend.ManageSharedWorkspaces':
       matcher: 'method(Shel\Neos\WorkspaceModule\Controller\WorkspacesController->(publishWorkspace|discardWorkspace|edit|update|delete)Action()) && evaluate(this.workspace.owner !== current.userInformation.backendUser, this.workspace.personalWorkspace === false, current.workspaceDetails.sharedWorkspaces contains this.workspace)'
 
@@ -36,9 +27,6 @@ roles:
       - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.CreateWorkspaces'
         permission: GRANT
 
-#      - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.Module.Management.Workspaces.ManageOwnWorkspaces'
-#        permission: GRANT
-
       - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.WorkspaceController'
         permission: GRANT
 
@@ -52,11 +40,3 @@ roles:
     privileges:
       - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.WorkspaceController'
         permission: GRANT
-
-#  'Neos.Neos:Administrator':
-#    privileges:
-#      - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.Module.Management.Workspaces.ManageInternalWorkspaces'
-#        permission: GRANT
-#
-#      - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.Module.Management.Workspaces.ManageAllPrivateWorkspaces'
-#        permission: GRANT

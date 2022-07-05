@@ -7,6 +7,7 @@ import WorkspaceModule from './components/WorkspaceModule';
 import { WorkspaceProvider } from './provider/WorkspaceProvider';
 import { IntlProvider } from './provider/IntlProvider';
 import { NotifyProvider } from './provider/NotifyProvider';
+import ErrorBoundary from './components/ErrorBoundary';
 
 setConfig({
     showReactDomPatchNotification: false,
@@ -58,22 +59,24 @@ window.onload = async (): Promise<void> => {
 
     const root = createRoot(container);
     root.render(
-        <IntlProvider translate={translate}>
-            <NotifyProvider notificationApi={Notification}>
-                <WorkspaceProvider
-                    workspaceList={workspaces}
-                    baseWorkspaceOptions={baseWorkspaceOptions}
-                    userCanManageInternalWorkspaces={userCanManageInternalWorkspaces}
-                    userList={userList}
-                    userWorkspace={userWorkspace}
-                    endpoints={endpoints}
-                    csrfToken={csrfToken}
-                    validation={validation}
-                    translate={translate}
-                >
-                    <AppWithHmr />
-                </WorkspaceProvider>
-            </NotifyProvider>
-        </IntlProvider>
+        <ErrorBoundary>
+            <IntlProvider translate={translate}>
+                <NotifyProvider notificationApi={Notification}>
+                    <WorkspaceProvider
+                        workspaceList={workspaces}
+                        baseWorkspaceOptions={baseWorkspaceOptions}
+                        userCanManageInternalWorkspaces={userCanManageInternalWorkspaces}
+                        userList={userList}
+                        userWorkspace={userWorkspace}
+                        endpoints={endpoints}
+                        csrfToken={csrfToken}
+                        validation={validation}
+                        translate={translate}
+                    >
+                        <AppWithHmr />
+                    </WorkspaceProvider>
+                </NotifyProvider>
+            </IntlProvider>
+        </ErrorBoundary>
     );
 };

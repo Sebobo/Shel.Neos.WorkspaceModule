@@ -220,6 +220,22 @@
                 <source>The workspace "{workspaceName}" has been updated</source>
                 <target>Der Arbeitsbereich "{workspaceName}" wurde aktualisiert</target>
             </trans-unit>
+            <trans-unit id="message.workspaceCreated">
+                <source>The workspace "{workspaceName}" has been created</source>
+                <target>Der Arbeitsbereich "{workspaceName}" wurde erstellt</target>
+            </trans-unit>
+            <trans-unit id="message.workspaceRemoved">
+                <source>The workspace "{workspaceName}" has been removed, {unpublishedNodes} changes have been discarded and {dependentWorkspaces} dependent workspaces have been rebased</source>
+                <target>Der Arbeitsbereich "{workspaceName}" wurde entfernt, {unpublishedNodes} Änderungen wurden verworfen und {dependentWorkspaces} abhängige Arbeitsbereiche wurden neu zugeordnet</target>
+            </trans-unit>
+            <trans-unit id="message.workspaceIsPersonal">
+                <source>The workspace "{workspaceName}" is personal and cannot be deleted</source>
+                <target>Der Arbeitsbereich "{workspaceName}" ist personengebunden und kann nicht gelöscht werden</target>
+            </trans-unit>
+            <trans-unit id="message.workspaceRebased">
+                <source>Workspace "{dependenWorkspaceName}" has been rebased to "live" as it depends on workspace "{workspaceName}"</source>
+                <target>Arbeitsbereich "{dependenWorkspaceName}" wurde auf "live" umgestellt, da er vom Arbeitsbereich "{workspaceName}" abhängt.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

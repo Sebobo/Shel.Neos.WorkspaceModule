@@ -216,7 +216,9 @@ export const WorkspaceProvider = ({
                         };
                     });
                     notify.ok(
-                        translate('message.workspaceUpdated', `Updated workspace "${workspace.name}"`, { workspaceName: workspace.name })
+                        translate('message.workspaceUpdated', `Updated workspace "${workspace.title}"`, {
+                            workspaceName: workspace.title,
+                        })
                     );
                     return workspace[workspace.name];
                 })

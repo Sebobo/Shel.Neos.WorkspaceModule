@@ -70,6 +70,8 @@ const WorkspaceForm: React.FC<FormProps> = ({ enabled, onSubmit, onCancel, submi
     const workspaceForm = useRef<HTMLFormElement>(null);
     const [title, setTitle] = useState(workspace?.title ? workspace.title : '');
 
+    const argumentPrefix = 'moduleArguments' + (workspace ? `[workspace]` : '');
+
     const updateTitle = useCallback((event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.value) {
             setTitle(event.target.value);
@@ -88,14 +90,12 @@ const WorkspaceForm: React.FC<FormProps> = ({ enabled, onSubmit, onCancel, submi
     return (
         <Form ref={workspaceForm}>
             <input type="hidden" name={'__csrfToken'} value={csrfToken} />
-            {workspace && (
-                <input type="hidden" name={'moduleArguments[workspace][__identity]'} value={workspace.name} />
-            )}
+            {workspace && <input type="hidden" name={`${argumentPrefix}[__identity]`} value={workspace.name} />}
             <label>
                 {translate('workspace.title.label', 'Title')}
                 <input
                     type="text"
-                    name={'moduleArguments[title]'}
+                    name={`${argumentPrefix}[title]`}
                     maxLength={200}
                     required
                     onChange={updateTitle}
@@ -109,7 +109,7 @@ const WorkspaceForm: React.FC<FormProps> = ({ enabled, onSubmit, onCancel, submi
                 {translate('workspace.description.label', 'Description')}
                 <input
                     type="text"
-                    name={'moduleArguments[description]'}
+                    name={`${argumentPrefix}[description]`}
                     defaultValue={workspace?.description || ''}
                     maxLength={500}
                 />

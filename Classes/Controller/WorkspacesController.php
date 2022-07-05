@@ -364,8 +364,16 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $this->workspaceDetailsRepository->update($workspaceDetails);
         $this->persistenceManager->persistAll();
 
-        // FIXME: Include flash messages, success message and possibly baseWorkspaceOptions in response and handle them in the client
-        $this->view->assign('value', $this->getWorkspaceInfo($workspace));
+        $this->addFlashMessage(
+            $this->translateById('message.workspaceUpdated', ['workspaceName' => $workspace->getTitle()]),
+        );
+
+        $this->view->assign('value', [
+            'success' => true,
+            'messages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
+            'workspace' => $this->getWorkspaceInfo($workspace),
+            'baseWorkspaceOptions' => $this->prepareBaseWorkspaceOptions($workspace),
+        ]);
     }
 
     /**

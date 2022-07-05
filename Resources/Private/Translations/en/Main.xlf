@@ -171,6 +171,18 @@
             <trans-unit id="message.workspaceUpdated">
                 <source>The workspace "{workspaceName}" has been updated</source>
             </trans-unit>
+            <trans-unit id="message.workspaceCreated">
+                <source>The workspace "{workspaceName}" has been created</source>
+            </trans-unit>
+            <trans-unit id="message.workspaceRemoved">
+                <source>The workspace "{workspaceName}" has been removed, {unpublishedNodes} changes have been discarded and {dependentWorkspaces} dependent workspaces have been rebased</source>
+            </trans-unit>
+            <trans-unit id="message.workspaceIsPersonal">
+                <source>The workspace "{workspaceName}" is personal and cannot be deleted</source>
+            </trans-unit>
+            <trans-unit id="message.workspaceRebased">
+                <source>Workspace "{dependenWorkspaceName}" has been rebased to "live" as it depends on workspace "{workspaceName}"</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

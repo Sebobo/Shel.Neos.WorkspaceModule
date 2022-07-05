@@ -123,8 +123,11 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $rebasedWorkspaces = [];
 
         if ($workspace->isPersonalWorkspace()) {
-            $this->addFlashMessage('The workspace ' . $workspace->getTitle() . ' is personal and cannot be deleted', '',
-                Message::SEVERITY_ERROR);
+            $this->addFlashMessage(
+                $this->translateById('message.workspaceIsPersonal', ['workspaceName' => $workspace->getTitle()]),
+                '',
+                Message::SEVERITY_ERROR
+            );
         } else {
             $liveWorkspace = $this->workspaceRepository->findByIdentifier('live');
 
@@ -134,8 +137,14 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             foreach ($dependentWorkspaces as $dependentWorkspace) {
                 $dependentWorkspace->setBaseWorkspace($liveWorkspace);
                 $this->workspaceRepository->update($dependentWorkspace);
-                $this->addFlashMessage('Workspace "' . $dependentWorkspace->getTitle() . '" has been rebased to "live" as it depends on workspace "' . $workspace->getTitle() . '"',
-                    '', Message::SEVERITY_WARNING);
+                $this->addFlashMessage(
+                    $this->translateById('message.workspaceRebased',
+                        [
+                            'dependentWorkspaceName' => $dependentWorkspace->getTitle(),
+                            'workspaceName' => $workspace->getTitle(),
+                        ]
+                    )
+                    , '', Message::SEVERITY_WARNING);
                 $rebasedWorkspaces[] = $dependentWorkspace;
             }
 
@@ -151,7 +160,15 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             }
 
             $this->workspaceRepository->remove($workspace);
-            $this->addFlashMessage('The workspace "' . $workspace->getTitle() . '" has been removed, ' . count($unpublishedNodes) . ' changes have been discarded and ' . count($dependentWorkspaces) . ' dependent workspaces have been rebased');
+            $this->addFlashMessage(
+                $this->translateById('message.workspaceRemoved',
+                    [
+                        'workspaceName' => $workspace->getTitle(),
+                        'unpublishedNodes' => count($unpublishedNodes),
+                        'dependentWorkspaces' => count($dependentWorkspaces),
+                    ]
+                )
+            );
             $success = true;
         }
 
@@ -270,7 +287,9 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             // Persist the workspace and related data or the generated workspace info will be incomplete
             $this->persistenceManager->persistAll();
 
-            $this->addFlashMessage('The workspace "' . $workspaceName . '" has been created');
+            $this->addFlashMessage(
+                $this->translateById('message.workspaceCreated', ['workspaceName' => $workspace->getTitle()]),
+            );
         }
 
         $this->view->assign('value', [
@@ -338,6 +357,8 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $this->workspaceRepository->update($workspace);
         $this->workspaceDetailsRepository->update($workspaceDetails);
         $this->persistenceManager->persistAll();
+
+        // FIXME: Include flash messages, success message and possibly baseWorkspaceOptions in response and handle them in the client
         $this->view->assign('value', $this->getWorkspaceInfo($workspace));
     }
 
@@ -395,6 +416,11 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
     protected function userCanAccessWorkspace(Workspace $workspace): bool
     {
         return $workspace->getName() !== 'live' && ($workspace->isInternalWorkspace() || $this->userService->currentUserCanReadWorkspace($workspace));
+    }
+
+    protected function translateById(string $id, array $arguments = []): string
+    {
+        return $this->translator->translateById($id, $arguments, null, null, 'Main', 'Shel.Neos.WorkspaceModule');
     }
 
 }

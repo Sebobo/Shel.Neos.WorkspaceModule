@@ -159,6 +159,12 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
                 $this->publishingService->discardNodes($unpublishedNodes);
             }
 
+            $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($workspace);
+
+            if ($workspaceDetails) {
+                $this->workspaceDetailsRepository->remove($workspaceDetails);
+            }
+
             $this->workspaceRepository->remove($workspace);
             $this->addFlashMessage(
                 $this->translateById('message.workspaceRemoved',

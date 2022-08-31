@@ -181,7 +181,7 @@
                 <source>The workspace "{workspaceName}" is personal and cannot be deleted</source>
             </trans-unit>
             <trans-unit id="message.workspaceRebased">
-                <source>Workspace "{dependenWorkspaceName}" has been rebased to "live" as it depends on workspace "{workspaceName}"</source>
+                <source>Workspace "{dependentWorkspaceName}" has been rebased to "live" as it depends on workspace "{workspaceName}"</source>
             </trans-unit>
         </body>
     </file>

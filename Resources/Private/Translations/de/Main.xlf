@@ -233,8 +233,8 @@
                 <target>Der Arbeitsbereich "{workspaceName}" ist personengebunden und kann nicht gelöscht werden</target>
             </trans-unit>
             <trans-unit id="message.workspaceRebased">
-                <source>Workspace "{dependenWorkspaceName}" has been rebased to "live" as it depends on workspace "{workspaceName}"</source>
-                <target>Arbeitsbereich "{dependenWorkspaceName}" wurde auf "live" umgestellt, da er vom Arbeitsbereich "{workspaceName}" abhängt.</target>
+                <source>Workspace "{dependentWorkspaceName}" has been rebased to "live" as it depends on workspace "{workspaceName}"</source>
+                <target>Arbeitsbereich "{dependentWorkspaceName}" wurde auf "live" umgestellt, da er vom Arbeitsbereich "{workspaceName}" abhängt.</target>
             </trans-unit>
         </body>
     </file>

@@ -191,6 +191,19 @@
                 <source>This is a personal workspace and only the owner can access and modify this workspace.</source>
                 <target>Dies ist ein persönlicher Arbeitsbereich, auf den Eigentümer*innen einsehen und ändern können.</target>
             </trans-unit>
+
+            <trans-unit id="workspaces.workspaceWithThisTitleAlreadyExists">
+                <source>A workspace with this title already exists.</source>
+                <target>Ein Arbeitsbereich mit diesem Titel ist bereits vorhanden.</target>
+            </trans-unit>
+            <trans-unit id="workspaces.selectedChangesHaveBeenPublished">
+                <source>The selected changes have been published.</source>
+                <target>Die ausgewählten Änderungen wurden veröffentlicht.</target>
+            </trans-unit>
+            <trans-unit id="workspaces.selectedChangesHaveBeenDiscarded">
+                <source>The selected changes have been discarded.</source>
+                <target>Die ausgewählten Änderungen wurden verworfen.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

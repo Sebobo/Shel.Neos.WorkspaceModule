@@ -149,6 +149,16 @@
             <trans-unit id="workspace.visibility.isPersonal">
                 <source>This is a personal workspace and only the owner can access and modify this workspace.</source>
             </trans-unit>
+
+            <trans-unit id="workspaces.workspaceWithThisTitleAlreadyExists">
+                <source>A workspace with this title already exists.</source>
+            </trans-unit>
+            <trans-unit id="workspaces.selectedChangesHaveBeenPublished">
+                <source>The selected changes have been published.</source>
+            </trans-unit>
+            <trans-unit id="workspaces.selectedChangesHaveBeenDiscarded">
+                <source>The selected changes have been discarded.</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

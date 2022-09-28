@@ -216,7 +216,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $workspace = $this->workspaceRepository->findOneByTitle($title);
         if ($workspace instanceof Workspace) {
             $this->addFlashMessage($this->translator->translateById('workspaces.workspaceWithThisTitleAlreadyExists',
-                [], null, null, 'Modules', 'Neos.Neos'), '', Message::SEVERITY_WARNING);
+                [], null, null, 'Main', 'Shel.Neos.WorkspaceModule'), '', Message::SEVERITY_WARNING);
             $success = false;
         } else {
             $workspaceName = Utility::renderValidNodeName($title) . '-' . substr(base_convert(microtime(false), 10, 36),
@@ -327,14 +327,14 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
                 }
                 $this->addFlashMessage(
                     $this->translator->translateById('workspaces.selectedChangesHaveBeenPublished', [], null, null,
-                        'Modules', 'Neos.Neos')
+                        'Main', 'Shel.Neos.WorkspaceModule')
                 );
                 break;
             case 'discard':
                 $this->publishingService->discardNodes($nodes);
                 $this->addFlashMessage(
                     $this->translator->translateById('workspaces.selectedChangesHaveBeenDiscarded', [], null, null,
-                        'Modules', 'Neos.Neos')
+                        'Main', 'Shel.Neos.WorkspaceModule')
                 );
                 break;
             default:

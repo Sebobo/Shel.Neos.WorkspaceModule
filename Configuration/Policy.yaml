@@ -2,7 +2,7 @@ privilegeTargets:
   'Neos\Flow\Security\Authorization\Privilege\Method\MethodPrivilege':
 
     'Shel.Neos.WorkspaceModule:Backend.WorkspaceController':
-      matcher: 'method(Neos\Neos\Controller\Module\Management\WorkspacesController->(index|show|update)Action())'
+      matcher: 'method(Neos\Neos\Controller\Module\Management\WorkspacesController->(index|show|update|discardNode|publishNode)Action())'
 
     'Shel.Neos.WorkspaceModule:Backend.PublishAllToLiveWorkspace':
       matcher: 'method(Shel\Neos\WorkspaceModule\Controller\WorkspacesController->publishWorkspaceAction(workspace.baseWorkspace.name === "live"))'

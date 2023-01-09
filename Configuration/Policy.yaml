@@ -2,7 +2,7 @@ privilegeTargets:
   'Neos\Flow\Security\Authorization\Privilege\Method\MethodPrivilege':
 
     'Shel.Neos.WorkspaceModule:Backend.WorkspaceController':
-      matcher: 'method(Neos\Neos\Controller\Module\Management\WorkspacesController->(index|show|update|discardNode|publishNode)Action())'
+      matcher: 'method(Neos\Neos\Controller\Module\Management\WorkspacesController->(index|show|update|discardNode|publishNode|rebaseAndRedirect)Action())'
 
     'Shel.Neos.WorkspaceModule:Backend.PublishAllToLiveWorkspace':
       label: Allowed to publish all changes to the live workspace

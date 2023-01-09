@@ -344,32 +344,38 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      */
     public function updateAction(Workspace $workspace): void
     {
+        $success = false;
         if ($workspace->getTitle() === '') {
             $workspace->setTitle($workspace->getName());
         }
 
-        $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($workspace);
+        if (!$this->validateWorkspaceChain($workspace)) {
+            $this->addFlashMessage($this->translateById('error.invalidWorkspaceChain', ['workspaceName' => $workspace->getTitle()]), '', Message::SEVERITY_ERROR);
+        } else {
+            $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($workspace);
 
-        if (!$workspaceDetails) {
-            $workspaceDetails = new WorkspaceDetails($workspace);
-            $this->workspaceDetailsRepository->add($workspaceDetails);
+            if (!$workspaceDetails) {
+                $workspaceDetails = new WorkspaceDetails($workspace);
+                $this->workspaceDetailsRepository->add($workspaceDetails);
+            }
+
+            // Update access control list
+            $acl = $workspace->getOwner() ? $this->request->getArgument('acl') ?? [] : [];
+            $allowedUsers = array_map(fn($userName) => $this->userRepository->findByIdentifier($userName), $acl);
+            $workspaceDetails->setAcl($allowedUsers);
+
+            $this->workspaceRepository->update($workspace);
+            $this->workspaceDetailsRepository->update($workspaceDetails);
+            $this->persistenceManager->persistAll();
+
+            $this->addFlashMessage(
+                $this->translateById('message.workspaceUpdated', ['workspaceName' => $workspace->getTitle()]),
+            );
+            $success = true;
         }
 
-        // Update access control list
-        $acl = $workspace->getOwner() ? $this->request->getArgument('acl') ?? [] : [];
-        $allowedUsers = array_map(fn($userName) => $this->userRepository->findByIdentifier($userName), $acl);
-        $workspaceDetails->setAcl($allowedUsers);
-
-        $this->workspaceRepository->update($workspace);
-        $this->workspaceDetailsRepository->update($workspaceDetails);
-        $this->persistenceManager->persistAll();
-
-        $this->addFlashMessage(
-            $this->translateById('message.workspaceUpdated', ['workspaceName' => $workspace->getTitle()]),
-        );
-
         $this->view->assign('value', [
-            'success' => true,
+            'success' => $success,
             'messages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
             'workspace' => $this->getWorkspaceInfo($workspace),
             'baseWorkspaceOptions' => $this->prepareBaseWorkspaceOptions($workspace),
@@ -435,6 +441,22 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
     protected function translateById(string $id, array $arguments = []): string
     {
         return $this->translator->translateById($id, $arguments, null, null, 'Main', 'Shel.Neos.WorkspaceModule');
+    }
+
+    /**
+     * Checks whether a workspace base workspace chain can be fully resolved without circular references
+     */
+    protected function validateWorkspaceChain(Workspace $workspace): bool
+    {
+        $baseWorkspaces = [$workspace->getName()];
+        $currentWorkspace = $workspace;
+        while ($currentWorkspace = $currentWorkspace->getBaseWorkspace()) {
+            if (in_array($currentWorkspace->getName(), $baseWorkspaces, true)) {
+                return false;
+            }
+            $baseWorkspaces[] = $currentWorkspace->getName();
+        }
+        return true;
     }
 
 }

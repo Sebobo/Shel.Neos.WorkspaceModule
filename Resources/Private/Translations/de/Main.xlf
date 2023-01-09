@@ -236,6 +236,11 @@
                 <source>Workspace "{dependentWorkspaceName}" has been rebased to "live" as it depends on workspace "{workspaceName}"</source>
                 <target>Arbeitsbereich "{dependentWorkspaceName}" wurde auf "live" umgestellt, da er vom Arbeitsbereich "{workspaceName}" abhängt.</target>
             </trans-unit>
+
+            <trans-unit id="error.invalidWorkspaceChain">
+                <source>The base workspaces of "{workspaceName}" cannot be resolved</source>
+                <target>Die Basisarbeitsbereiche von "{workspaceName}" können nicht aufgelöst werden</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

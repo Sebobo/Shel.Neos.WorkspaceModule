@@ -183,6 +183,10 @@
             <trans-unit id="message.workspaceRebased">
                 <source>Workspace "{dependentWorkspaceName}" has been rebased to "live" as it depends on workspace "{workspaceName}"</source>
             </trans-unit>
+
+            <trans-unit id="error.invalidWorkspaceChain">
+                <source>The base workspaces of "{workspaceName}" cannot be resolved</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

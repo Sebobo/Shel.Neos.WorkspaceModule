@@ -378,7 +378,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             'success' => $success,
             'messages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
             'workspace' => $this->getWorkspaceInfo($workspace),
-            'baseWorkspaceOptions' => $this->prepareBaseWorkspaceOptions($workspace),
+            'baseWorkspaceOptions' => $this->prepareBaseWorkspaceOptions(),
         ]);
     }
 

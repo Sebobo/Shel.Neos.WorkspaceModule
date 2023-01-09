@@ -68,6 +68,10 @@ type WorkspaceEndpoints = {
     getChanges: ActionUri; // Load number of changes for all workspaces
 };
 
+type BaseWorkspace = {
+    name: WorkspaceName;
+    title: WorkspaceTitle;
+};
 interface Workspace {
     name: WorkspaceName;
     title: WorkspaceTitle;
@@ -77,10 +81,7 @@ interface Workspace {
     lastChangedDate: string | null;
     lastChangedTimestamp: number | null;
     lastChangedBy: User | null;
-    baseWorkspace: {
-        name: WorkspaceName;
-        title: WorkspaceTitle;
-    } | null;
+    baseWorkspace: BaseWorkspace | null;
     nodeCount: number;
     changesCounts: ChangesCounts | null;
     isPersonal: boolean;

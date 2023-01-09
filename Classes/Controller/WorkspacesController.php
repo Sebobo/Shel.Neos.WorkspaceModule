@@ -200,7 +200,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
                 $creatorUser = $this->userService->getUser($workspaceDetails->getCreator());
                 $creatorName = $creatorUser ? $creatorUser->getLabel() : $creator;
             }
-            $isStale = $workspaceDetails->getLastChangedDate() && $workspaceDetails->getLastChangedDate()->getTimestamp() < time() - $this->staleTime;
+            $isStale = !$workspace->isPersonalWorkspace() && $workspaceDetails->getLastChangedDate() && $workspaceDetails->getLastChangedDate()->getTimestamp() < time() - $this->staleTime;
 
             if ($workspaceDetails->getLastChangedBy()) {
                 $lastChangedBy = $this->userService->getUser($workspaceDetails->getLastChangedBy());

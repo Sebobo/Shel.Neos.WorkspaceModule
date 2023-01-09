@@ -3,7 +3,7 @@ privilegeTargets:
 
     'Shel.Neos.WorkspaceModule:Backend.WorkspaceController':
       label: Allowed to access the workspace module
-      matcher: 'method(Neos\Neos\Controller\Module\Management\WorkspacesController->(index|show|update|discardNode|publishNode)Action())'
+      matcher: 'method(Neos\Neos\Controller\Module\Management\WorkspacesController->(index|show|update|discardNode|publishNode|rebaseAndRedirect)Action())'
 
     'Shel.Neos.WorkspaceModule:Backend.PublishAllToLiveWorkspace':
       label: Allowed to publish all changes to the live workspace

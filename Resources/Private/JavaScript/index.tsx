@@ -20,6 +20,10 @@ window.onload = async (): Promise<void> => {
 
     const container = document.getElementById('workspace-module-app');
 
+    if (!container) {
+        return;
+    }
+
     const { userWorkspace, csrfToken, endpoints, userCanManageInternalWorkspaces, validation } = Object.keys(
         container.dataset
     ).reduce((carry, key) => {

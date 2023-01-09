@@ -13,6 +13,7 @@ namespace Shel\Neos\WorkspaceModule\Service;
  * source code.
  */
 
+use Neos\ContentRepository\Domain\Repository\WorkspaceRepository;
 use Neos\Flow\Annotations as Flow;
 use Neos\ContentRepository\Domain\Model\NodeInterface;
 use Neos\ContentRepository\Domain\Model\Workspace;
@@ -56,25 +57,31 @@ class WorkspaceActivityService
      */
     protected $persistenceManager;
 
+    /**
+     * @Flow\Inject
+     * @var WorkspaceRepository
+     */
+    protected $workspaceRepository;
+
     public function nodePublished(NodeInterface $node, Workspace $targetWorkspace = null): void
     {
         if (!$targetWorkspace) {
             return;
         }
-        $this->updatedWorkspaces[$targetWorkspace->getName()] = true;
+        $this->updatedWorkspaces[$targetWorkspace->getName()] = $targetWorkspace;
     }
 
     public function nodeDiscarded(NodeInterface $node): void
     {
-        $this->updatedWorkspaces[$node->getWorkspace()->getName()] = true;
+        $this->updatedWorkspaces[$node->getWorkspace()->getName()] = $node->getWorkspace();
     }
 
     public function shutdownObject(): void
     {
         $currentUser = $this->securityContext->getAccount()->getAccountIdentifier();
 
-        foreach (array_keys($this->updatedWorkspaces) as $updatedWorkspace) {
-            $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspaceName($updatedWorkspace);
+        foreach ($this->updatedWorkspaces as $updatedWorkspace) {
+            $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($updatedWorkspace);
 
             if ($workspaceDetails) {
                 $workspaceDetails->setLastChangedDate(new \DateTime());

@@ -7,13 +7,14 @@ import WorkspaceModule from './components/WorkspaceModule';
 import { WorkspaceProvider } from './provider/WorkspaceProvider';
 import { IntlProvider } from './provider/IntlProvider';
 import { NotifyProvider } from './provider/NotifyProvider';
+import ErrorBoundary from './components/ErrorBoundary';
 
 setConfig({
     showReactDomPatchNotification: false,
 });
 
 window.onload = async (): Promise<void> => {
-    while (!window.NeosCMS?.I18n?.initialized) {
+    while (!(window as AppWindow).NeosCMS?.I18n?.initialized) {
         await new Promise((resolve) => setTimeout(resolve, 50));
     }
 
@@ -31,11 +32,21 @@ window.onload = async (): Promise<void> => {
         userCanManageInternalWorkspaces: boolean;
         validation: WorkspaceValidation;
     };
+
+    const workspacesDataElement = document.getElementById('workspaces');
+    const baseWorkspaceOptionsDataElement = document.getElementById('baseWorkspaceOptions');
+    const userListDataElement = document.getElementById('userList');
+
+    if (!workspacesDataElement || !baseWorkspaceOptionsDataElement || !userListDataElement) {
+        container.innerText = 'Workspace module is missing required data elements';
+        return;
+    }
+
     const workspaces = JSON.parse(document.getElementById('workspaces').textContent);
     const baseWorkspaceOptions = JSON.parse(document.getElementById('baseWorkspaceOptions').textContent);
-    const ownerOptions = JSON.parse(document.getElementById('ownerOptions').textContent);
+    const userList = JSON.parse(document.getElementById('userList').textContent);
 
-    const { I18n, Notification } = window.NeosCMS;
+    const { I18n, Notification } = (window as AppWindow).NeosCMS;
 
     const translate = (id: string, label = '', args = []): string => {
         return I18n.translate(id, label, 'Shel.Neos.WorkspaceModule', 'Main', args);
@@ -48,22 +59,24 @@ window.onload = async (): Promise<void> => {
 
     const root = createRoot(container);
     root.render(
-        <IntlProvider translate={translate}>
-            <NotifyProvider notificationApi={Notification}>
-                <WorkspaceProvider
-                    workspaceList={workspaces}
-                    baseWorkspaceOptions={baseWorkspaceOptions}
-                    userCanManageInternalWorkspaces={userCanManageInternalWorkspaces}
-                    ownerOptions={ownerOptions}
-                    userWorkspace={userWorkspace}
-                    endpoints={endpoints}
-                    csrfToken={csrfToken}
-                    validation={validation}
-                    translate={translate}
-                >
-                    <AppWithHmr />
-                </WorkspaceProvider>
-            </NotifyProvider>
-        </IntlProvider>
+        <ErrorBoundary>
+            <IntlProvider translate={translate}>
+                <NotifyProvider notificationApi={Notification}>
+                    <WorkspaceProvider
+                        workspaceList={workspaces}
+                        baseWorkspaceOptions={baseWorkspaceOptions}
+                        userCanManageInternalWorkspaces={userCanManageInternalWorkspaces}
+                        userList={userList}
+                        userWorkspace={userWorkspace}
+                        endpoints={endpoints}
+                        csrfToken={csrfToken}
+                        validation={validation}
+                        translate={translate}
+                    >
+                        <AppWithHmr />
+                    </WorkspaceProvider>
+                </NotifyProvider>
+            </IntlProvider>
+        </ErrorBoundary>
     );
 };

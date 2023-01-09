@@ -5,6 +5,8 @@ main.css binary
 /.yarn export-ignore
 /.github export-ignore
 /Resources/Private/JavaScript export-ignore
+/Tests export-ignore
+/cypress
 
 /.eslintignore export-ignore
 /.eslintrc.js export-ignore
@@ -14,3 +16,4 @@ main.css binary
 /package.json export-ignore
 /tsconfig.json export-ignore
 /yarn.lock export-ignore
+/cypress.json export-ignore

@@ -8,7 +8,7 @@ type WorkspaceProviderProps = {
     userWorkspace: WorkspaceName;
     workspaceList: WorkspaceList;
     baseWorkspaceOptions: BaseWorkspaceOptions;
-    ownerOptions: Record<UserName, UserLabel>;
+    userList: UserList;
     endpoints: WorkspaceEndpoints;
     csrfToken: string;
     userCanManageInternalWorkspaces: boolean;
@@ -33,7 +33,7 @@ type WorkspaceValues = {
     setSelectedWorkspaceForEdit: (workspaceName: WorkspaceName | null) => void;
     csrfToken: string;
     baseWorkspaceOptions: BaseWorkspaceOptions;
-    ownerOptions: Record<UserName, UserLabel>;
+    userList: UserList;
     userCanManageInternalWorkspaces: boolean;
     creationDialogVisible: boolean;
     setCreationDialogVisible: (visible: boolean) => void;
@@ -48,7 +48,7 @@ export const WorkspaceProvider = ({
     userWorkspace,
     endpoints,
     workspaceList,
-    ownerOptions,
+    userList,
     baseWorkspaceOptions: initialBaseWorkspaceOptions,
     csrfToken,
     children,
@@ -193,31 +193,47 @@ export const WorkspaceProvider = ({
                 body: formData,
             })
                 .then((response) => response.json())
-                .then((workspace: Workspace) => {
-                    // Keep old changes counts after updating workspace with remote data
-                    setWorkspaces((workspaces) => {
-                        // Update dependent workspace count of previous and new base workspace
-                        if (workspaces[workspace.name].baseWorkspace.name !== workspace.baseWorkspace.name) {
-                            if (workspaces[workspace.name].baseWorkspace.name !== 'live') {
-                                workspaces[workspaces[workspace.name].baseWorkspace.name].dependentWorkspacesCount--;
-                            }
-                            if (workspace.baseWorkspace.name !== 'live') {
-                                workspaces[workspace.baseWorkspace.name].dependentWorkspacesCount++;
-                            }
-                        }
+                .then(
+                    ({
+                        success,
+                        workspace,
+                        messages = [],
+                        baseWorkspaceOptions,
+                    }: {
+                        success: boolean;
+                        workspace: Workspace;
+                        messages: FlashMessage[];
+                        baseWorkspaceOptions: BaseWorkspaceOptions;
+                    }) => {
+                        if (success) {
+                            // Keep old changes counts after updating workspace with remote data
+                            setWorkspaces((workspaces) => {
+                                // Update dependent workspace count of previous and new base workspace
+                                if (workspaces[workspace.name].baseWorkspace.name !== workspace.baseWorkspace.name) {
+                                    if (workspaces[workspace.name].baseWorkspace.name !== 'live') {
+                                        workspaces[workspaces[workspace.name].baseWorkspace.name]
+                                            .dependentWorkspacesCount--;
+                                    }
+                                    if (workspace.baseWorkspace.name !== 'live') {
+                                        workspaces[workspace.baseWorkspace.name].dependentWorkspacesCount++;
+                                    }
+                                }
 
-                        return {
-                            ...workspaces,
-                            [workspace.name]: {
-                                ...workspaces[workspace.name],
-                                ...workspace,
-                                changesCounts: workspaces[workspace.name].changesCounts,
-                            },
-                        };
-                    });
-                    notify.ok('Workspace updated');
-                    return workspace[workspace.name];
-                })
+                                return {
+                                    ...workspaces,
+                                    [workspace.name]: {
+                                        ...workspaces[workspace.name],
+                                        ...workspace,
+                                        changesCounts: workspaces[workspace.name].changesCounts,
+                                    },
+                                };
+                            });
+                        }
+                        setBaseWorkspaceOptions(baseWorkspaceOptions);
+                        handleFlashMessages(messages);
+                        return workspace[workspace.name];
+                    }
+                )
                 .catch((error) => {
                     notify.error('Failed to update workspace', error.message);
                     console.error('Failed to update workspace', error);
@@ -295,7 +311,7 @@ export const WorkspaceProvider = ({
                 workspaces,
                 setWorkspaces,
                 baseWorkspaceOptions,
-                ownerOptions,
+                userList: userList,
                 loadChangesCounts,
                 deleteWorkspace,
                 updateWorkspace,

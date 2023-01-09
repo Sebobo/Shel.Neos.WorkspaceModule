@@ -2,8 +2,8 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
 import WorkspaceTreeNode from './WorkspaceTreeNode';
-import Icon from './Icon';
 import { useWorkspaces } from '../provider/WorkspaceProvider';
+import { Icon } from './presentationals';
 
 const Table = styled.table`
     margin-top: 1em;
@@ -49,7 +49,7 @@ const WorkspaceTable: React.FC = () => {
     }, []);
 
     return (
-        <Table>
+        <Table id="workspaceTable">
             <thead>
                 <tr>
                     <HeaderColumn> </HeaderColumn>

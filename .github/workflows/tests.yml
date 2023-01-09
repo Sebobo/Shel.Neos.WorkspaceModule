@@ -9,9 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    name: 'Neos workspace module tests'
-
+    name: 'Neos workspace module lint and build'
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -27,3 +25,17 @@ jobs:
 
       - name: Build sources
         run: yarn build
+
+  test-integration:
+    runs-on: ubuntu-latest
+    name: 'Neos workspace module integration tests'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        with:
+          build: yarn
+          start: yarn dev
+          test: yarn test:integration

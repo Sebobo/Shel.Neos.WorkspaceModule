@@ -29,20 +29,27 @@ interface NeosNotification {
     info: (title: string) => void;
 }
 
-interface Window {
-    NeosCMS: {
-        I18n: NeosI18n;
-        Notification: NeosNotification;
+type AppWindow = Window &
+    typeof globalThis & {
+        NeosCMS: {
+            I18n: NeosI18n;
+            Notification: NeosNotification;
+        };
     };
-}
 
 type WorkspaceValidation = {
     titlePattern: string;
 };
 
 type ActionUri = string;
-type UserName = string;
+
+type UserID = string;
 type UserLabel = string;
+type User = {
+    id: UserID;
+    label: UserLabel;
+};
+
 type WorkspaceName = string;
 type WorkspaceTitle = string;
 
@@ -65,11 +72,11 @@ interface Workspace {
     name: WorkspaceName;
     title: WorkspaceTitle;
     description: string | null;
-    owner: UserName | null;
-    creator: UserName | null;
+    owner: User | null;
+    creator: User | null;
     lastChangedDate: string | null;
     lastChangedTimestamp: number | null;
-    lastChangedBy: UserName | null;
+    lastChangedBy: User | null;
     baseWorkspace: {
         name: WorkspaceName;
         title: WorkspaceTitle;
@@ -82,7 +89,9 @@ interface Workspace {
     canPublish: boolean;
     canManage: boolean;
     dependentWorkspacesCount: number;
+    acl: User[];
 }
 
 type WorkspaceList = Record<WorkspaceName, Workspace>;
 type BaseWorkspaceOptions = Record<WorkspaceName, WorkspaceTitle>;
+type UserList = Record<UserID, UserLabel>;

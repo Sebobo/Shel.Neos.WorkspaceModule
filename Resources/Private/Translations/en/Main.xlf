@@ -6,6 +6,15 @@
                 <source>Loading workspace module…</source>
             </trans-unit>
 
+            <trans-unit id="table.column.access.private">
+                <source>This workspace is owned by {owner}</source>
+            </trans-unit>
+            <trans-unit id="table.column.access.internal">
+                <source>This is a shared workspace</source>
+            </trans-unit>
+            <trans-unit id="table.column.access.acl">
+                <source>This workspace is owned by {owner} but allows access to additional users</source>
+            </trans-unit>
             <trans-unit id="table.header.title">
                 <source>Title</source>
             </trans-unit>
@@ -131,6 +140,15 @@
             <trans-unit id="workspace.owner.label">
                 <source>Owner</source>
             </trans-unit>
+            <trans-unit id="workspace.acl.label">
+                <source>Allow access for additional users:</source>
+            </trans-unit>
+            <trans-unit id="workspace.acl.filter.placeholder">
+                <source>Filter by name</source>
+            </trans-unit>
+            <trans-unit id="workspace.acl.filter.empty">
+                <source>No users found</source>
+            </trans-unit>
             <trans-unit id="workspace.visibility.label">
                 <source>Visibility</source>
             </trans-unit>
@@ -138,16 +156,32 @@
                 <source>Public – Any logged in editor can see and modify this workspace.</source>
             </trans-unit>
             <trans-unit id="workspace.visibility.internal.info">
-                <source>Only reviewers and administrators can access and modify this workspace.</source>
+                <source>Any logged in editor can see and modify this workspace.</source>
             </trans-unit>
             <trans-unit id="workspace.visibility.private">
                 <source>Private – Only reviewers and administrators can access and modify this workspace.</source>
             </trans-unit>
             <trans-unit id="workspace.visibility.private.info">
-                <source>Any logged in editor can see and modify this workspace.</source>
+                <source>Only reviewers and administrators can access and modify this workspace.</source>
             </trans-unit>
             <trans-unit id="workspace.visibility.isPersonal">
                 <source>This is a personal workspace and only the owner can access and modify this workspace.</source>
+            </trans-unit>
+
+            <trans-unit id="message.workspaceUpdated">
+                <source>The workspace "{workspaceName}" has been updated</source>
+            </trans-unit>
+            <trans-unit id="message.workspaceCreated">
+                <source>The workspace "{workspaceName}" has been created</source>
+            </trans-unit>
+            <trans-unit id="message.workspaceRemoved">
+                <source>The workspace "{workspaceName}" has been removed, {unpublishedNodes} changes have been discarded and {dependentWorkspaces} dependent workspaces have been rebased</source>
+            </trans-unit>
+            <trans-unit id="message.workspaceIsPersonal">
+                <source>The workspace "{workspaceName}" is personal and cannot be deleted</source>
+            </trans-unit>
+            <trans-unit id="message.workspaceRebased">
+                <source>Workspace "{dependentWorkspaceName}" has been rebased to "live" as it depends on workspace "{workspaceName}"</source>
             </trans-unit>
         </body>
     </file>

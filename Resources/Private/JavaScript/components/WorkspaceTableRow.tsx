@@ -1,43 +1,32 @@
 import * as React from 'react';
-
-import Icon from './Icon';
 import styled from 'styled-components';
+
 import { useWorkspaces } from '../provider/WorkspaceProvider';
 import { formatDate } from '../helper/format';
-import ArrowIcon from './ArrowIcon';
+import { ArrowIcon, Badge, Icon } from './presentationals';
 
 type WorkspaceTableRowProps = {
     workspaceName: WorkspaceName;
     level: number;
 };
 
-const AddedBadge = styled.span`
+const AddedBadge = styled(Badge)`
     background-color: var(--green);
-    border-radius: 15%;
-    color: var(--textOnGray);
-    padding: 0.2em 0.5em;
-    width: 33%;
-    user-select: none;
-    cursor: help;
-
-    & + * {
-        margin-left: 0.5em;
-    }
 `;
 
-const ChangedBadge = styled(AddedBadge)`
+const ChangedBadge = styled(Badge)`
     background-color: var(--warningText);
 `;
 
-const DeletedBadge = styled(AddedBadge)`
+const DeletedBadge = styled(Badge)`
     background-color: var(--errorText);
 `;
 
-const OrphanBadge = styled(AddedBadge)`
+const OrphanBadge = styled(Badge)`
     background-color: var(--grayLight);
 `;
 
-const StaleBadge = styled(AddedBadge)`
+const StaleBadge = styled(Badge)`
     background-color: var(--warningText);
     margin-left: 0.5em;
 `;
@@ -100,13 +89,25 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
         translate,
     } = useWorkspaces();
     const workspace = workspaces[workspaceName];
-    const icon = workspace.isInternal ? 'users' : 'user';
+    const icon = workspace.isInternal ? 'users' : workspace.acl.length > 0 ? 'user-plus' : 'user';
     const isUserWorkspace = workspaceName === userWorkspace;
     const nodeCountNotCoveredByChanges = workspace.nodeCount - (workspace.changesCounts?.total || 0) - 1;
 
     return (
-        <Row isUserWorkspace={isUserWorkspace} isStale={workspace.isStale}>
-            <TypeColumn>
+        <Row isUserWorkspace={isUserWorkspace} isStale={workspace.isStale} id={`workspace-${workspace.name}`}>
+            <TypeColumn
+                title={
+                    workspace.acl.length > 0
+                        ? translate('table.column.access.acl')
+                        : workspace.owner
+                        ? translate(
+                              'table.column.access.private',
+                              `This workspace is owned by ${workspace.owner.label}`,
+                              { owner: workspace.owner.label }
+                          )
+                        : translate('table.column.access.internal')
+                }
+            >
                 <Icon icon={icon} />
             </TypeColumn>
             <TextColumn title={workspace.name}>
@@ -135,9 +136,10 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                 </span>
             </TextColumn>
             <TextColumn title={workspace.description}>{workspace.description || '–'}</TextColumn>
-            <Column>{workspace.creator || '–'}</Column>
+            <Column>{workspace.creator?.label || '–'}</Column>
             <Column>
-                {workspace.lastChangedBy ? `${workspace.lastChangedBy} ${formatDate(workspace.lastChangedDate)}` : '–'}
+                {workspace.lastChangedBy ? workspace.lastChangedBy?.label + ' ' : ''}
+                {workspace.lastChangedDate ? formatDate(workspace.lastChangedDate) : '–'}
             </Column>
             <Column>
                 {workspace.changesCounts === null ? (
@@ -219,6 +221,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                         workspace: workspace.name,
                     })}
                     onClick={() => setSelectedWorkspaceForEdit(workspaceName)}
+                    disabled={!workspace.canManage}
                 >
                     <Icon icon="pencil-alt" />
                 </button>

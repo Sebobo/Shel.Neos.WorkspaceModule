@@ -210,6 +210,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             $acl = $workspaceDetails->getAcl() ?? [];
         }
 
+        // TODO: Introduce a DTO for this
         return [
             'name' => $workspace->getName(),
             'title' => $workspace->getTitle(),

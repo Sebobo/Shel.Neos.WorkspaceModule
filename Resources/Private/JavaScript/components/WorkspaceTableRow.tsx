@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { useWorkspaces } from '../provider/WorkspaceProvider';
 import { formatDate } from '../helper/format';
-import { ArrowIcon, Badge, Icon } from './presentationals';
+import { ArrowIcon, Badge, Icon, IconStack } from './presentationals';
 
 type WorkspaceTableRowProps = {
     workspaceName: WorkspaceName;
@@ -24,11 +24,6 @@ const DeletedBadge = styled(Badge)`
 
 const OrphanBadge = styled(Badge)`
     background-color: var(--grayLight);
-`;
-
-const StaleBadge = styled(Badge)`
-    background-color: var(--warningText);
-    margin-left: 0.5em;
 `;
 
 const Column = styled.td`
@@ -62,8 +57,8 @@ const ActionColumn = styled(Column)`
 const TypeColumn = styled(Column)`
     text-align: center;
 
-    & > i {
-        width: auto !important;
+    & > * {
+        width: 20px !important;
     }
 `;
 
@@ -79,6 +74,12 @@ const InfoText = styled.span`
     user-select: none;
 `;
 
+function getWorkspaceStatusIcon(workspace: Workspace): string {
+    if (workspace.isInternal) return 'users';
+    if (workspace.acl.length > 0) return 'user-plus';
+    return 'user';
+}
+
 const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, level }) => {
     const {
         userWorkspace,
@@ -89,7 +90,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
         translate,
     } = useWorkspaces();
     const workspace = workspaces[workspaceName];
-    const icon = workspace.isInternal ? 'users' : workspace.acl.length > 0 ? 'user-plus' : 'user';
+    const icon = getWorkspaceStatusIcon(workspace);
     const isUserWorkspace = workspaceName === userWorkspace;
     const nodeCountNotCoveredByChanges = workspace.nodeCount - (workspace.changesCounts?.total || 0) - 1;
 
@@ -97,7 +98,9 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
         <Row isUserWorkspace={isUserWorkspace} isStale={workspace.isStale} id={`workspace-${workspace.name}`}>
             <TypeColumn
                 title={
-                    workspace.acl.length > 0
+                    workspace.isStale
+                        ? translate('badge.isStale', 'This workspace has not been used for a long time')
+                        : workspace.acl.length > 0
                         ? translate('table.column.access.acl')
                         : workspace.owner
                         ? translate(
@@ -108,7 +111,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                         : translate('table.column.access.internal')
                 }
             >
-                <Icon icon={icon} />
+                {workspace.isStale ? <IconStack icon={icon} secondaryIcon="clock" /> : <Icon icon={icon} />}
             </TypeColumn>
             <TextColumn title={workspace.name}>
                 <span>
@@ -116,23 +119,9 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                         <ArrowIcon style={{ marginLeft: `${0.2 + (level - 1) * 1.2}rem`, marginRight: '0.5rem' }} />
                     )}
                     {workspace.title}
-                    {workspace.isStale || isUserWorkspace ? (
-                        <>
-                            {workspace.isStale && (
-                                <StaleBadge
-                                    title={translate(
-                                        'badge.isStale',
-                                        'This workspace has not been used for a long time'
-                                    )}
-                                >
-                                    <Icon icon="exclamation" />
-                                </StaleBadge>
-                            )}
-                            {isUserWorkspace && (
-                                <InfoText>{translate('badge.isUserWorkspace', 'This is your workspace')}</InfoText>
-                            )}
-                        </>
-                    ) : null}
+                    {isUserWorkspace && (
+                        <InfoText>{translate('badge.isUserWorkspace', 'This is your workspace')}</InfoText>
+                    )}
                 </span>
             </TextColumn>
             <TextColumn title={workspace.description}>{workspace.description || '–'}</TextColumn>

@@ -351,7 +351,8 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         }
 
         if (!$this->validateWorkspaceChain($workspace)) {
-            $this->addFlashMessage($this->translateById('error.invalidWorkspaceChain', ['workspaceName' => $workspace->getTitle()]), '', Message::SEVERITY_ERROR);
+            $this->addFlashMessage($this->translateById('error.invalidWorkspaceChain',
+                ['workspaceName' => $workspace->getTitle()]), '', Message::SEVERITY_ERROR);
         } else {
             $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($workspace);
 
@@ -361,8 +362,25 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             }
 
             // Update access control list
-            $acl = $workspace->getOwner() ? $this->request->getArgument('acl') ?? [] : [];
+            $providedAcl = $this->request->hasArgument('acl') ? $this->request->getArgument('acl') ?? [] : [];
+            $acl = $workspace->getOwner() ? $providedAcl : [];
             $allowedUsers = array_map(fn($userName) => $this->userRepository->findByIdentifier($userName), $acl);
+
+            // Rebase users if they were using the workspace but lost access by the update
+            $allowedAccounts = array_map(static fn(User $user) => (string)$user->getAccounts()->first()->getAccountIdentifier(), $allowedUsers);
+            $liveWorkspace = $this->workspaceRepository->findByIdentifier('live');
+            foreach ($workspaceDetails->getAcl() as $prevAcl) {
+                $aclAccount = $prevAcl->getAccounts()->first()->getAccountIdentifier();
+                if (!in_array($aclAccount, $allowedAccounts, true)) {
+                    /** @var Workspace $userWorkspace */
+                    $userWorkspace = $this->workspaceRepository->findOneByName(UserUtility::getPersonalWorkspaceNameForUsername($aclAccount));
+                    if ($userWorkspace->getBaseWorkspace() === $workspace) {
+                        $userWorkspace->setBaseWorkspace($liveWorkspace);
+                        $this->workspaceRepository->update($userWorkspace);
+                    }
+                }
+            }
+
             $workspaceDetails->setAcl($allowedUsers);
 
             $this->workspaceRepository->update($workspace);

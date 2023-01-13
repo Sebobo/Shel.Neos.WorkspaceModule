@@ -11,15 +11,19 @@ privilegeTargets:
 
     'Shel.Neos.WorkspaceModule:Backend.CreateWorkspaces':
       label: Allowed to create new workspaces
-      matcher: 'method(Neos\Neos\Controller\Service\WorkspacesController->(new|create)Action()) || method(Shel\Neos\WorkspaceModule\Controller\Module\Management\WorkspacesController->(create|new)Action())'
+      matcher: 'method(Neos\Neos\Controller\Service\WorkspacesController->(new|create)Action()) || method(Shel\Neos\WorkspaceModule\Controller\WorkspacesController->(create|new)Action())'
+
+    'Shel.Neos.WorkspaceModule:Backend.SharedWorkspaceAccess':
+      label: Access to shared workspaces which don't include current user
+      matcher: 'method(Neos\ContentRepository\Domain\Service\Context->validateWorkspace()) && evaluate(this.workspace.owner !== current.userInformation.backendUser, this.workspace.personalWorkspace === false, current.workspaceDetails.sharedWorkspaces contains this.workspace.name)'
 
     'Shel.Neos.WorkspaceModule:Backend.ManageSharedWorkspaces':
       label: Allowed to manage shared workspaces
-      matcher: 'method(Shel\Neos\WorkspaceModule\Controller\WorkspacesController->(publishWorkspace|discardWorkspace|edit|update|delete)Action()) && evaluate(this.workspace.owner !== current.userInformation.backendUser, this.workspace.personalWorkspace === false, current.workspaceDetails.sharedWorkspaces contains this.workspace)'
+      matcher: 'method(Shel\Neos\WorkspaceModule\Controller\WorkspacesController->(show|publishWorkspace|discardWorkspace|publishOrDiscardNodes|edit|update|delete)Action()) && evaluate(this.workspace.owner !== current.userInformation.backendUser, this.workspace.personalWorkspace === false, current.workspaceDetails.sharedWorkspaces contains this.workspace.name)'
 
-    'Shel.Neos.WorkspaceModule:Backend.DiscardSharedWorkspaces':
+    'Shel.Neos.WorkspaceModule:Backend.PublishOrDiscardSharedWorkspaces':
       label: Allowed to discard shared workspaces
-      matcher: 'method(Neos\Neos\Controller\Module\Management\WorkspacesController->discardWorkspaceAction(workspace.name in current.workspaceDetails.sharedWorkspaces))'
+      matcher: 'method(Neos\Neos\Controller\Module\Management\WorkspacesController->(publish|discard)WorkspaceAction(workspace.name in current.workspaceDetails.sharedWorkspaces))'
 
 roles:
   'Neos.Neos:LivePublisher':
@@ -38,7 +42,7 @@ roles:
       - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.ManageSharedWorkspaces'
         permission: GRANT
 
-      - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.DiscardSharedWorkspaces'
+      - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.PublishOrDiscardSharedWorkspaces'
         permission: GRANT
 
   'Neos.Neos:UserManager':

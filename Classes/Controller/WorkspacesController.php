@@ -85,6 +85,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             'workspaces' => $workspaceData,
             'csrfToken' => $this->securityContext->getCsrfProtectionToken(),
             'validation' => $this->settings['validation'],
+            'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
         ]);
     }
 

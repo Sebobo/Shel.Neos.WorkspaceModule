@@ -7,6 +7,7 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
         csrfToken = ${csrfToken}
         userCanManageInternalWorkspaces = ${userCanManageInternalWorkspaces}
         validation = ${validation}
+        flashMessages = ${flashMessages}
 
         endpoints = Neos.Fusion:DataStructure {
             deleteWorkspace = Neos.Fusion:UriBuilder {
@@ -54,6 +55,7 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                         </script>
                         {I18n.translate('module.loadingText', 'Loading workspace module…', {}, 'Main', 'Shel.Neos.WorkspaceModule')}
                     </div>
+                    <Shel.Neos.WorkspaceModule:Component.FlashMessages flashMessages={props.flashMessages} />
                 </div>
             </div>
         `

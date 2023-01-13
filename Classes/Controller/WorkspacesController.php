@@ -412,6 +412,8 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      */
     public function publishOrDiscardNodesAction(array $nodes, $action, Workspace $selectedWorkspace = null): void
     {
+        $this->validateWorkspaceAccess($selectedWorkspace);
+
         $propertyMappingConfiguration = $this->propertyMapper->buildPropertyMappingConfiguration();
         $propertyMappingConfiguration->setTypeConverterOption(NodeConverter::class,
             NodeConverter::REMOVED_CONTENT_SHOWN, true);
@@ -443,14 +445,42 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $this->redirect('show', null, null, ['workspace' => $selectedWorkspace]);
     }
 
+    public function publishWorkspaceAction(Workspace $workspace): void
+    {
+        $this->validateWorkspaceAccess($workspace);
+        parent::publishWorkspaceAction($workspace);
+    }
+
     public function discardWorkspaceAction(Workspace $workspace): void
     {
+        $this->validateWorkspaceAccess($workspace);
         parent::discardWorkspaceAction($workspace);
+    }
+
+    public function showAction(Workspace $workspace): void
+    {
+        $this->validateWorkspaceAccess($workspace);
+        parent::showAction($workspace);
     }
 
     protected function getUserId(User $user): string
     {
         return $this->persistenceManager->getIdentifierByObject($user);
+    }
+
+    protected function validateWorkspaceAccess(Workspace $workspace = null): void
+    {
+        if ($workspace && !$this->userCanAccessWorkspace($workspace)) {
+            $this->translator->translateById(
+                'error.workspaceInaccessible',
+                ['workspaceName' => $workspace->getName()],
+                null,
+                null,
+                'Main',
+                'Shel.Neos.WorkspaceModule'
+            );
+            $this->redirect('index');
+        }
     }
 
     protected function userCanAccessWorkspace(Workspace $workspace): bool

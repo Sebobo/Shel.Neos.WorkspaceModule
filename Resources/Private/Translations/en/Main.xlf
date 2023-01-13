@@ -187,6 +187,9 @@
             <trans-unit id="error.invalidWorkspaceChain">
                 <source>The base workspaces of "{workspaceName}" cannot be resolved</source>
             </trans-unit>
+            <trans-unit id="error.workspaceInaccessible">
+                <source>You are not permitted to access the workspace "{workspaceName}"</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

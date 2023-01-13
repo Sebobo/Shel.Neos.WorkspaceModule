@@ -241,6 +241,10 @@
                 <source>The base workspaces of "{workspaceName}" cannot be resolved</source>
                 <target>Die Basisarbeitsbereiche von "{workspaceName}" können nicht aufgelöst werden</target>
             </trans-unit>
+            <trans-unit id="error.workspaceInaccessible">
+                <source>You are not permitted to access the workspace "{workspaceName}"</source>
+                <target>Sie sind nicht berechtigt, auf den Arbeitsbereich "{workspaceName}" zuzugreifen</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

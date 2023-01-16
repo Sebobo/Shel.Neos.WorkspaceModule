@@ -101,7 +101,11 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                     workspace.isStale
                         ? translate('badge.isStale', 'This workspace has not been used for a long time')
                         : workspace.acl.length > 0
-                        ? translate('table.column.access.acl')
+                        ? translate(
+                            'table.column.access.acl',
+                            `This workspace is owned by ${workspace.owner.label} but allows access to additional users`,
+                            { owner: workspace.owner.label }
+                          )
                         : workspace.owner
                         ? translate(
                               'table.column.access.private',

@@ -275,7 +275,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
                         36), -5, 5);
             }
 
-            if ($visibility === 'private') {
+            if ($visibility === 'private' || !$this->userCanManageInternalWorkspaces()) {
                 $owner = $this->userService->getCurrentUser();
             } else {
                 $owner = null;
@@ -486,6 +486,11 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
     protected function userCanAccessWorkspace(Workspace $workspace): bool
     {
         return $workspace->getName() !== 'live' && ($workspace->isInternalWorkspace() || $this->userService->currentUserCanReadWorkspace($workspace));
+    }
+
+    private function userCanManageInternalWorkspaces(): bool
+    {
+        return $this->privilegeManager->isPrivilegeTargetGranted('Neos.Neos:Backend.Module.Management.Workspaces.ManageInternalWorkspaces');
     }
 
     protected function translateById(string $id, array $arguments = []): string

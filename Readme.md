@@ -12,17 +12,38 @@ This Neos CMS plugin provides an alternative workspace module with added feature
 
 ### Module overview 
 
+An overview with all available workspaces. 
+Number of changes are shown as colored numbers instead a colored bar.
+
 ![Module overview](Documentation/Overview.png)
 
 ### Creation dialog
+
+Create private or public workspaces. 
+Set a base workspace where the changes from your created workspace will be published to.
 
 ![Creation dialog](Documentation/CreateDialog.png)
 
 ### Editing dialog
 
+Edit workspaces you have managing rights for.
+
 ![Edit dialog](Documentation/EditDialog.png)
 
+### Shared workspaces
+
+Private workspaces can be shared with other users.
+
+![Share workspace](Documentation/SharedWorkspace.png)
+
 ### Deletion dialog
+
+Workspaces can be deleted at any time. 
+
+**Notes:**
+
+* unpublished changes in the workspace will be discarded
+* dependent workspaces will be rebased on the base workspace
 
 ![Deletion dialog](Documentation/DeleteDialog.png)
 

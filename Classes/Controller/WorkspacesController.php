@@ -268,11 +268,10 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
                 [], null, null, 'Modules', 'Neos.Neos'), '', Message::SEVERITY_WARNING);
             $success = false;
         } else {
-            $workspaceName = Utility::renderValidNodeName($title) . '-' . substr(base_convert(microtime(false), 10, 36),
-                    -5, 5);
+            $workspaceName = $this->renderWorkspaceName($title);
+            // If a workspace with the generated name already exists, try again with a new name
             while ($this->workspaceRepository->findOneByName($workspaceName) instanceof Workspace) {
-                $workspaceName = Utility::renderValidNodeName($title) . '-' . substr(base_convert(microtime(false), 10,
-                        36), -5, 5);
+                $workspaceName = $this->renderWorkspaceName($title);
             }
 
             if ($visibility === 'private' || !$this->userCanManageInternalWorkspaces()) {
@@ -307,6 +306,16 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             // Include a new list of base workspace options which might contain the new workspace depending on its visibility
             'baseWorkspaceOptions' => $this->prepareBaseWorkspaceOptions(),
         ]);
+    }
+
+    /**
+     * Returns a valid internal name for a new workspace based on the given title and the current timestamp
+     */
+    protected function renderWorkspaceName(string $workspaceTitle): string
+    {
+        $timestamp = base_convert(microtime(false), 10, 36);
+        $randomHash = substr($timestamp, -5, 5);
+        return Utility::renderValidNodeName($workspaceTitle) . '-' . $randomHash;
     }
 
     /**
@@ -483,6 +492,11 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         }
     }
 
+    /**
+     * Checks whether the current user can access the given workspace.
+     * The check via the `userService` is modified via an aspect to allow access to the workspace if the
+     * workspace is specifically allowed for the user.
+     */
     protected function userCanAccessWorkspace(Workspace $workspace): bool
     {
         return $workspace->getName() !== 'live' && ($workspace->isInternalWorkspace() || $this->userService->currentUserCanReadWorkspace($workspace));

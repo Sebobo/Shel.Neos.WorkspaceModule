@@ -207,7 +207,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                     className="neos-button"
                     type="button"
                     title={translate('table.column.action.edit', `Edit workspace ${workspace.title}`, {
-                        workspace: workspace.name,
+                        workspace: workspace.title,
                     })}
                     onClick={() => setSelectedWorkspaceForEdit(workspaceName)}
                     disabled={!workspace.canManage || workspace.changesCounts === null}
@@ -218,7 +218,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                     className="neos-button neos-button-danger"
                     type="button"
                     title={translate('table.column.action.delete', `Delete workspace ${workspace.title}`, {
-                        workspace: workspace.name,
+                        workspace: workspace.title,
                     })}
                     disabled={!workspace.canManage}
                     onClick={() => setSelectedWorkspaceForDeletion(workspaceName)}

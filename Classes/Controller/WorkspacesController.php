@@ -197,8 +197,9 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $acl = [];
 
         if ($workspaceDetails) {
-            if ($workspaceDetails->getCreator()) {
-                $creatorUser = $this->userService->getUser($workspaceDetails->getCreator());
+            $creator = $workspaceDetails->getCreator();
+            if ($creator) {
+                $creatorUser = $this->userService->getUser($creator);
                 $creatorName = $creatorUser ? $creatorUser->getLabel() : $creator;
             }
             $isStale = !$workspace->isPersonalWorkspace() && $workspaceDetails->getLastChangedDate() && $workspaceDetails->getLastChangedDate()->getTimestamp() < time() - $this->staleTime;

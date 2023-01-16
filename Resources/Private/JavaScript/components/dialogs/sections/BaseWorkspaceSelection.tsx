@@ -25,6 +25,12 @@ const BaseWorkspaceSelection: React.FC<SectionProps> = ({ workspace }) => {
                 return false;
             }
             const workspaceToCheck = workspaces[workspaceName];
+
+            // If the workspace to check is not accessible, it is not selectable
+            if (!workspaceToCheck) {
+                return false;
+            }
+
             // Allow to selecting workspaces as base workspace if they have no base workspace
             if (!workspaceToCheck.baseWorkspace) {
                 return true;

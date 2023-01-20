@@ -19,7 +19,7 @@ final class Version20230117134142 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on "postgresql".');
 
         // Remove all disconnected workspace details entities or the foreign table constraint will fail
-        $this->addSql('DELETE FROM shel_neos_workspacemodule_domain_model_workspacedetails d WHERE d.workspacename NOT IN (SELECT name FROM neos_contentrepository_domain_model_workspace)');
+        $this->addSql('DELETE FROM shel_neos_workspacemodule_domain_model_workspacedetails WHERE workspacename NOT IN (SELECT name FROM neos_contentrepository_domain_model_workspace)');
 
         $this->addSql('CREATE TABLE shel_neos_workspacemodule_domain_model_workspace_1536f_acl_join (workspacemodule_workspacedetails VARCHAR(40) NOT NULL, neos_user VARCHAR(40) NOT NULL, PRIMARY KEY(workspacemodule_workspacedetails, neos_user))');
         $this->addSql('CREATE INDEX IDX_9EE667F39AF30FF3 ON shel_neos_workspacemodule_domain_model_workspace_1536f_acl_join (workspacemodule_workspacedetails)');

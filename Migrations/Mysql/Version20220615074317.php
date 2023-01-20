@@ -19,7 +19,7 @@ final class Version20220615074317 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         // Remove all disconnected workspace details entities or the foreign table constraint will fail
-        $this->addSql('DELETE FROM shel_neos_workspacemodule_domain_model_workspacedetails d WHERE d.workspacename NOT IN (SELECT name FROM neos_contentrepository_domain_model_workspace)');
+        $this->addSql('DELETE FROM shel_neos_workspacemodule_domain_model_workspacedetails WHERE workspacename NOT IN (SELECT name FROM neos_contentrepository_domain_model_workspace)');
 
         $this->addSql('CREATE TABLE shel_neos_workspacemodule_domain_model_workspace_1536f_acl_join (workspacemodule_workspacedetails VARCHAR(40) NOT NULL, neos_user VARCHAR(40) NOT NULL, INDEX IDX_9EE667F39AF30FF3 (workspacemodule_workspacedetails), INDEX IDX_9EE667F3C7FF26B (neos_user), PRIMARY KEY(workspacemodule_workspacedetails, neos_user)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE shel_neos_workspacemodule_domain_model_workspace_1536f_acl_join ADD CONSTRAINT FK_9EE667F39AF30FF3 FOREIGN KEY (workspacemodule_workspacedetails) REFERENCES shel_neos_workspacemodule_domain_model_workspacedetails (persistence_object_identifier)');

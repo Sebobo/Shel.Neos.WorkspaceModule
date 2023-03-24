@@ -48,6 +48,11 @@ class WorkspaceDetailsContext implements CacheAwareInterface
     protected $workspaceDetailsRepository;
 
     /**
+     * @var string
+     */
+    protected $cacheEntryIdentifier;
+
+    /**
      * @return string[]
      * @throws InvalidQueryException
      */
@@ -70,6 +75,9 @@ class WorkspaceDetailsContext implements CacheAwareInterface
 
     public function getCacheEntryIdentifier(): string
     {
-        return implode('_', $this->getSharedWorkspaces());
+        if ($this->cacheEntryIdentifier === null) {
+            $this->cacheEntryIdentifier = implode('_', $this->getSharedWorkspaces());
+        }
+        return $this->cacheEntryIdentifier;
     }
 }

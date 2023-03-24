@@ -16,11 +16,8 @@ namespace Shel\Neos\WorkspaceModule;
 
 use Neos\Flow\Annotations as Flow;
 use Neos\Cache\CacheAwareInterface;
-use Neos\ContentRepository\Domain\Model\Workspace;
-use Neos\Flow\Persistence\Exception\InvalidQueryException;
 use Neos\Flow\Persistence\PersistenceManagerInterface;
 use Neos\Neos\Domain\Service\UserService;
-use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
 use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
 
 /**
@@ -54,7 +51,6 @@ class WorkspaceDetailsContext implements CacheAwareInterface
 
     /**
      * @return string[]
-     * @throws InvalidQueryException
      */
     public function getSharedWorkspaces(): array
     {
@@ -68,9 +64,7 @@ class WorkspaceDetailsContext implements CacheAwareInterface
             return [];
         }
 
-        $allowedWorkspaceDetails = $this->workspaceDetailsRepository->findAllowedForUser($user)->toArray();
-        return array_map(static fn(WorkspaceDetails $workspaceDetails) => $workspaceDetails->getWorkspace()->getName(),
-            $allowedWorkspaceDetails);
+        return $this->workspaceDetailsRepository->findAllowedWorkspaceNamesForUser($user);
     }
 
     public function getCacheEntryIdentifier(): string

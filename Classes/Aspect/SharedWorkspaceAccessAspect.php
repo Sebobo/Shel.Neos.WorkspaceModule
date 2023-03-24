@@ -82,13 +82,18 @@ class SharedWorkspaceAccessAspect
         $userService = ObjectAccess::getProperty($workspaceService, 'domainUserService', true);
         $workspaceRepository = ObjectAccess::getProperty($workspaceService, 'workspaceRepository', true);
         $user = $userService->getCurrentUser();
+        $sharedWorkspaceNames = $user ? $this->workspaceDetailsRepository->findAllowedWorkspaceNamesForUser($user) : [];
 
         $workspacesArray = [];
         /** @var Workspace $workspace */
         foreach ($workspaceRepository->findAll() as $workspace) {
             // Skip personal workspaces and private workspace not shared with the current user
-            if ((($workspace->getOwner() !== null && $workspace->getOwner() !== $user) || $workspace->isPersonalWorkspace())
-                && !$this->isWorkspaceSharedWithUser($workspace, $user)) {
+            if (!in_array($workspace->getName(), $sharedWorkspaceNames)
+                && (
+                    ($workspace->getOwner() !== null && $workspace->getOwner() !== $user)
+                    || $workspace->isPersonalWorkspace()
+                )
+            ) {
                 continue;
             }
 

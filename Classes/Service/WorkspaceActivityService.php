@@ -13,10 +13,7 @@ namespace Shel\Neos\WorkspaceModule\Service;
  * source code.
  */
 
-use Neos\ContentRepository\Domain\Repository\WorkspaceRepository;
 use Neos\Flow\Annotations as Flow;
-use Neos\ContentRepository\Domain\Model\NodeInterface;
-use Neos\ContentRepository\Domain\Model\Workspace;
 use Neos\Flow\Persistence\PersistenceManagerInterface;
 use Neos\Flow\Security\Context;
 use Psr\Log\LoggerInterface;
@@ -24,6 +21,7 @@ use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
 use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
 
 /**
+ * TODO: Reimplement with new API
  * @Flow\Scope("singleton")
  */
 class WorkspaceActivityService
@@ -57,42 +55,36 @@ class WorkspaceActivityService
      */
     protected $persistenceManager;
 
-    /**
-     * @Flow\Inject
-     * @var WorkspaceRepository
-     */
-    protected $workspaceRepository;
-
-    public function nodePublished(NodeInterface $node, Workspace $targetWorkspace = null): void
-    {
-        if (!$targetWorkspace) {
-            return;
-        }
-        $this->updatedWorkspaces[$targetWorkspace->getName()] = $targetWorkspace;
-    }
-
-    public function nodeDiscarded(NodeInterface $node): void
-    {
-        $this->updatedWorkspaces[$node->getWorkspace()->getName()] = $node->getWorkspace();
-    }
-
-    public function shutdownObject(): void
-    {
-        $currentUser = $this->securityContext->getAccount()->getAccountIdentifier();
-
-        foreach ($this->updatedWorkspaces as $updatedWorkspace) {
-            $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($updatedWorkspace);
-
-            if ($workspaceDetails) {
-                $workspaceDetails->setLastChangedDate(new \DateTime());
-                $workspaceDetails->setLastChangedBy($currentUser);
-                $this->workspaceDetailsRepository->update($workspaceDetails);
-            } else {
-                $workspaceDetails = new WorkspaceDetails($updatedWorkspace, null, new \DateTime(), $currentUser);
-                $this->workspaceDetailsRepository->add($workspaceDetails);
-            }
-        }
-
-        $this->persistenceManager->persistAll();
-    }
+    //public function nodePublished(NodeInterface $node, Workspace $targetWorkspace = null): void
+    //{
+    //    if (!$targetWorkspace) {
+    //        return;
+    //    }
+    //    $this->updatedWorkspaces[$targetWorkspace->getName()] = $targetWorkspace;
+    //}
+    //
+    //public function nodeDiscarded(NodeInterface $node): void
+    //{
+    //    $this->updatedWorkspaces[$node->getWorkspace()->getName()] = $node->getWorkspace();
+    //}
+    //
+    //public function shutdownObject(): void
+    //{
+    //    $currentUser = $this->securityContext->getAccount()->getAccountIdentifier();
+    //
+    //    foreach ($this->updatedWorkspaces as $updatedWorkspace) {
+    //        $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($updatedWorkspace);
+    //
+    //        if ($workspaceDetails) {
+    //            $workspaceDetails->setLastChangedDate(new \DateTime());
+    //            $workspaceDetails->setLastChangedBy($currentUser);
+    //            $this->workspaceDetailsRepository->update($workspaceDetails);
+    //        } else {
+    //            $workspaceDetails = new WorkspaceDetails($updatedWorkspace, null, new \DateTime(), $currentUser);
+    //            $this->workspaceDetailsRepository->add($workspaceDetails);
+    //        }
+    //    }
+    //
+    //    $this->persistenceManager->persistAll();
+    //}
 }

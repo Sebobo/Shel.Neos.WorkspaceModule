@@ -17,7 +17,7 @@ namespace Shel\Neos\WorkspaceModule\Domain\Model;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Neos\ContentRepository\Domain\Model\Workspace;
+use Neos\ContentRepository\Core\Projection\Workspace\Workspace;
 use Neos\Flow\Annotations as Flow;
 use Neos\Neos\Domain\Model\User;
 

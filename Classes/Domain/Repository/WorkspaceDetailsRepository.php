@@ -16,7 +16,7 @@ namespace Shel\Neos\WorkspaceModule\Domain\Repository;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\ResultSetMapping;
-use Neos\ContentRepository\Domain\Model\Workspace;
+use Neos\ContentRepository\Core\Projection\Workspace\Workspace;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Persistence\QueryResultInterface;
 use Neos\Flow\Persistence\Repository;

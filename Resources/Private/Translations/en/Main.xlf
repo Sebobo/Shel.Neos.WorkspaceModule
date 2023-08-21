@@ -41,16 +41,16 @@
                 <source>Review</source>
             </trans-unit>
             <trans-unit id="table.column.action.show.title">
-                <source>Show changes in workspace {workspace}</source>
+                <source>Show changes in workspace "{workspace}"</source>
             </trans-unit>
             <trans-unit id="table.column.action.show.disabled.title">
                 <source>No changes to review</source>
             </trans-unit>
             <trans-unit id="table.column.action.edit">
-                <source>Edit workspace {workspace}</source>
+                <source>Edit workspace "{workspace}"</source>
             </trans-unit>
             <trans-unit id="table.column.action.delete">
-                <source>Delete workspace {workspace}</source>
+                <source>Delete workspace "{workspace}"</source>
             </trans-unit>
 
             <trans-unit id="footer.action.create">
@@ -116,6 +116,16 @@
                 <source><![CDATA[Deleting this workspace will also discard <strong>{count}</strong> unpublished changes.]]></source>
             </trans-unit>
 
+            <trans-unit id="dialog.prune.header">
+                <source>Prune workspace "{workspace}"?</source>
+            </trans-unit>
+            <trans-unit id="dialog.prune.pointOfNoReturn">
+                <source>This action cannot be undone.</source>
+            </trans-unit>
+            <trans-unit id="dialog.prune.unpublishedChanges">
+                <source><![CDATA[Pruning this workspace will discard <strong>{count}</strong> changes.]]></source>
+            </trans-unit>
+
             <trans-unit id="workspace.title.label">
                 <source>Title</source>
             </trans-unit>
@@ -169,26 +179,35 @@
             </trans-unit>
 
             <trans-unit id="message.workspaceUpdated">
-                <source>The workspace "{workspaceName}" has been updated</source>
+                <source>The workspace "{workspaceName}" has been updated.</source>
             </trans-unit>
             <trans-unit id="message.workspaceCreated">
-                <source>The workspace "{workspaceName}" has been created</source>
+                <source>The workspace "{workspaceName}" has been created.</source>
             </trans-unit>
             <trans-unit id="message.workspaceRemoved">
-                <source>The workspace "{workspaceName}" has been removed, {unpublishedNodes} changes have been discarded and {dependentWorkspaces} dependent workspaces have been rebased</source>
+                <source>The workspace "{workspaceName}" has been removed, {unpublishedNodes} changes have been discarded and {dependentWorkspaces} dependent workspaces have been rebased.</source>
+            </trans-unit>
+            <trans-unit id="message.workspacePruned">
+                <source>The workspace "{workspaceName}" has been pruned, {nodeCount} changes have been discarded.</source>
             </trans-unit>
             <trans-unit id="message.workspaceIsPersonal">
-                <source>The workspace "{workspaceName}" is personal and cannot be deleted</source>
+                <source>The workspace "{workspaceName}" is personal and cannot be deleted.</source>
             </trans-unit>
             <trans-unit id="message.workspaceRebased">
-                <source>Workspace "{dependentWorkspaceName}" has been rebased to "live" as it depends on workspace "{workspaceName}"</source>
+                <source>Workspace "{dependentWorkspaceName}" has been rebased to "live" as it depends on workspace "{workspaceName}".</source>
+            </trans-unit>
+            <trans-unit id="message.workspaceEmpty">
+                <source>There are no unpublished changes in workspace "{workspaceName}".</source>
             </trans-unit>
 
             <trans-unit id="error.invalidWorkspaceChain">
-                <source>The base workspaces of "{workspaceName}" cannot be resolved</source>
+                <source>The base workspaces of "{workspaceName}" cannot be resolved.</source>
             </trans-unit>
             <trans-unit id="error.workspaceInaccessible">
-                <source>You are not permitted to access the workspace "{workspaceName}"</source>
+                <source>You are not permitted to access the workspace "{workspaceName}".</source>
+            </trans-unit>
+            <trans-unit id="error.pruneFailed">
+                <source>The workspace "{workspaceName}" could not be pruned.</source>
             </trans-unit>
         </body>
     </file>

@@ -15,6 +15,11 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                 arguments.workspace = '---workspace---'
                 format = 'json'
             }
+            pruneWorkspace = Neos.Fusion:UriBuilder {
+                action = 'prune'
+                arguments.workspace = '---workspace---'
+                format = 'json'
+            }
             updateWorkspace = Neos.Fusion:UriBuilder {
                 action = 'update'
                 format = 'json'

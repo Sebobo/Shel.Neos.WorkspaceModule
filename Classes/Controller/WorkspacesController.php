@@ -67,20 +67,27 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $currentAccount = $this->securityContext->getAccount();
 
         /** @var Workspace $userWorkspace */
-        $userWorkspace = $this->workspaceRepository->findOneByName(UserUtility::getPersonalWorkspaceNameForUsername($currentAccount->getAccountIdentifier()));
+        $userWorkspace = $this->workspaceRepository->findOneByName(
+            UserUtility::getPersonalWorkspaceNameForUsername($currentAccount->getAccountIdentifier())
+        );
 
-        $workspaceData = array_reduce($this->workspaceRepository->findAll()->toArray(),
+        $workspaceData = array_reduce(
+            $this->workspaceRepository->findAll()->toArray(),
             function (array $carry, Workspace $workspace) {
                 if ($this->userCanAccessWorkspace($workspace)) {
                     $carry[$workspace->getName()] = $this->getWorkspaceInfo($workspace);
                 }
                 return $carry;
-            }, [$userWorkspace->getName() => $this->getWorkspaceInfo($userWorkspace)]);
+            },
+            [$userWorkspace->getName() => $this->getWorkspaceInfo($userWorkspace)]
+        );
 
         $this->view->assignMultiple([
             'userWorkspace' => $userWorkspace,
             'baseWorkspaceOptions' => $this->prepareBaseWorkspaceOptions(),
-            'userCanManageInternalWorkspaces' => $this->privilegeManager->isPrivilegeTargetGranted('Neos.Neos:Backend.Module.Management.Workspaces.ManageInternalWorkspaces'),
+            'userCanManageInternalWorkspaces' => $this->privilegeManager->isPrivilegeTargetGranted(
+                'Neos.Neos:Backend.Module.Management.Workspaces.ManageInternalWorkspaces'
+            ),
             'userList' => $this->prepareOwnerOptions(),
             'workspaces' => $workspaceData,
             'csrfToken' => $this->securityContext->getCsrfProtectionToken(),
@@ -94,7 +101,9 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $currentAccount = $this->securityContext->getAccount();
 
         /** @var Workspace $userWorkspace */
-        $userWorkspace = $this->workspaceRepository->findOneByName(UserUtility::getPersonalWorkspaceNameForUsername($currentAccount->getAccountIdentifier()));
+        $userWorkspace = $this->workspaceRepository->findOneByName(
+            UserUtility::getPersonalWorkspaceNameForUsername($currentAccount->getAccountIdentifier())
+        );
 
         $workspaces = $this->workspaceRepository->findAll()->toArray();
 
@@ -139,13 +148,17 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
                 $dependentWorkspace->setBaseWorkspace($liveWorkspace);
                 $this->workspaceRepository->update($dependentWorkspace);
                 $this->addFlashMessage(
-                    $this->translateById('message.workspaceRebased',
+                    $this->translateById(
+                        'message.workspaceRebased',
                         [
                             'dependentWorkspaceName' => $dependentWorkspace->getTitle(),
                             'workspaceName' => $workspace->getTitle(),
                         ]
                     )
-                    , '', Message::SEVERITY_WARNING);
+                    ,
+                    '',
+                    Message::SEVERITY_WARNING
+                );
                 $rebasedWorkspaces[] = $dependentWorkspace;
             }
 
@@ -168,7 +181,8 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
 
             $this->workspaceRepository->remove($workspace);
             $this->addFlashMessage(
-                $this->translateById('message.workspaceRemoved',
+                $this->translateById(
+                    'message.workspaceRemoved',
                     [
                         'workspaceName' => $workspace->getTitle(),
                         'unpublishedNodes' => count($unpublishedNodes),
@@ -188,6 +202,59 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         ]);
     }
 
+    /**
+     * Prune a workspace and all contained unpublished changes.
+     *
+     * @throws IllegalObjectTypeException
+     * @Flow\SkipCsrfProtection
+     */
+    public function pruneAction(Workspace $workspace): void
+    {
+        $success = false;
+        $unpublishedNodes = $this->publishingService->getUnpublishedNodes($workspace);
+
+        if (count($unpublishedNodes) > 0 && $this->userService->currentUserCanPublishToWorkspace($workspace)) {
+            try {
+                $this->publishingService->discardNodes($unpublishedNodes);
+
+                $this->addFlashMessage(
+                    $this->translateById(
+                        'message.workspacePruned',
+                        ['workspaceName' => $workspace->getTitle(), 'nodeCount' => count($unpublishedNodes)]
+                    ),
+                );
+
+                // Persist the workspace and related data or the generated workspace info will be incomplete
+                $this->persistenceManager->persistAll();
+                $success = true;
+            } catch (\Exception $e) {
+                $this->addFlashMessage(
+                    $this->translateById(
+                        'error.pruneFailed',
+                        ['workspaceName' => $workspace->getTitle()]
+                    ),
+                    '',
+                    Message::SEVERITY_WARNING
+                );
+            }
+        } else {
+            $this->addFlashMessage(
+                $this->translateById(
+                    'message.workspaceEmpty',
+                    ['workspaceName' => $workspace->getTitle()]
+                ),
+                '',
+                Message::SEVERITY_WARNING
+            );
+        }
+
+        $this->view->assign('value', [
+            'success' => $success,
+            'messages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
+            'workspace' => $this->getWorkspaceInfo($workspace),
+        ]);
+    }
+
     protected function getWorkspaceInfo(Workspace $workspace): array
     {
         $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($workspace);
@@ -202,13 +269,16 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
                 $creatorUser = $this->userService->getUser($creator);
                 $creatorName = $creatorUser ? $creatorUser->getLabel() : $creator;
             }
-            $isStale = !$workspace->isPersonalWorkspace() && $workspaceDetails->getLastChangedDate() && $workspaceDetails->getLastChangedDate()->getTimestamp() < time() - $this->staleTime;
+            $isStale = !$workspace->isPersonalWorkspace() && $workspaceDetails->getLastChangedDate(
+                ) && $workspaceDetails->getLastChangedDate()->getTimestamp() < time() - $this->staleTime;
 
             if ($workspaceDetails->getLastChangedBy()) {
                 $lastChangedBy = $this->userService->getUser($workspaceDetails->getLastChangedBy());
             }
-            $lastChangedDate = $workspaceDetails->getLastChangedDate() ? $workspaceDetails->getLastChangedDate()->format('c') : null;
-            $lastChangedTimestamp = $workspaceDetails->getLastChangedDate() ? $workspaceDetails->getLastChangedDate()->getTimestamp() : null;
+            $lastChangedDate = $workspaceDetails->getLastChangedDate() ? $workspaceDetails->getLastChangedDate(
+            )->format('c') : null;
+            $lastChangedTimestamp = $workspaceDetails->getLastChangedDate() ? $workspaceDetails->getLastChangedDate(
+            )->getTimestamp() : null;
             $acl = $workspaceDetails->getAcl() ?? [];
         }
 
@@ -265,8 +335,18 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
 
         $workspace = $this->workspaceRepository->findOneByTitle($title);
         if ($workspace instanceof Workspace) {
-            $this->addFlashMessage($this->translator->translateById('workspaces.workspaceWithThisTitleAlreadyExists',
-                [], null, null, 'Modules', 'Neos.Neos'), '', Message::SEVERITY_WARNING);
+            $this->addFlashMessage(
+                $this->translator->translateById(
+                    'workspaces.workspaceWithThisTitleAlreadyExists',
+                    [],
+                    null,
+                    null,
+                    'Modules',
+                    'Neos.Neos'
+                ),
+                '',
+                Message::SEVERITY_WARNING
+            );
             $success = false;
         } else {
             $workspaceName = $this->renderWorkspaceName($title);
@@ -288,8 +368,10 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             $this->workspaceRepository->add($workspace);
 
             // Create a new WorkspaceDetails object
-            $workspaceDetails = new WorkspaceDetails($workspace,
-                $this->securityContext->getAccount()->getAccountIdentifier());
+            $workspaceDetails = new WorkspaceDetails(
+                $workspace,
+                $this->securityContext->getAccount()->getAccountIdentifier()
+            );
             $this->workspaceDetailsRepository->add($workspaceDetails);
 
             // Persist the workspace and related data or the generated workspace info will be incomplete
@@ -347,8 +429,11 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         parent::initializeUpdateAction();
         $workspaceConfiguration = $this->arguments['workspace']->getPropertyMappingConfiguration();
         $workspaceConfiguration->allowAllProperties();
-        $workspaceConfiguration->setTypeConverterOption(PersistentObjectConverter::class,
-            PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED, true);
+        $workspaceConfiguration->setTypeConverterOption(
+            PersistentObjectConverter::class,
+            PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED,
+            true
+        );
     }
 
     /**
@@ -362,8 +447,14 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         }
 
         if (!$this->validateWorkspaceChain($workspace)) {
-            $this->addFlashMessage($this->translateById('error.invalidWorkspaceChain',
-                ['workspaceName' => $workspace->getTitle()]), '', Message::SEVERITY_ERROR);
+            $this->addFlashMessage(
+                $this->translateById(
+                    'error.invalidWorkspaceChain',
+                    ['workspaceName' => $workspace->getTitle()]
+                ),
+                '',
+                Message::SEVERITY_ERROR
+            );
         } else {
             $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($workspace);
 
@@ -378,13 +469,18 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             $allowedUsers = array_map(fn($userName) => $this->userRepository->findByIdentifier($userName), $acl);
 
             // Rebase users if they were using the workspace but lost access by the update
-            $allowedAccounts = array_map(static fn(User $user) => (string)$user->getAccounts()->first()->getAccountIdentifier(), $allowedUsers);
+            $allowedAccounts = array_map(
+                static fn(User $user) => (string)$user->getAccounts()->first()->getAccountIdentifier(),
+                $allowedUsers
+            );
             $liveWorkspace = $this->workspaceRepository->findByIdentifier('live');
             foreach ($workspaceDetails->getAcl() as $prevAcl) {
                 $aclAccount = $prevAcl->getAccounts()->first()->getAccountIdentifier();
                 if (!in_array($aclAccount, $allowedAccounts, true)) {
                     /** @var Workspace $userWorkspace */
-                    $userWorkspace = $this->workspaceRepository->findOneByName(UserUtility::getPersonalWorkspaceNameForUsername($aclAccount));
+                    $userWorkspace = $this->workspaceRepository->findOneByName(
+                        UserUtility::getPersonalWorkspaceNameForUsername($aclAccount)
+                    );
                     if ($userWorkspace->getBaseWorkspace() === $workspace) {
                         $userWorkspace->setBaseWorkspace($liveWorkspace);
                         $this->workspaceRepository->update($userWorkspace);
@@ -425,8 +521,11 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $this->validateWorkspaceAccess($selectedWorkspace);
 
         $propertyMappingConfiguration = $this->propertyMapper->buildPropertyMappingConfiguration();
-        $propertyMappingConfiguration->setTypeConverterOption(NodeConverter::class,
-            NodeConverter::REMOVED_CONTENT_SHOWN, true);
+        $propertyMappingConfiguration->setTypeConverterOption(
+            NodeConverter::class,
+            NodeConverter::REMOVED_CONTENT_SHOWN,
+            true
+        );
         foreach ($nodes as $key => $node) {
             $nodes[$key] = $this->propertyMapper->convert($node, NodeInterface::class, $propertyMappingConfiguration);
         }
@@ -437,15 +536,27 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
                     $this->publishingService->publishNode($node);
                 }
                 $this->addFlashMessage(
-                    $this->translator->translateById('workspaces.selectedChangesHaveBeenPublished', [], null, null,
-                        'Modules', 'Neos.Neos')
+                    $this->translator->translateById(
+                        'workspaces.selectedChangesHaveBeenPublished',
+                        [],
+                        null,
+                        null,
+                        'Modules',
+                        'Neos.Neos'
+                    )
                 );
                 break;
             case 'discard':
                 $this->publishingService->discardNodes($nodes);
                 $this->addFlashMessage(
-                    $this->translator->translateById('workspaces.selectedChangesHaveBeenDiscarded', [], null, null,
-                        'Modules', 'Neos.Neos')
+                    $this->translator->translateById(
+                        'workspaces.selectedChangesHaveBeenDiscarded',
+                        [],
+                        null,
+                        null,
+                        'Modules',
+                        'Neos.Neos'
+                    )
                 );
                 break;
             default:
@@ -500,17 +611,27 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      */
     protected function userCanAccessWorkspace(Workspace $workspace): bool
     {
-        return $workspace->getName() !== 'live' && ($workspace->isInternalWorkspace() || $this->userService->currentUserCanReadWorkspace($workspace));
+        return $workspace->getName() !== 'live' && ($workspace->isInternalWorkspace(
+                ) || $this->userService->currentUserCanReadWorkspace($workspace));
     }
 
     private function userCanManageInternalWorkspaces(): bool
     {
-        return $this->privilegeManager->isPrivilegeTargetGranted('Neos.Neos:Backend.Module.Management.Workspaces.ManageInternalWorkspaces');
+        return $this->privilegeManager->isPrivilegeTargetGranted(
+            'Neos.Neos:Backend.Module.Management.Workspaces.ManageInternalWorkspaces'
+        );
     }
 
     protected function translateById(string $id, array $arguments = []): string
     {
-        return $this->translator->translateById($id, $arguments, null, null, 'Main', 'Shel.Neos.WorkspaceModule');
+        return $this->translator->translateById(
+            $id,
+            $arguments,
+            null,
+            null,
+            'Main',
+            'Shel.Neos.WorkspaceModule'
+        ) ?? $id;
     }
 
     /**

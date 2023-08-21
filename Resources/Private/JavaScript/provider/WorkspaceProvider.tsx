@@ -23,12 +23,15 @@ type WorkspaceValues = {
     loadChangesCounts: () => void;
     createWorkspace: (formData: FormData) => Promise<void>;
     deleteWorkspace: (workspaceName: WorkspaceName) => void;
+    pruneWorkspace: (workspaceName: WorkspaceName) => void;
     updateWorkspace: (formData: FormData) => Promise<void>;
     showWorkspace: (workspaceName: WorkspaceName) => void;
     sorting: SortBy;
     setSorting: (sortBy: SortBy) => void;
     selectedWorkspaceForDeletion: WorkspaceName | null;
     setSelectedWorkspaceForDeletion: (workspaceName: WorkspaceName | null) => void;
+    selectedWorkspaceForPruning: WorkspaceName | null;
+    setSelectedWorkspaceForPruning: (workspaceName: WorkspaceName | null) => void;
     selectedWorkspaceForEdit: WorkspaceName | null;
     setSelectedWorkspaceForEdit: (workspaceName: WorkspaceName | null) => void;
     csrfToken: string;
@@ -60,6 +63,7 @@ export const WorkspaceProvider = ({
     const [workspaces, setWorkspaces] = React.useState(workspaceList);
     const [sorting, setSorting] = useState<SortBy>(SortBy.lastModified);
     const [selectedWorkspaceForDeletion, setSelectedWorkspaceForDeletion] = useState<WorkspaceName | null>(null);
+    const [selectedWorkspaceForPruning, setSelectedWorkspaceForPruning] = useState<WorkspaceName | null>(null);
     const [selectedWorkspaceForEdit, setSelectedWorkspaceForEdit] = useState<WorkspaceName | null>(null);
     const [creationDialogVisible, setCreationDialogVisible] = useState(false);
     const notify = useNotify();
@@ -184,6 +188,49 @@ export const WorkspaceProvider = ({
         },
         [csrfToken, endpoints.deleteWorkspace]
     );
+
+    const pruneWorkspace = useCallback(async (workspaceName: WorkspaceName) => {
+        return fetch(prepareWorkspaceActionUrl(endpoints.pruneWorkspace, workspaceName), {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: JSON.stringify({ __csrfToken: csrfToken }),
+        })
+            .then((response) => response.json())
+            .then(
+                ({
+                     success,
+                     workspace,
+                     messages = [],
+                 }: {
+                    success: boolean;
+                    workspace: Workspace;
+                    messages: FlashMessage[];
+                }) => {
+                    if (success) {
+                        setWorkspaces((workspaces) => {
+                            // Update pruned workspace, but keep changes counts
+                            return {
+                                ...workspaces,
+                                [workspace.name]: {
+                                    ...workspaces[workspace.name],
+                                    ...workspace,
+                                    changesCounts: workspaces[workspace.name].changesCounts,
+                                },
+                            };
+                        });
+                    }
+                    handleFlashMessages(messages);
+                    return workspace[workspace.name];
+                }
+            )
+            .catch((error) => {
+                notify.error('Failed to prune workspace', error.message);
+                console.error('Failed to prune workspace', error);
+            });
+    }, [csrfToken, endpoints.pruneWorkspace]);
 
     const updateWorkspace = useCallback(
         async (formData: FormData): Promise<void> => {
@@ -314,12 +361,15 @@ export const WorkspaceProvider = ({
                 userList: userList,
                 loadChangesCounts,
                 deleteWorkspace,
+                pruneWorkspace,
                 updateWorkspace,
                 showWorkspace,
                 sorting,
                 setSorting,
                 selectedWorkspaceForDeletion,
                 setSelectedWorkspaceForDeletion,
+                selectedWorkspaceForPruning,
+                setSelectedWorkspaceForPruning,
                 selectedWorkspaceForEdit,
                 setSelectedWorkspaceForEdit,
                 csrfToken,

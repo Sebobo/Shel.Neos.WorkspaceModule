@@ -53,20 +53,20 @@
                 <target>Überprüfen</target>
             </trans-unit>
             <trans-unit id="table.column.action.show.title">
-                <source>Show changes in workspace {workspace}</source>
-                <target>Änderungen im Arbeitsbereich {workspace} anzeigen</target>
+                <source>Show changes in workspace "{workspace}"</source>
+                <target>Änderungen im Arbeitsbereich "{workspace}" anzeigen</target>
             </trans-unit>
             <trans-unit id="table.column.action.show.disabled.title">
                 <source>No changes to review</source>
                 <target>Keine Änderungen zur Überprüfung</target>
             </trans-unit>
             <trans-unit id="table.column.action.edit">
-                <source>Edit workspace {workspace}</source>
-                <target>Arbeitsbereich {workspace} bearbeiten</target>
+                <source>Edit workspace "{workspace}"</source>
+                <target>Arbeitsbereich "{workspace}" bearbeiten</target>
             </trans-unit>
             <trans-unit id="table.column.action.delete">
-                <source>Delete workspace {workspace}</source>
-                <target>Arbeitsbereich {workspace} löschen</target>
+                <source>Delete workspace "{workspace}"</source>
+                <target>Arbeitsbereich "{workspace}" löschen</target>
             </trans-unit>
 
             <trans-unit id="footer.action.create">
@@ -151,6 +151,19 @@
                 <target><![CDATA[Wenn Sie diesen Arbeitsbereich löschen, werden auch <strong>{count}</strong> unveröffentlichte Änderungen verworfen.]]></target>
             </trans-unit>
 
+            <trans-unit id="dialog.prune.header">
+                <source>Prune workspace "{workspace}"?</source>
+                <source>Arbeitsbereich "{workspace}" leeren?</source>
+            </trans-unit>
+            <trans-unit id="dialog.prune.pointOfNoReturn">
+                <source>This action cannot be undone.</source>
+                <target>Diese Aktion kann nicht rückgängig gemacht werden.</target>
+            </trans-unit>
+            <trans-unit id="dialog.prune.unpublishedChanges">
+                <source><![CDATA[Pruning this workspace will discard <strong>{count}</strong> changes.]]></source>
+                <target><![CDATA[Wenn Sie diesen Arbeitsbereich leeren, werden <strong>{count}</strong> Änderungen verworfen.]]></target>
+            </trans-unit>
+
             <trans-unit id="workspace.title.label">
                 <source>Title</source>
                 <target>Titel</target>
@@ -217,33 +230,45 @@
             </trans-unit>
 
             <trans-unit id="message.workspaceUpdated">
-                <source>The workspace "{workspaceName}" has been updated</source>
-                <target>Der Arbeitsbereich "{workspaceName}" wurde aktualisiert</target>
+                <source>The workspace "{workspaceName}" has been updated.</source>
+                <target>Der Arbeitsbereich "{workspaceName}" wurde aktualisiert.</target>
             </trans-unit>
             <trans-unit id="message.workspaceCreated">
-                <source>The workspace "{workspaceName}" has been created</source>
-                <target>Der Arbeitsbereich "{workspaceName}" wurde erstellt</target>
+                <source>The workspace "{workspaceName}" has been created.</source>
+                <target>Der Arbeitsbereich "{workspaceName}" wurde erstellt.</target>
             </trans-unit>
             <trans-unit id="message.workspaceRemoved">
-                <source>The workspace "{workspaceName}" has been removed, {unpublishedNodes} changes have been discarded and {dependentWorkspaces} dependent workspaces have been rebased</source>
-                <target>Der Arbeitsbereich "{workspaceName}" wurde entfernt, {unpublishedNodes} Änderungen wurden verworfen und {dependentWorkspaces} abhängige Arbeitsbereiche wurden neu zugeordnet</target>
+                <source>The workspace "{workspaceName}" has been removed, {unpublishedNodes} changes have been discarded and {dependentWorkspaces} dependent workspaces have been rebased.</source>
+                <target>Der Arbeitsbereich "{workspaceName}" wurde entfernt, {unpublishedNodes} Änderungen wurden verworfen und {dependentWorkspaces} abhängige Arbeitsbereiche wurden neu zugeordnet.</target>
+            </trans-unit>
+            <trans-unit id="message.workspacePruned">
+                <source>The workspace "{workspaceName}" has been pruned, {nodeCount} changes have been discarded.</source>
+                <target>Der Arbeitsbereich "{Arbeitsbereichsname}" wurde geleert, {Knotenanzahl} Änderungen wurden verworfen.</target>
             </trans-unit>
             <trans-unit id="message.workspaceIsPersonal">
-                <source>The workspace "{workspaceName}" is personal and cannot be deleted</source>
-                <target>Der Arbeitsbereich "{workspaceName}" ist personengebunden und kann nicht gelöscht werden</target>
+                <source>The workspace "{workspaceName}" is personal and cannot be deleted.</source>
+                <target>Der Arbeitsbereich "{workspaceName}" ist personengebunden und kann nicht gelöscht werden.</target>
             </trans-unit>
             <trans-unit id="message.workspaceRebased">
-                <source>Workspace "{dependentWorkspaceName}" has been rebased to "live" as it depends on workspace "{workspaceName}"</source>
+                <source>Workspace "{dependentWorkspaceName}" has been rebased to "live" as it depends on workspace "{workspaceName}".</source>
                 <target>Arbeitsbereich "{dependentWorkspaceName}" wurde auf "live" umgestellt, da er vom Arbeitsbereich "{workspaceName}" abhängt.</target>
+            </trans-unit>
+            <trans-unit id="message.workspaceEmpty">
+                <source>There are no unpublished changes in workspace "{workspaceName}".</source>
+                <target>Es gibt keine unveröffentlichten Änderungen im Arbeitsbereich "{workspaceName}".</target>
             </trans-unit>
 
             <trans-unit id="error.invalidWorkspaceChain">
-                <source>The base workspaces of "{workspaceName}" cannot be resolved</source>
-                <target>Die Basisarbeitsbereiche von "{workspaceName}" können nicht aufgelöst werden</target>
+                <source>The base workspaces of "{workspaceName}" cannot be resolved.</source>
+                <target>Die Basisarbeitsbereiche von "{workspaceName}" können nicht aufgelöst werden.</target>
             </trans-unit>
             <trans-unit id="error.workspaceInaccessible">
-                <source>You are not permitted to access the workspace "{workspaceName}"</source>
-                <target>Sie sind nicht berechtigt, auf den Arbeitsbereich "{workspaceName}" zuzugreifen</target>
+                <source>You are not permitted to access the workspace "{workspaceName}".</source>
+                <target>Sie sind nicht berechtigt, auf den Arbeitsbereich "{workspaceName}" zuzugreifen.</target>
+            </trans-unit>
+            <trans-unit id="error.pruneFailed">
+                <source>The workspace "{workspaceName}" could not be pruned.</source>
+                <target>Der Arbeitsbereich "{workspaceName}" konnte nicht geleert werden.</target>
             </trans-unit>
         </body>
     </file>

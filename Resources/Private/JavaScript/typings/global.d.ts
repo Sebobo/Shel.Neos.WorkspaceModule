@@ -62,6 +62,7 @@ type ChangesCounts = {
 
 type WorkspaceEndpoints = {
     deleteWorkspace: ActionUri; // Delete a workspace
+    pruneWorkspace: ActionUri; // Prune a workspace
     updateWorkspace: ActionUri; // Show edit dialog
     createWorkspace: ActionUri; // Create new workspace
     showWorkspace: ActionUri; // Show changes in workspace

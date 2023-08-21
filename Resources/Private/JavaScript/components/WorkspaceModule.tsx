@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import WorkspaceTable from './WorkspaceTable';
-import { DeleteWorkspaceDialog, EditWorkspaceDialog, CreateWorkspaceDialog } from './dialogs';
+import { DeleteWorkspaceDialog, EditWorkspaceDialog, CreateWorkspaceDialog, PruneWorkspaceDialog } from './dialogs';
 import Footer from './Footer';
 
 const WorkspaceModule: React.FC = () => {
@@ -10,6 +10,7 @@ const WorkspaceModule: React.FC = () => {
             <WorkspaceTable />
             <Footer />
             <DeleteWorkspaceDialog />
+            <PruneWorkspaceDialog />
             <EditWorkspaceDialog />
             <CreateWorkspaceDialog />
         </>

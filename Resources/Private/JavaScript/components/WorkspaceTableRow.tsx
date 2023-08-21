@@ -52,6 +52,11 @@ const ActionColumn = styled(Column)`
             color: var(--textSubtle);
         }
     }
+
+    & .neos-button:focus {
+        outline: 1px solid var(--blueDark) !important;
+        outline-offset: -1px;
+    }
 `;
 
 const TypeColumn = styled(Column)`
@@ -86,6 +91,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
         workspaces,
         setSelectedWorkspaceForEdit,
         setSelectedWorkspaceForDeletion,
+        setSelectedWorkspaceForPruning,
         showWorkspace,
         translate,
     } = useWorkspaces();
@@ -202,7 +208,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                             workspace: workspace.title,
                         }
                     )}
-                    disabled={!workspace.changesCounts?.total}
+                    disabled={workspace.changesCounts?.total === 0}
                     onClick={() => showWorkspace(workspaceName)}
                 >
                     <Icon icon="review" /> {translate('table.column.action.show', 'Show')}
@@ -218,17 +224,30 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                 >
                     <Icon icon="pencil-alt" />
                 </button>
-                <button
-                    className="neos-button neos-button-danger"
-                    type="button"
-                    title={translate('table.column.action.delete', `Delete workspace ${workspace.title}`, {
-                        workspace: workspace.title,
-                    })}
-                    disabled={!workspace.canManage}
-                    onClick={() => setSelectedWorkspaceForDeletion(workspaceName)}
-                >
-                    <Icon icon="trash-alt" />
-                </button>
+                {workspace.isPersonal && workspace.nodeCount > 1 && workspace.changesCounts?.total === 0 ? (
+                    <button
+                        className="neos-button neos-button-danger"
+                        type="button"
+                        title={translate('table.column.action.prune', `Prune workspace ${workspace.title}`, {
+                            workspace: workspace.title,
+                        })}
+                        onClick={() => setSelectedWorkspaceForPruning(workspaceName)}
+                    >
+                        <Icon icon="broom" />
+                    </button>
+                ) : (
+                    <button
+                        className="neos-button neos-button-danger"
+                        type="button"
+                        title={translate('table.column.action.delete', `Delete workspace ${workspace.title}`, {
+                            workspace: workspace.title,
+                        })}
+                        disabled={!workspace.canManage}
+                        onClick={() => setSelectedWorkspaceForDeletion(workspaceName)}
+                    >
+                        <Icon icon="trash-alt" />
+                    </button>
+                )}
             </ActionColumn>
         </Row>
     );

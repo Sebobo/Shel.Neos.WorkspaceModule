@@ -18,12 +18,17 @@ class Version20220420074047 extends AbstractMigration
     {
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on "postgresql".');
 
-        $this->addSql('ALTER TABLE shel_neos_workspacemodule_domain_model_workspacedetails ADD creator VARCHAR(255) NOT NULL');
+        if (\array_key_exists('shel_neos_workspacemodule_domain_model_workspacedetails', $this->sm->listTableNames())) {
+            $this->addSql('ALTER TABLE shel_neos_workspacemodule_domain_model_workspacedetails ADD creator VARCHAR(255) NOT NULL');
+        }
     }
 
     public function down(Schema $schema): void
     {
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on "postgresql".');
-        $this->addSql('ALTER TABLE shel_neos_workspacemodule_domain_model_workspacedetails DROP creator');
+
+        if (\array_key_exists('shel_neos_workspacemodule_domain_model_workspacedetails', $this->sm->listTableNames())) {
+            $this->addSql('ALTER TABLE shel_neos_workspacemodule_domain_model_workspacedetails DROP creator');
+        }
     }
 }

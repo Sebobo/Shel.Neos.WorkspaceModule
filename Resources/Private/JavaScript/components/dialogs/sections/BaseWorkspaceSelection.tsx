@@ -55,7 +55,7 @@ const BaseWorkspaceSelection: React.FC<SectionProps> = ({ workspace }) => {
         <label>
             {translate('workspace.baseWorkspace.label', 'Base Workspace')}
             <select
-                name={`moduleArguments${workspace ? '[workspace]' : ''}[baseWorkspace]`}
+                name={`moduleArguments[baseWorkspace]`}
                 disabled={workspace?.changesCounts.total > 1}
                 defaultValue={workspace?.baseWorkspace.name || ''}
             >

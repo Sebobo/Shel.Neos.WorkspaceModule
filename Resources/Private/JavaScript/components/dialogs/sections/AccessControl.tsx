@@ -50,7 +50,7 @@ const AccessControl: React.FC<SectionProps> = ({ workspace }) => {
                     <label>
                         {translate('workspace.owner.label', 'Owner')}
                         <select
-                            name={'moduleArguments[workspace][owner]'}
+                            name={'moduleArguments[workspaceOwner]'}
                             disabled={!userCanManageInternalWorkspaces}
                             defaultValue={workspace?.owner?.id}
                             ref={ownerField}

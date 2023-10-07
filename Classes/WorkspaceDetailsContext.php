@@ -18,53 +18,40 @@ use Neos\Flow\Annotations as Flow;
 use Neos\Cache\CacheAwareInterface;
 use Neos\Flow\Persistence\PersistenceManagerInterface;
 use Neos\Neos\Domain\Service\UserService;
-use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
+//use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
 
-/**
- * @Flow\Scope("singleton")
- */
+#[Flow\Scope('singleton')]
 class WorkspaceDetailsContext implements CacheAwareInterface
 {
+    #[Flow\Inject]
+    protected UserService $userDomainService;
 
-    /**
-     * @Flow\Inject
-     * @var UserService
-     */
-    protected $userDomainService;
+    #[Flow\Inject]
+    protected PersistenceManagerInterface $persistenceManager;
 
-    /**
-     * @Flow\Inject
-     * @var PersistenceManagerInterface
-     */
-    protected $persistenceManager;
+//    #[Flow\Inject]
+//    protected WorkspaceDetailsRepository $workspaceDetailsRepository;
 
-    /**
-     * @Flow\Inject
-     * @var WorkspaceDetailsRepository
-     */
-    protected $workspaceDetailsRepository;
-
-    /**
-     * @var string
-     */
-    protected $cacheEntryIdentifier;
+    protected string $cacheEntryIdentifier;
 
     /**
      * @return string[]
      */
     public function getSharedWorkspaces(): array
     {
-        if (!$this->userDomainService) {
-            return [];
-        }
+        return [];
 
-        $user = $this->userDomainService->getCurrentUser();
-
-        if (!$user) {
-            return [];
-        }
-
-        return $this->workspaceDetailsRepository->findAllowedWorkspaceNamesForUser($user);
+//        if (!$this->userDomainService) {
+//            return [];
+//        }
+//
+//        $user = $this->userDomainService->getCurrentUser();
+//
+//        if (!$user) {
+//            return [];
+//        }
+//
+//        return $this->workspaceDetailsRepository->findAllowedWorkspaceNamesForUser($user);
     }
 
     public function getCacheEntryIdentifier(): string

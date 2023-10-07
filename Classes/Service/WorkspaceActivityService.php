@@ -17,43 +17,31 @@ use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Persistence\PersistenceManagerInterface;
 use Neos\Flow\Security\Context;
 use Psr\Log\LoggerInterface;
-use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
-use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
+//use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
+//use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
 
 /**
  * TODO: Reimplement with new API
- * @Flow\Scope("singleton")
  */
+#[Flow\Scope('singleton')]
 class WorkspaceActivityService
 {
-    /**
-     * @Flow\Inject
-     * @var WorkspaceDetailsRepository
-     */
-    protected $workspaceDetailsRepository;
+//    #[Flow\Inject]
+//    protected WorkspaceDetailsRepository $workspaceDetailsRepository;
 
-    /**
-     * @Flow\Inject
-     * @var Context
-     */
-    protected $securityContext;
+    #[Flow\Inject]
+    protected Context $securityContext;
+
+    #[Flow\Inject]
+    protected LoggerInterface $systemLogger;
+
+    #[Flow\Inject]
+    protected PersistenceManagerInterface $persistenceManager;
 
     /**
      * @var array<string, boolean>
      */
-    protected $updatedWorkspaces = [];
-
-    /**
-     * @Flow\Inject
-     * @var LoggerInterface
-     */
-    protected $systemLogger;
-
-    /**
-     * @Flow\Inject
-     * @var PersistenceManagerInterface
-     */
-    protected $persistenceManager;
+    protected array $updatedWorkspaces = [];
 
     //public function nodePublished(NodeInterface $node, Workspace $targetWorkspace = null): void
     //{

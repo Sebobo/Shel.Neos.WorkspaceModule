@@ -70,7 +70,7 @@ const WorkspaceForm: React.FC<FormProps> = ({ enabled, onSubmit, onCancel, submi
     const workspaceForm = useRef<HTMLFormElement>(null);
     const [title, setTitle] = useState(workspace?.title ? workspace.title : '');
 
-    const argumentPrefix = 'moduleArguments' + (workspace ? `[workspace]` : '');
+    const argumentPrefix = 'moduleArguments';
 
     const updateTitle = useCallback((event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.value) {
@@ -90,7 +90,7 @@ const WorkspaceForm: React.FC<FormProps> = ({ enabled, onSubmit, onCancel, submi
     return (
         <Form ref={workspaceForm}>
             <input type="hidden" name={'__csrfToken'} value={csrfToken} />
-            {workspace && <input type="hidden" name={`${argumentPrefix}[__identity]`} value={workspace.name} />}
+            {workspace && <input type="hidden" name={`${argumentPrefix}[workspaceName]`} value={workspace.name} />}
             <label>
                 {translate('workspace.title.label', 'Title')}
                 <input
@@ -114,7 +114,7 @@ const WorkspaceForm: React.FC<FormProps> = ({ enabled, onSubmit, onCancel, submi
                     maxLength={500}
                 />
             </label>
-            <BaseWorkspaceSelection workspace={workspace} />
+            {!workspace && <BaseWorkspaceSelection workspace={workspace} />}
             <AccessControl workspace={workspace} />
             <ActionBar>
                 <button type="button" className="neos-button" onClick={onCancel}>

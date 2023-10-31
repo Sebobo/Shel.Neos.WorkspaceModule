@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace Shel\Neos\WorkspaceModule\Aspect;
 
-use Neos\ContentRepository\Domain\Model\Workspace;
+use Neos\ContentRepository\Core\Projection\Workspace\Workspace;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Aop\JoinPointInterface;
 use Neos\Flow\Persistence\PersistenceManagerInterface;
@@ -23,24 +23,18 @@ use Neos\Neos\Domain\Service\UserService;
 use Neos\Neos\Ui\ContentRepository\Service\WorkspaceService;
 use Neos\Utility\Exception\PropertyNotAccessibleException;
 use Neos\Utility\ObjectAccess;
-use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
+//use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
 
 /**
  * @Flow\Aspect
  */
 class SharedWorkspaceAccessAspect
 {
-    /**
-     * @Flow\Inject
-     * @var WorkspaceDetailsRepository
-     */
-    protected $workspaceDetailsRepository;
+//    #[Flow\Inject]
+//    protected WorkspaceDetailsRepository $workspaceDetailsRepository;
 
-    /**
-     * @Flow\Inject
-     * @var PersistenceManagerInterface
-     */
-    protected $persistenceManager;
+    #[Flow\Inject]
+    protected PersistenceManagerInterface $persistenceManager;
 
     /**
      * Adjust workspace permission check for shared workspaces
@@ -63,7 +57,7 @@ class SharedWorkspaceAccessAspect
 
         return $currentUser
             && $workspace->isPrivateWorkspace()
-            && $workspace->getOwner() !== $currentUser
+            && $workspace->workspaceOwner !== $this->persistenceManager->getIdentifierByObject($currentUser)
             && $this->isWorkspaceSharedWithUser($workspace, $currentUser);
     }
 
@@ -80,17 +74,18 @@ class SharedWorkspaceAccessAspect
         $workspaceService = $joinPoint->getProxy();
         /** @var UserService $userService */
         $userService = ObjectAccess::getProperty($workspaceService, 'domainUserService', true);
-        $workspaceRepository = ObjectAccess::getProperty($workspaceService, 'workspaceRepository', true);
+        $contentRepository = $joinPoint->getMethodArgument('contentRepository');
         $user = $userService->getCurrentUser();
-        $sharedWorkspaceNames = $user ? $this->workspaceDetailsRepository->findAllowedWorkspaceNamesForUser($user) : [];
+//        $sharedWorkspaceNames = $user ? $this->workspaceDetailsRepository->findAllowedWorkspaceNamesForUser($user) : [];
+        $sharedWorkspaceNames = [];
 
         $workspacesArray = [];
         /** @var Workspace $workspace */
-        foreach ($workspaceRepository->findAll() as $workspace) {
+        foreach ($contentRepository->getWorkspaceFinder()->findAll() as $workspace) {
             // Skip personal workspaces and private workspace not shared with the current user
-            if (!in_array($workspace->getName(), $sharedWorkspaceNames)
+            if (!in_array($workspace->workspaceName->value, $sharedWorkspaceNames)
                 && (
-                    ($workspace->getOwner() !== null && $workspace->getOwner() !== $user)
+                    ($workspace->workspaceOwner !== null && $workspace->workspaceOwner !== $user)
                     || $workspace->isPersonalWorkspace()
                 )
             ) {
@@ -98,12 +93,12 @@ class SharedWorkspaceAccessAspect
             }
 
             $workspaceArray = [
-                'name' => $workspace->getName(),
-                'title' => $workspace->getTitle(),
-                'description' => $workspace->getDescription(),
+                'name' => $workspace->workspaceName->value,
+                'title' => $workspace->workspaceTitle?->value,
+                'description' => $workspace->workspaceDescription->value,
                 'readonly' => !$userService->currentUserCanPublishToWorkspace($workspace)
             ];
-            $workspacesArray[$workspace->getName()] = $workspaceArray;
+            $workspacesArray[$workspace->workspaceName->value] = $workspaceArray;
         }
 
         return $workspacesArray;
@@ -114,12 +109,15 @@ class SharedWorkspaceAccessAspect
      */
     protected function isWorkspaceSharedWithUser(Workspace $workspace, User $user): bool
     {
-        $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($workspace);
-        if (!$workspaceDetails) {
-            return false;
-        }
-        $allowedUsers = array_map(fn($user) => $this->persistenceManager->getIdentifierByObject($user),
-            $workspaceDetails->getAcl());
-        return in_array($this->persistenceManager->getIdentifierByObject($user), $allowedUsers, true);
+        // TODO: Reimplement
+        return false;
+
+//        $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($workspace);
+//        if (!$workspaceDetails) {
+//            return false;
+//        }
+//        $allowedUsers = array_map(fn($user) => $this->persistenceManager->getIdentifierByObject($user),
+//            $workspaceDetails->getAcl());
+//        return in_array($this->persistenceManager->getIdentifierByObject($user), $allowedUsers, true);
     }
 }

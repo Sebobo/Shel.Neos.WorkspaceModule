@@ -18,6 +18,11 @@ class Version20220412145046 extends AbstractMigration
     {
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on "postgresql".');
 
+        $this->skipIf(
+            !\array_key_exists('neos_contentrepository_domain_model_workspace', $this->sm->listTableNames()),
+            'These migrations are not supported in Neos 9'
+        );
+
         $this->addSql('CREATE TABLE shel_neos_workspacemodule_domain_model_workspacedetails (persistence_object_identifier VARCHAR(40) NOT NULL, lastchangeddate TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, lastchangedby VARCHAR(255) NOT NULL, workspacename VARCHAR(255) NOT NULL, PRIMARY KEY(persistence_object_identifier))');
     }
 
@@ -25,6 +30,8 @@ class Version20220412145046 extends AbstractMigration
     {
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on "postgresql".');
 
-        $this->addSql('DROP TABLE shel_neos_workspacemodule_domain_model_workspacedetails');
+        if (\array_key_exists('shel_neos_workspacemodule_domain_model_workspacedetails', $this->sm->listTableNames())) {
+            $this->addSql('DROP TABLE shel_neos_workspacemodule_domain_model_workspacedetails');
+        }
     }
 }

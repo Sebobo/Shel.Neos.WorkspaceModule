@@ -22,6 +22,11 @@ final class Version20220426091118 extends AbstractMigration
             "Migration can only be executed safely on 'MySqlPlatform'."
         );
 
+        $this->skipIf(
+            !\array_key_exists('neos_contentrepository_domain_model_workspace', $this->sm->listTableNames()),
+            'These migrations are not supported in Neos 9'
+        );
+
         $this->addSql('CREATE TABLE shel_neos_workspacemodule_domain_model_workspacedetails (persistence_object_identifier VARCHAR(40) NOT NULL, lastchangeddate DATETIME DEFAULT NULL, lastchangedby VARCHAR(255) DEFAULT NULL, workspacename VARCHAR(255) NOT NULL, creator VARCHAR(255) DEFAULT NULL, PRIMARY KEY(persistence_object_identifier)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
     }
 
@@ -32,6 +37,8 @@ final class Version20220426091118 extends AbstractMigration
             "Migration can only be executed safely on 'MySqlPlatform'."
         );
 
-        $this->addSql('DROP TABLE shel_neos_workspacemodule_domain_model_workspacedetails');
+        if (\array_key_exists('shel_neos_workspacemodule_domain_model_workspacedetails', $this->sm->listTableNames())) {
+            $this->addSql('DROP TABLE shel_neos_workspacemodule_domain_model_workspacedetails');
+        }
     }
 }

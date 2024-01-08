@@ -52,7 +52,7 @@ import { loadFixtures } from './fixtures';
         getChanges: '/getChanges',
     });
     container.dataset.userWorkspace = JSON.stringify('user-sskinner');
-    container.dataset.csrfToken = JSON.stringify('abc');
+    container.dataset.moduleCsrfToken = JSON.stringify('abc');
     container.dataset.userCanManageInteralWorkspaces = JSON.stringify(true);
     container.dataset.validation = JSON.stringify({});
 })();

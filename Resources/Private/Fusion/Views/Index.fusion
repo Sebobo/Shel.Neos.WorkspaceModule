@@ -45,7 +45,7 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                         id="workspace-module-app"
                         data-endpoints={Json.stringify(props.endpoints)}
                         data-user-workspace={Json.stringify(props.userWorkspace.name)}
-                        data-csrf-token={Json.stringify(props.csrfToken)}
+                        data-module-csrf-token={Json.stringify(props.csrfToken)}
                         data-user-can-manage-internal-workspaces={props.userCanManageInternalWorkspaces ? 'true' : 'false'}
                         data-validation={Json.stringify(props.validation)}
                     >

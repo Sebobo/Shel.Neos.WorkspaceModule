@@ -24,14 +24,14 @@ window.onload = async (): Promise<void> => {
         return;
     }
 
-    const { userWorkspace, csrfToken, endpoints, userCanManageInternalWorkspaces, validation } = Object.keys(
+    const { userWorkspace, moduleCsrfToken, endpoints, userCanManageInternalWorkspaces, validation } = Object.keys(
         container.dataset
     ).reduce((carry, key) => {
         carry[key] = JSON.parse(container.dataset[key]);
         return carry;
     }, {}) as unknown as {
         userWorkspace: WorkspaceName;
-        csrfToken: string;
+        moduleCsrfToken: string;
         endpoints: WorkspaceEndpoints;
         userCanManageInternalWorkspaces: boolean;
         validation: WorkspaceValidation;
@@ -73,7 +73,7 @@ window.onload = async (): Promise<void> => {
                         userList={userList}
                         userWorkspace={userWorkspace}
                         endpoints={endpoints}
-                        csrfToken={csrfToken}
+                        csrfToken={moduleCsrfToken}
                         validation={validation}
                         translate={translate}
                     >

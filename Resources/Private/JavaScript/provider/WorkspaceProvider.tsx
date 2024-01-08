@@ -189,48 +189,51 @@ export const WorkspaceProvider = ({
         [csrfToken, endpoints.deleteWorkspace]
     );
 
-    const pruneWorkspace = useCallback(async (workspaceName: WorkspaceName) => {
-        return fetch(prepareWorkspaceActionUrl(endpoints.pruneWorkspace, workspaceName), {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: JSON.stringify({ __csrfToken: csrfToken }),
-        })
-            .then((response) => response.json())
-            .then(
-                ({
-                     success,
-                     workspace,
-                     messages = [],
-                 }: {
-                    success: boolean;
-                    workspace: Workspace;
-                    messages: FlashMessage[];
-                }) => {
-                    if (success) {
-                        setWorkspaces((workspaces) => {
-                            // Update pruned workspace, but keep changes counts
-                            return {
-                                ...workspaces,
-                                [workspace.name]: {
-                                    ...workspaces[workspace.name],
-                                    ...workspace,
-                                    changesCounts: workspaces[workspace.name].changesCounts,
-                                },
-                            };
-                        });
+    const pruneWorkspace = useCallback(
+        async (workspaceName: WorkspaceName) => {
+            return fetch(prepareWorkspaceActionUrl(endpoints.pruneWorkspace, workspaceName), {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                },
+                body: JSON.stringify({ __csrfToken: csrfToken }),
+            })
+                .then((response) => response.json())
+                .then(
+                    ({
+                        success,
+                        workspace,
+                        messages = [],
+                    }: {
+                        success: boolean;
+                        workspace: Workspace;
+                        messages: FlashMessage[];
+                    }) => {
+                        if (success) {
+                            setWorkspaces((workspaces) => {
+                                // Update pruned workspace, but keep changes counts
+                                return {
+                                    ...workspaces,
+                                    [workspace.name]: {
+                                        ...workspaces[workspace.name],
+                                        ...workspace,
+                                        changesCounts: workspaces[workspace.name].changesCounts,
+                                    },
+                                };
+                            });
+                        }
+                        handleFlashMessages(messages);
+                        return workspace[workspace.name];
                     }
-                    handleFlashMessages(messages);
-                    return workspace[workspace.name];
-                }
-            )
-            .catch((error) => {
-                notify.error('Failed to prune workspace', error.message);
-                console.error('Failed to prune workspace', error);
-            });
-    }, [csrfToken, endpoints.pruneWorkspace]);
+                )
+                .catch((error) => {
+                    notify.error('Failed to prune workspace', error.message);
+                    console.error('Failed to prune workspace', error);
+                });
+        },
+        [csrfToken, endpoints.pruneWorkspace]
+    );
 
     const updateWorkspace = useCallback(
         async (formData: FormData): Promise<void> => {

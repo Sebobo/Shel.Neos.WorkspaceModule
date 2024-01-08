@@ -40,6 +40,7 @@ class WorkspaceDetails
 
     /**
      * @ORM\OneToOne
+     * @ORM\JoinColumn(onDelete="CASCADE")
      * @Flow\Identity
      * @var Workspace
      */

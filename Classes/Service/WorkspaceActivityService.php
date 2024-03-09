@@ -78,7 +78,12 @@ class WorkspaceActivityService
 
     public function shutdownObject(): void
     {
-        $currentUser = $this->securityContext->getAccount()->getAccountIdentifier();
+        $account = $this->securityContext->getAccount();
+        if (!$account) {
+            // probably in cli context
+            return;
+        }
+        $currentUser = $account->getAccountIdentifier();
 
         foreach ($this->updatedWorkspaces as $updatedWorkspace) {
             $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($updatedWorkspace);

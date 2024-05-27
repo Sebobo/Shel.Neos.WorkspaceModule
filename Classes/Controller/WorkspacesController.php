@@ -132,7 +132,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         /** @var Workspace[] $rebasedWorkspaces */
         $rebasedWorkspaces = [];
 
-        if ($workspace->isPersonalWorkspace()) {
+        if ($workspace->isPersonalWorkspace() && $workspace->getOwner() !== null) {
             $this->addFlashMessage(
                 $this->translateById('message.workspaceIsPersonal', ['workspaceName' => $workspace->getTitle()]),
                 '',
@@ -301,7 +301,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             'isInternal' => $workspace->isInternalWorkspace(),
             'isStale' => $isStale,
             'canPublish' => $this->userService->currentUserCanPublishToWorkspace($workspace),
-            'canManage' => $this->userService->currentUserCanManageWorkspace($workspace),
+            'canManage' => $this->canManageWorkspace($workspace),
             'dependentWorkspacesCount' => count($this->workspaceRepository->findByBaseWorkspace($workspace)),
             'creator' => $creator ? [
                 'id' => $creator,
@@ -648,6 +648,15 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             $baseWorkspaces[] = $currentWorkspace->getName();
         }
         return true;
+    }
+
+    protected function canManageWorkspace(Workspace $workspace): bool
+    {
+        // Workaround to make personal workspaces with missing owners manageable
+        if ($workspace->isPersonalWorkspace() && !$workspace->getOwner()) {
+            return $this->privilegeManager->isPrivilegeTargetGranted('Neos.Neos:Backend.Module.Management.Workspaces.ManageAllPrivateWorkspaces');
+        }
+        return $this->userService->currentUserCanManageWorkspace($workspace);
     }
 
 }

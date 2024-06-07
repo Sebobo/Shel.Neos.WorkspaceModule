@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import WorkspaceTreeNode from './WorkspaceTreeNode';
 import { useWorkspaces } from '../provider/WorkspaceProvider';
+import { useIntl } from '../provider/IntlProvider';
 import { Icon } from './presentationals';
 
 const Table = styled.table`
@@ -38,7 +39,8 @@ export enum SortBy {
 }
 
 const WorkspaceTable: React.FC = () => {
-    const { sorting, setSorting, translate } = useWorkspaces();
+    const { sorting, setSorting } = useWorkspaces();
+    const { translate } = useIntl();
 
     const handleSortByTitle = useCallback(() => {
         setSorting(SortBy.title);
@@ -51,34 +53,34 @@ const WorkspaceTable: React.FC = () => {
     return (
         <Table id="workspaceTable">
             <thead>
-                <tr>
-                    <HeaderColumn> </HeaderColumn>
-                    <HeaderColumn>
-                        <IconButton
-                            type="button"
-                            onClick={handleSortByTitle}
-                            style={sorting === SortBy.title ? { color: 'var(--blue)' } : {}}
-                        >
-                            {translate('table.header.title', 'Title')} <Icon icon="sort-alpha-down" />
-                        </IconButton>
-                    </HeaderColumn>
-                    <HeaderColumn>{translate('table.header.description', 'Description')}</HeaderColumn>
-                    <HeaderColumn>{translate('table.header.creator', 'Creator')}</HeaderColumn>
-                    <HeaderColumn>
-                        <IconButton
-                            type="button"
-                            onClick={handleSortByLastModified}
-                            style={sorting === SortBy.lastModified ? { color: 'var(--blue)' } : {}}
-                        >
-                            {translate('table.header.lastModified', 'Last modified')} <Icon icon="sort" />
-                        </IconButton>
-                    </HeaderColumn>
-                    <HeaderColumn>{translate('table.header.changes', 'Changes')}</HeaderColumn>
-                    <HeaderColumn>{translate('table.header.actions', 'Actions')}</HeaderColumn>
-                </tr>
+            <tr>
+                <HeaderColumn> </HeaderColumn>
+                <HeaderColumn>
+                    <IconButton
+                        type="button"
+                        onClick={handleSortByTitle}
+                        style={sorting === SortBy.title ? { color: 'var(--blue)' } : {}}
+                    >
+                        {translate('table.header.title', 'Title')} <Icon icon="sort-alpha-down" />
+                    </IconButton>
+                </HeaderColumn>
+                <HeaderColumn>{translate('table.header.description', 'Description')}</HeaderColumn>
+                <HeaderColumn>{translate('table.header.creator', 'Creator')}</HeaderColumn>
+                <HeaderColumn>
+                    <IconButton
+                        type="button"
+                        onClick={handleSortByLastModified}
+                        style={sorting === SortBy.lastModified ? { color: 'var(--blue)' } : {}}
+                    >
+                        {translate('table.header.lastModified', 'Last modified')} <Icon icon="sort" />
+                    </IconButton>
+                </HeaderColumn>
+                <HeaderColumn>{translate('table.header.changes', 'Changes')}</HeaderColumn>
+                <HeaderColumn>{translate('table.header.actions', 'Actions')}</HeaderColumn>
+            </tr>
             </thead>
             <tbody>
-                <WorkspaceTreeNode workspaceName="live" />
+            <WorkspaceTreeNode workspaceName="live" />
             </tbody>
         </Table>
     );

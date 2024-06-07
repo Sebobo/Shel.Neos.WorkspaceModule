@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useWorkspaces } from '../provider/WorkspaceProvider';
 import { formatDate } from '../helper/format';
 import { ArrowIcon, Badge, Icon, IconStack } from './presentationals';
+import { useIntl } from '../provider/IntlProvider';
 
 type WorkspaceTableRowProps = {
     workspaceName: WorkspaceName;
@@ -69,7 +70,7 @@ const TypeColumn = styled(Column)`
 
 const Row = styled.tr<{ isUserWorkspace: boolean; isStale: boolean }>`
     --column-color: ${(props) =>
-        props.isUserWorkspace ? 'var(--blueDark)' : props.isStale ? 'var(--grayDark)' : 'var(--grayMedium)'};
+    props.isUserWorkspace ? 'var(--blueDark)' : props.isStale ? 'var(--grayDark)' : 'var(--grayMedium)'};
 `;
 
 const InfoText = styled.span`
@@ -92,9 +93,9 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
         setSelectedWorkspaceForEdit,
         setSelectedWorkspaceForDeletion,
         setSelectedWorkspaceForPruning,
-        showWorkspace,
-        translate,
+        showWorkspace
     } = useWorkspaces();
+    const { translate } = useIntl();
     const workspace = workspaces[workspaceName];
     const icon = getWorkspaceStatusIcon(workspace);
     const isUserWorkspace = workspaceName === userWorkspace;
@@ -107,18 +108,18 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                     workspace.isStale
                         ? translate('badge.isStale', 'This workspace has not been used for a long time')
                         : workspace.acl.length > 0
-                        ? translate(
-                              'table.column.access.acl',
-                              `This workspace is owned by ${workspace.owner.label} but allows access to additional users`,
-                              { owner: workspace.owner.label }
-                          )
-                        : workspace.owner
-                        ? translate(
-                              'table.column.access.private',
-                              `This workspace is owned by ${workspace.owner.label}`,
-                              { owner: workspace.owner.label }
-                          )
-                        : translate('table.column.access.internal')
+                            ? translate(
+                                'table.column.access.acl',
+                                `This workspace is owned by ${workspace.owner.label} but allows access to additional users`,
+                                { owner: workspace.owner.label }
+                            )
+                            : workspace.owner
+                                ? translate(
+                                    'table.column.access.private',
+                                    `This workspace is owned by ${workspace.owner.label}`,
+                                    { owner: workspace.owner.label }
+                                )
+                                : translate('table.column.access.internal')
                 }
             >
                 {workspace.isStale ? <IconStack icon={icon} secondaryIcon="clock" /> : <Icon icon={icon} />}
@@ -205,7 +206,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                             : 'table.column.action.show.disabled.title',
                         `Show changes in workspace ${workspace.title}`,
                         {
-                            workspace: workspace.title,
+                            workspace: workspace.title
                         }
                     )}
                     disabled={workspace.changesCounts?.total === 0}
@@ -217,7 +218,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                     className="neos-button"
                     type="button"
                     title={translate('table.column.action.edit', `Edit workspace ${workspace.title}`, {
-                        workspace: workspace.title,
+                        workspace: workspace.title
                     })}
                     onClick={() => setSelectedWorkspaceForEdit(workspaceName)}
                     disabled={!workspace.canManage || workspace.changesCounts === null}
@@ -229,7 +230,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                         className="neos-button neos-button-danger"
                         type="button"
                         title={translate('table.column.action.prune', `Prune workspace ${workspace.title}`, {
-                            workspace: workspace.title,
+                            workspace: workspace.title
                         })}
                         onClick={() => setSelectedWorkspaceForPruning(workspaceName)}
                     >
@@ -240,7 +241,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                         className="neos-button neos-button-danger"
                         type="button"
                         title={translate('table.column.action.delete', `Delete workspace ${workspace.title}`, {
-                            workspace: workspace.title,
+                            workspace: workspace.title
                         })}
                         disabled={!workspace.canManage}
                         onClick={() => setSelectedWorkspaceForDeletion(workspaceName)}

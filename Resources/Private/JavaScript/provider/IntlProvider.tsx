@@ -13,5 +13,5 @@ export const IntlContext = createContext(null);
 export const useIntl = (): IntlProviderValues => useContext(IntlContext);
 
 export const IntlProvider = ({ translate, children }: IntlProviderProps) => {
-    return <IntlContext.Provider value={translate}>{children}</IntlContext.Provider>;
+    return <IntlContext.Provider value={{ translate }}>{children}</IntlContext.Provider>;
 };

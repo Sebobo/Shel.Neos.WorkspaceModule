@@ -3,6 +3,7 @@ import React, { ChangeEvent, useCallback, useMemo, useRef, useState } from 'reac
 import { useWorkspaces } from '../../../provider/WorkspaceProvider';
 import { CheckBoxLabel, FormGroup, Icon, RadioLabel, SearchField } from '../../presentationals';
 import styled from 'styled-components';
+import { useIntl } from '../../../provider/IntlProvider';
 
 type SectionProps = {
     workspace?: Workspace;
@@ -22,7 +23,8 @@ const AclList = styled.div`
 const MAX_VISIBLE_USERS = 2;
 
 const AccessControl: React.FC<SectionProps> = ({ workspace }) => {
-    const { translate, userList, userCanManageInternalWorkspaces } = useWorkspaces();
+    const { userList, userCanManageInternalWorkspaces } = useWorkspaces();
+    const { translate } = useIntl();
     const ownerField = useRef<HTMLSelectElement>(null);
     const [owner, setOwner] = useState(workspace?.owner?.id);
     const [userIDFilter, setUserIDFilter] = useState('');

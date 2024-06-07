@@ -6,6 +6,7 @@ import { CheckBoxLabel, RadioLabel, ValidationMessage } from '../presentationals
 import { ActionBar } from './StyledModal';
 import BaseWorkspaceSelection from './sections/BaseWorkspaceSelection';
 import AccessControl from './sections/AccessControl';
+import { useIntl } from '../../provider/IntlProvider';
 
 const Form = styled.form`
     width: 400px;
@@ -66,7 +67,8 @@ type FormProps = {
 };
 
 const WorkspaceForm: React.FC<FormProps> = ({ enabled, onSubmit, onCancel, submitLabel, workspace }) => {
-    const { csrfToken, translate, validation } = useWorkspaces();
+    const { csrfToken, validation } = useWorkspaces();
+    const { translate } = useIntl();
     const workspaceForm = useRef<HTMLFormElement>(null);
     const [title, setTitle] = useState(workspace?.title ? workspace.title : '');
 

@@ -1,13 +1,15 @@
 import React, { useMemo } from 'react';
 
 import { useWorkspaces } from '../../../provider/WorkspaceProvider';
+import { useIntl } from '../../../provider/IntlProvider';
 
 type SectionProps = {
     workspace: Workspace;
 };
 
 const BaseWorkspaceSelection: React.FC<SectionProps> = ({ workspace }) => {
-    const { translate, baseWorkspaceOptions, workspaces } = useWorkspaces();
+    const { baseWorkspaceOptions, workspaces } = useWorkspaces();
+    const { translate } = useIntl();
 
     const selectableBaseWorkspaceNames = useMemo(() => {
         let workspaceNames = Object.keys(baseWorkspaceOptions);

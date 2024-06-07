@@ -18,7 +18,7 @@ type FlashMessage = {
 type TranslateFunction = (
     id: string,
     fallback?: string,
-    parameters?: Record<string, string | number> | string[]
+    parameters?: Record<string, string | number> | any[]
 ) => string;
 
 interface NeosNotification {

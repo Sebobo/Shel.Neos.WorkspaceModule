@@ -67,6 +67,7 @@ window.onload = async (): Promise<void> => {
             <IntlProvider translate={translate}>
                 <NotifyProvider notificationApi={Notification}>
                     <WorkspaceProvider
+                        username={username}
                         workspaceList={workspaces}
                         baseWorkspaceOptions={baseWorkspaceOptions}
                         userCanManageInternalWorkspaces={userCanManageInternalWorkspaces}
@@ -75,7 +76,6 @@ window.onload = async (): Promise<void> => {
                         endpoints={endpoints}
                         csrfToken={moduleCsrfToken}
                         validation={validation}
-                        translate={translate}
                     >
                         <AppWithHmr />
                     </WorkspaceProvider>

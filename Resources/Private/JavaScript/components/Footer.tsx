@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useWorkspaces } from '../provider/WorkspaceProvider';
+import { useIntl } from '../provider/IntlProvider';
 import styled from 'styled-components';
 
 const WorkspaceCount = styled.div`
@@ -12,7 +13,8 @@ const WorkspaceCount = styled.div`
 `;
 
 const Footer: React.FC = () => {
-    const { setCreationDialogVisible, workspaces, translate } = useWorkspaces();
+    const { setCreationDialogVisible, workspaces } = useWorkspaces();
+    const { translate } = useIntl();
 
     const workspaceCount = useMemo(() => {
         return Object.values(workspaces).reduce(

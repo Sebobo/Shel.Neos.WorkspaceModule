@@ -5,6 +5,7 @@ import { useNotify } from './NotifyProvider';
 
 type WorkspaceProviderProps = {
     children: ReactNode;
+    username: UserID;
     userWorkspace: WorkspaceName;
     workspaceList: WorkspaceList;
     baseWorkspaceOptions: BaseWorkspaceOptions;
@@ -13,10 +14,10 @@ type WorkspaceProviderProps = {
     csrfToken: string;
     userCanManageInternalWorkspaces: boolean;
     validation: WorkspaceValidation;
-    translate: (id: string, label?: string, args?: any[] | Record<string, string | number>) => string;
 };
 
 type WorkspaceValues = {
+    username: UserID;
     userWorkspace: WorkspaceName;
     workspaces: WorkspaceList;
     setWorkspaces: (workspaces: WorkspaceList) => void;
@@ -41,13 +42,13 @@ type WorkspaceValues = {
     creationDialogVisible: boolean;
     setCreationDialogVisible: (visible: boolean) => void;
     validation: WorkspaceValidation;
-    translate: (id: string, label?: string, args?: any[] | Record<string, string | number>) => string;
 };
 
 const WorkspaceContext = createContext(null);
 export const useWorkspaces = (): WorkspaceValues => useContext(WorkspaceContext);
 
 export const WorkspaceProvider = ({
+    username,
     userWorkspace,
     endpoints,
     workspaceList,
@@ -57,7 +58,6 @@ export const WorkspaceProvider = ({
     children,
     userCanManageInternalWorkspaces,
     validation,
-    translate,
 }: WorkspaceProviderProps) => {
     const [baseWorkspaceOptions, setBaseWorkspaceOptions] = React.useState(initialBaseWorkspaceOptions);
     const [workspaces, setWorkspaces] = React.useState(workspaceList);
@@ -357,6 +357,7 @@ export const WorkspaceProvider = ({
     return (
         <WorkspaceContext.Provider
             value={{
+                username,
                 userWorkspace,
                 workspaces,
                 setWorkspaces,
@@ -381,7 +382,6 @@ export const WorkspaceProvider = ({
                 setCreationDialogVisible,
                 validation,
                 createWorkspace,
-                translate,
             }}
         >
             {children}

@@ -3,9 +3,11 @@ import React, { useCallback, useState } from 'react';
 import { DialogHeader, StyledModal } from './StyledModal';
 import { useWorkspaces } from '../../provider/WorkspaceProvider';
 import WorkspaceForm from './WorkspaceForm';
+import { useIntl } from '../../provider/IntlProvider';
 
 const CreateWorkspaceDialog: React.FC = () => {
-    const { createWorkspace, creationDialogVisible, setCreationDialogVisible, translate } = useWorkspaces();
+    const { createWorkspace, creationDialogVisible, setCreationDialogVisible } = useWorkspaces();
+    const { translate } = useIntl();
     const [isLoading, setIsLoading] = useState(false);
 
     const handleClose = useCallback(() => {

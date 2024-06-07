@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { useWorkspaces } from '../../provider/WorkspaceProvider';
 import { DialogHeader, StyledModal, ActionBar } from './StyledModal';
+import { useIntl } from '../../provider/IntlProvider';
 
 const RebasedWorkspaceWrapper = styled.div`
     margin: 1rem 0;
@@ -18,8 +19,9 @@ const RebasedWorkspaceWrapper = styled.div`
 `;
 
 const DeleteWorkspaceDialog: React.FC = () => {
-    const { selectedWorkspaceForDeletion, setSelectedWorkspaceForDeletion, deleteWorkspace, workspaces, translate } =
+    const { selectedWorkspaceForDeletion, setSelectedWorkspaceForDeletion, deleteWorkspace, workspaces } =
         useWorkspaces();
+    const { translate } = useIntl();
 
     const selectedWorkspace = useMemo(() => workspaces[selectedWorkspaceForDeletion], [selectedWorkspaceForDeletion]);
     const dependentWorkspaces = useMemo(() => {
@@ -41,7 +43,7 @@ const DeleteWorkspaceDialog: React.FC = () => {
         <StyledModal isOpen onRequestClose={handleClose}>
             <DialogHeader>
                 {translate('dialog.delete.header', `Delete "${selectedWorkspace.title}"?`, {
-                    workspace: selectedWorkspace.title,
+                    workspace: selectedWorkspace.title
                 })}
             </DialogHeader>
 
@@ -52,7 +54,7 @@ const DeleteWorkspaceDialog: React.FC = () => {
                             'dialog.delete.unpublishedChanges',
                             `Deleting this workspace will also discard ${selectedWorkspace.changesCounts.total} unpublished changes.`,
                             { count: selectedWorkspace.changesCounts.total }
-                        ),
+                        )
                     }}
                 />
             )}
@@ -67,7 +69,7 @@ const DeleteWorkspaceDialog: React.FC = () => {
                             __html: translate(
                                 'dialog.delete.rebasedWorkspaces',
                                 'The following workspaces will be rebased onto the <strong>live</strong> workspace:'
-                            ),
+                            )
                         }}
                     />
                     <ul>
@@ -84,9 +86,9 @@ const DeleteWorkspaceDialog: React.FC = () => {
                                         } private workspace(s)`,
                                         {
                                             count:
-                                                selectedWorkspace.dependentWorkspacesCount - dependentWorkspaces.length,
+                                                selectedWorkspace.dependentWorkspacesCount - dependentWorkspaces.length
                                         }
-                                    ),
+                                    )
                                 }}
                             />
                         )}

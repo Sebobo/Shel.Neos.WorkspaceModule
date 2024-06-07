@@ -2,10 +2,12 @@ import React, { useCallback, useMemo } from 'react';
 
 import { useWorkspaces } from '../../provider/WorkspaceProvider';
 import { DialogHeader, StyledModal, ActionBar } from './StyledModal';
+import { useIntl } from '../../provider/IntlProvider';
 
 const PruneWorkspaceDialog: React.FC = () => {
-    const { selectedWorkspaceForPruning, setSelectedWorkspaceForPruning, pruneWorkspace, workspaces, translate } =
+    const { selectedWorkspaceForPruning, setSelectedWorkspaceForPruning, pruneWorkspace, workspaces } =
         useWorkspaces();
+    const { translate } = useIntl();
 
     const selectedWorkspace = useMemo(() => workspaces[selectedWorkspaceForPruning], [selectedWorkspaceForPruning]);
 
@@ -22,7 +24,7 @@ const PruneWorkspaceDialog: React.FC = () => {
         <StyledModal isOpen onRequestClose={handleClose}>
             <DialogHeader>
                 {translate('dialog.prune.header', `Prune "${selectedWorkspace.title}"?`, {
-                    workspace: selectedWorkspace.title,
+                    workspace: selectedWorkspace.title
                 })}
             </DialogHeader>
 
@@ -32,7 +34,7 @@ const PruneWorkspaceDialog: React.FC = () => {
                         'dialog.prune.unpublishedChanges',
                         `Pruning this workspace will discard ${selectedWorkspace.nodeCount - 1} changes.`,
                         { count: selectedWorkspace.nodeCount - 1 }
-                    ),
+                    )
                 }}
             />
             <p>{translate('dialog.prune.pointOfNoReturn', 'This action cannot be undone.')}</p>

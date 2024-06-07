@@ -2,11 +2,13 @@ import React, { useCallback, useMemo, useState } from 'react';
 
 import { DialogHeader, StyledModal } from './StyledModal';
 import { useWorkspaces } from '../../provider/WorkspaceProvider';
+import { useIntl } from '../../provider/IntlProvider';
 import WorkspaceForm from './WorkspaceForm';
 
 const EditWorkspaceDialog: React.FC = () => {
-    const { workspaces, selectedWorkspaceForEdit, setSelectedWorkspaceForEdit, updateWorkspace, translate } =
+    const { workspaces, selectedWorkspaceForEdit, setSelectedWorkspaceForEdit, updateWorkspace } =
         useWorkspaces();
+    const { translate } = useIntl();
     const [isLoading, setIsLoading] = useState(false);
 
     const selectedWorkspace = useMemo(() => workspaces[selectedWorkspaceForEdit], [selectedWorkspaceForEdit]);
@@ -27,7 +29,7 @@ const EditWorkspaceDialog: React.FC = () => {
         <StyledModal isOpen onRequestClose={handleClose}>
             <DialogHeader>
                 {translate('dialog.edit.header', `Edit "${selectedWorkspace.title}"`, {
-                    workspace: selectedWorkspace.title,
+                    workspace: selectedWorkspace.title
                 })}
             </DialogHeader>
             <WorkspaceForm

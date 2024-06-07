@@ -88,6 +88,7 @@ function getWorkspaceStatusIcon(workspace: Workspace): string {
 
 const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, level }) => {
     const {
+        username,
         userWorkspace,
         workspaces,
         setSelectedWorkspaceForEdit,
@@ -100,6 +101,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
     const icon = getWorkspaceStatusIcon(workspace);
     const isUserWorkspace = workspaceName === userWorkspace;
     const nodeCountNotCoveredByChanges = workspace.nodeCount - (workspace.changesCounts?.total || 0) - 1;
+    const canBeCleanedUp = (!workspace.isPersonal && workspace.isStale && (workspace.owner?.name === username || workspace.creator?.name === username));
 
     return (
         <Row isUserWorkspace={isUserWorkspace} isStale={workspace.isStale} id={`workspace-${workspace.name}`}>
@@ -132,6 +134,11 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                     {workspace.title}
                     {isUserWorkspace && (
                         <InfoText>{translate('badge.isUserWorkspace', 'This is your workspace')}</InfoText>
+                    )}
+                    {canBeCleanedUp && (
+                        <InfoText title={translate('badge.staleWorkspaceOfCurrentUser', 'This workspace is stale and owned by you, consider deleting it.')}>
+                            <Icon icon="exclamation-circle" style={{ color: 'var(--warningText)', marginRight: '.5em' }} />
+                        </InfoText>
                     )}
                 </span>
             </TextColumn>

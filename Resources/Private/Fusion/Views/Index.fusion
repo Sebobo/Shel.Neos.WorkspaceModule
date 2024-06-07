@@ -1,5 +1,6 @@
 Shel.Neos.WorkspaceModule.WorkspacesController {
     index = Neos.Fusion:Component {
+        username = ${username}
         userWorkspace = ${userWorkspace}
         baseWorkspaceOptions = ${baseWorkspaceOptions}
         userList = ${userList}
@@ -44,6 +45,7 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                     <div
                         id="workspace-module-app"
                         data-endpoints={Json.stringify(props.endpoints)}
+                        data-username={Json.stringify(props.username)}
                         data-user-workspace={Json.stringify(props.userWorkspace.name)}
                         data-module-csrf-token={Json.stringify(props.csrfToken)}
                         data-user-can-manage-internal-workspaces={props.userCanManageInternalWorkspaces ? 'true' : 'false'}

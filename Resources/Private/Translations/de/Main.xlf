@@ -102,6 +102,10 @@
                 <source>{count} nodes were changed but might be orphaned</source>
                 <target>{count} wurden geändert, aber sind vermutlich nicht mehr erreichbar</target>
             </trans-unit>
+            <trans-unit id="badge.staleWorkspaceOfCurrentUser">
+                <source>This workspace is stale and owned by you, consider deleting it.</source>
+                <target>Dieser Arbeitsbereich ist veraltet und gehört Ihnen, Sie sollten ihn ggf. löschen.</target>
+            </trans-unit>
 
             <trans-unit id="dialog.action.cancel">
                 <source>Cancel</source>
@@ -269,6 +273,11 @@
             <trans-unit id="error.pruneFailed">
                 <source>The workspace "{workspaceName}" could not be pruned.</source>
                 <target>Der Arbeitsbereich "{workspaceName}" konnte nicht geleert werden.</target>
+            </trans-unit>
+
+            <trans-unit id="nagging.staleWorkspacesWarning">
+                <source>You own {0} stale workspaces. Please consider deleting them.</source>
+                <target>Sie besitzen {0} veraltete Arbeitsbereiche. Bitte erwägen Sie, sie zu löschen.</target>
             </trans-unit>
         </body>
     </file>

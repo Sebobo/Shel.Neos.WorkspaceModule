@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { hot, setConfig } from 'react-hot-loader';
 import ReactModal from 'react-modal';
@@ -10,7 +10,7 @@ import { NotifyProvider } from './provider/NotifyProvider';
 import ErrorBoundary from './components/ErrorBoundary';
 
 setConfig({
-    showReactDomPatchNotification: false,
+    showReactDomPatchNotification: false
 });
 
 window.onload = async (): Promise<void> => {
@@ -24,12 +24,20 @@ window.onload = async (): Promise<void> => {
         return;
     }
 
-    const { userWorkspace, moduleCsrfToken, endpoints, userCanManageInternalWorkspaces, validation } = Object.keys(
+    const {
+        userWorkspace,
+        moduleCsrfToken,
+        endpoints,
+        userCanManageInternalWorkspaces,
+        validation,
+        username
+    } = Object.keys(
         container.dataset
     ).reduce((carry, key) => {
         carry[key] = JSON.parse(container.dataset[key]);
         return carry;
     }, {}) as unknown as {
+        username: UserID;
         userWorkspace: WorkspaceName;
         moduleCsrfToken: string;
         endpoints: WorkspaceEndpoints;

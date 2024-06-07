@@ -45,8 +45,10 @@ type ActionUri = string;
 
 type UserID = string;
 type UserLabel = string;
+type UserName = string;
 type User = {
     id: UserID;
+    name: UserName;
     label: UserLabel;
 };
 

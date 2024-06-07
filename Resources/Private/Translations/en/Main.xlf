@@ -78,6 +78,9 @@
             <trans-unit id="badge.changes.unknown">
                 <source>{count} nodes were changed but might be orphaned</source>
             </trans-unit>
+            <trans-unit id="badge.staleWorkspaceOfCurrentUser">
+                <source>This workspace is stale and owned by you, consider deleting it.</source>
+            </trans-unit>
 
             <trans-unit id="dialog.action.cancel">
                 <source>Cancel</source>
@@ -208,6 +211,10 @@
             </trans-unit>
             <trans-unit id="error.pruneFailed">
                 <source>The workspace "{workspaceName}" could not be pruned.</source>
+            </trans-unit>
+
+            <trans-unit id="nagging.staleWorkspacesWarning">
+                <source>You own {0} stale workspaces. Please consider deleting them.</source>
             </trans-unit>
         </body>
     </file>

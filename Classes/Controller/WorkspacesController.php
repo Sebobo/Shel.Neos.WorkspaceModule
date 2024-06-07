@@ -83,6 +83,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         );
 
         $this->view->assignMultiple([
+            'username' => $currentAccount->getAccountIdentifier(),
             'userWorkspace' => $userWorkspace,
             'baseWorkspaceOptions' => $this->prepareBaseWorkspaceOptions(),
             'userCanManageInternalWorkspaces' => $this->privilegeManager->isPrivilegeTargetGranted(
@@ -258,7 +259,10 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
     protected function getWorkspaceInfo(Workspace $workspace): array
     {
         $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($workspace);
+
+        /** @var User $owner */
         $owner = $workspace->getOwner();
+        $primaryOwnerAccount = $owner?->getAccounts()[0] ?? null;
 
         $creator = $creatorName = $lastChangedDate = $lastChangedBy = $lastChangedTimestamp = $isStale = null;
         $acl = [];
@@ -289,6 +293,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             'description' => $workspace->getDescription(),
             'owner' => $owner ? [
                 'id' => $this->getUserId($owner),
+                'name' => $primaryOwnerAccount?->getAccountIdentifier(),
                 'label' => $owner->getLabel(),
             ] : null,
             'baseWorkspace' => $workspace->getBaseWorkspace() ? [
@@ -305,6 +310,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             'dependentWorkspacesCount' => count($this->workspaceRepository->findByBaseWorkspace($workspace)),
             'creator' => $creator ? [
                 'id' => $creator,
+                'name' => $creator,
                 'label' => $creatorName,
             ] : null,
             'lastChangedDate' => $lastChangedDate,

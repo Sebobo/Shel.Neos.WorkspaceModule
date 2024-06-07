@@ -4,7 +4,7 @@
   "license": "GNU GPLv3",
   "private": true,
   "engines": {
-    "node": ">=16"
+    "node": ">=22"
   },
   "scripts": {
     "build": "yarn workspace @workspace-module/app build",
@@ -44,5 +44,5 @@
     "last 2 versions",
     "not dead"
   ],
-  "packageManager": "yarn@3.2.0"
+  "packageManager": "yarn@4.2.2"
 }

@@ -4,7 +4,7 @@ interface NeosI18n {
         fallback: string,
         packageKey: string,
         source: string,
-        args: Record<string, unknown> | string[]
+        args: Record<string, unknown> | string[],
     ) => string;
     initialized: boolean;
 }
@@ -18,7 +18,7 @@ type FlashMessage = {
 type TranslateFunction = (
     id: string,
     fallback?: string,
-    parameters?: Record<string, string | number> | any[]
+    parameters?: Record<string, string | number> | any[],
 ) => string;
 
 interface NeosNotification {

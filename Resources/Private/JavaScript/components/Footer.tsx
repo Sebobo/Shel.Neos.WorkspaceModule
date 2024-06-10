@@ -31,7 +31,7 @@ const Footer: React.FC = () => {
                 total: 0,
                 internal: 0,
                 private: 0,
-            }
+            },
         );
     }, [workspaces]);
 
@@ -49,7 +49,7 @@ const Footer: React.FC = () => {
                 {translate(
                     'footer.workspaceCount',
                     `${workspaceCount.total} workspaces (${workspaceCount.internal} public, ${workspaceCount.private} private)`,
-                    workspaceCount
+                    workspaceCount,
                 )}
             </WorkspaceCount>
         </div>

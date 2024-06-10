@@ -6,8 +6,7 @@ import { useIntl } from '../../provider/IntlProvider';
 import WorkspaceForm from './WorkspaceForm';
 
 const EditWorkspaceDialog: React.FC = () => {
-    const { workspaces, selectedWorkspaceForEdit, setSelectedWorkspaceForEdit, updateWorkspace } =
-        useWorkspaces();
+    const { workspaces, selectedWorkspaceForEdit, setSelectedWorkspaceForEdit, updateWorkspace } = useWorkspaces();
     const { translate } = useIntl();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -29,7 +28,7 @@ const EditWorkspaceDialog: React.FC = () => {
         <StyledModal isOpen onRequestClose={handleClose}>
             <DialogHeader>
                 {translate('dialog.edit.header', `Edit "${selectedWorkspace.title}"`, {
-                    workspace: selectedWorkspace.title
+                    workspace: selectedWorkspace.title,
                 })}
             </DialogHeader>
             <WorkspaceForm

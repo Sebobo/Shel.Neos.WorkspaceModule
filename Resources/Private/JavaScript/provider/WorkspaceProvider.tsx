@@ -86,7 +86,7 @@ export const WorkspaceProvider = ({
                 }
             });
         },
-        [notify]
+        [notify],
     );
 
     const loadChangesCounts = useCallback(() => {
@@ -111,7 +111,7 @@ export const WorkspaceProvider = ({
                         }
                         return carry;
                     },
-                    {} as WorkspaceList
+                    {} as WorkspaceList,
                 );
                 setWorkspaces(updatedWorkspaces);
             })
@@ -179,14 +179,14 @@ export const WorkspaceProvider = ({
                             });
                         }
                         handleFlashMessages(messages);
-                    }
+                    },
                 )
                 .catch((error) => {
                     notify.error('Failed to delete workspace', error.message);
                     console.error('Failed to delete workspace', error);
                 });
         },
-        [csrfToken, endpoints.deleteWorkspace]
+        [csrfToken, endpoints.deleteWorkspace],
     );
 
     const pruneWorkspace = useCallback(
@@ -225,14 +225,14 @@ export const WorkspaceProvider = ({
                         }
                         handleFlashMessages(messages);
                         return workspace[workspace.name];
-                    }
+                    },
                 )
                 .catch((error) => {
                     notify.error('Failed to prune workspace', error.message);
                     console.error('Failed to prune workspace', error);
                 });
         },
-        [csrfToken, endpoints.pruneWorkspace]
+        [csrfToken, endpoints.pruneWorkspace],
     );
 
     const updateWorkspace = useCallback(
@@ -282,14 +282,14 @@ export const WorkspaceProvider = ({
                         setBaseWorkspaceOptions(baseWorkspaceOptions);
                         handleFlashMessages(messages);
                         return workspace[workspace.name];
-                    }
+                    },
                 )
                 .catch((error) => {
                     notify.error('Failed to update workspace', error.message);
                     console.error('Failed to update workspace', error);
                 });
         },
-        [csrfToken, endpoints.updateWorkspace]
+        [csrfToken, endpoints.updateWorkspace],
     );
 
     const createWorkspace = useCallback(
@@ -336,14 +336,14 @@ export const WorkspaceProvider = ({
                             setBaseWorkspaceOptions(baseWorkspaceOptions);
                         }
                         handleFlashMessages(messages);
-                    }
+                    },
                 )
                 .catch((error) => {
                     notify.error('Failed to create workspace', error.message);
                     console.error('Failed to create workspace', error);
                 });
         },
-        [csrfToken, endpoints.createWorkspace]
+        [csrfToken, endpoints.createWorkspace],
     );
 
     const showWorkspace = useCallback((workspaceName: string) => {

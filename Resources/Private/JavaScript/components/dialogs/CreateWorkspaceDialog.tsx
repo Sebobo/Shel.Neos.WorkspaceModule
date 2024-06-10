@@ -22,7 +22,7 @@ const CreateWorkspaceDialog: React.FC = () => {
                 handleClose();
             });
         },
-        [createWorkspace, handleClose]
+        [createWorkspace, handleClose],
     );
 
     if (!creationDialogVisible) return null;

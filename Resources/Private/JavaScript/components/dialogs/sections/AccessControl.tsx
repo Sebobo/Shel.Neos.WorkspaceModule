@@ -71,8 +71,8 @@ const AccessControl: React.FC<SectionProps> = ({ workspace }) => {
                     {workspace.isPersonal
                         ? translate('workspace.visibility.isPersonal', 'This workspace is personal')
                         : owner
-                        ? translate('workspace.visibility.private.info', 'This workspace is private')
-                        : translate('workspace.visibility.internal.info', 'This workspace is internal')}
+                          ? translate('workspace.visibility.private.info', 'This workspace is private')
+                          : translate('workspace.visibility.internal.info', 'This workspace is internal')}
                 </p>
             </FormGroup>
             {!workspace.isPersonal && owner && (
@@ -95,7 +95,7 @@ const AccessControl: React.FC<SectionProps> = ({ workspace }) => {
                                           value={userId}
                                           name="moduleArguments[acl][]"
                                           defaultChecked={Object.values(workspace.acl).some(
-                                              (user) => user.id === userId
+                                              (user) => user.id === userId,
                                           )}
                                       />
                                       {userList[userId]}

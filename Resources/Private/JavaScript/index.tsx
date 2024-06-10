@@ -10,7 +10,7 @@ import { NotifyProvider } from './provider/NotifyProvider';
 import ErrorBoundary from './components/ErrorBoundary';
 
 setConfig({
-    showReactDomPatchNotification: false
+    showReactDomPatchNotification: false,
 });
 
 window.onload = async (): Promise<void> => {
@@ -24,26 +24,18 @@ window.onload = async (): Promise<void> => {
         return;
     }
 
-    const {
-        userWorkspace,
-        moduleCsrfToken,
-        endpoints,
-        userCanManageInternalWorkspaces,
-        validation,
-        username
-    } = Object.keys(
-        container.dataset
-    ).reduce((carry, key) => {
-        carry[key] = JSON.parse(container.dataset[key]);
-        return carry;
-    }, {}) as unknown as {
-        username: UserID;
-        userWorkspace: WorkspaceName;
-        moduleCsrfToken: string;
-        endpoints: WorkspaceEndpoints;
-        userCanManageInternalWorkspaces: boolean;
-        validation: WorkspaceValidation;
-    };
+    const { userWorkspace, moduleCsrfToken, endpoints, userCanManageInternalWorkspaces, validation, username } =
+        Object.keys(container.dataset).reduce((carry, key) => {
+            carry[key] = JSON.parse(container.dataset[key]);
+            return carry;
+        }, {}) as unknown as {
+            username: UserID;
+            userWorkspace: WorkspaceName;
+            moduleCsrfToken: string;
+            endpoints: WorkspaceEndpoints;
+            userCanManageInternalWorkspaces: boolean;
+            validation: WorkspaceValidation;
+        };
 
     const workspacesDataElement = document.getElementById('workspaces');
     const baseWorkspaceOptionsDataElement = document.getElementById('baseWorkspaceOptions');
@@ -89,6 +81,6 @@ window.onload = async (): Promise<void> => {
                     </WorkspaceProvider>
                 </NotifyProvider>
             </IntlProvider>
-        </ErrorBoundary>
+        </ErrorBoundary>,
     );
 };

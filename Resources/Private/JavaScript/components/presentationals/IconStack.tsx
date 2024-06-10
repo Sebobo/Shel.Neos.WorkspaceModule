@@ -30,7 +30,7 @@ const IconStack: React.FC<IconProps> = ({ icon, secondaryIcon, style, spin = fal
                     'fa-inverse',
                     `fa-${secondaryIcon}`,
                     spin && 'fa-spin',
-                    rotate && `fa-rotate-${rotate}`
+                    rotate && `fa-rotate-${rotate}`,
                 )}
                 style={style}
             />

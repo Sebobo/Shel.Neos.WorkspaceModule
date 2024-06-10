@@ -3,11 +3,21 @@
   "compilerOptions": {
     "types": [
       "@workspace-module/app"
-    ]
+    ],
+    "module": "ESNext"
   },
   "references": [
     {
       "path": "../../Resources/Private/JavaScript"
     }
-  ]
+  ],
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true,
+    "esm": true,
+    "experimentalSpecifierResolution": "node",
+    "compilerOptions": {
+      "module": "es2020"
+    }
+  }
 }

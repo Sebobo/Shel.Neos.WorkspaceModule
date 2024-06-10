@@ -1,5 +1,5 @@
-import Parcel from '@parcel/core';
-import * as express from 'express';
+import { Parcel } from '@parcel/core';
+import express from 'express';
 import * as path from 'path';
 
 import { loadFixtures } from './fixtures';
@@ -29,12 +29,12 @@ bundler.watch().then(() => {
     const app = express();
 
     app.use(express.json());
-    app.use(express.static(path.join(__dirname, '/public')));
-    app.use(express.static(path.join(__dirname, '/dist')));
-    app.use(express.static(path.join(__dirname, '../../Resources/Public')));
+    app.use(express.static(path.join(path.dirname(''), '/public')));
+    app.use(express.static(path.join(path.dirname(''), '/dist')));
+    app.use(express.static(path.join(path.dirname(''), '../../Resources/Public')));
 
     app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, '/dist/index.html'));
+        res.sendFile(path.join(path.dirname(''), '/dist/index.html'));
     });
 
     app.get('/getChanges', (req, res) => {

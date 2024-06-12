@@ -8,6 +8,11 @@ This Neos CMS plugin provides an alternative workspace module with added feature
 * Can remove unpublished changes and rebase dependent workspaces on delete
 * Share private workspaces with selected users
 
+⚠️This plugin will be fully integrated into Neos 9.x and will be marked as deprecated afterward. ⚠️
+Follow the integration on slack.neos.io in channel #project-new-workspace-module, or on [Github](https://github.com/neos/neos-development-collection/issues/4255). 
+
+Support for the 8.3 version will be continued until support end of 8.3 LTS.
+
 ## Screenshots
 
 ### Module overview 
@@ -73,6 +78,7 @@ Then apply database migrations
   * Group workspaces by their parent (base) workspaces
   * Tracks & displays user and date of last change in a workspace
   * Stores original creator of a workspace
+  * Nagging screen to remind user of their own stale workspaces
 * Optimised changes counts
   * Shows absolute number of changes instead of relation color bar
   * Async loading of changes counts in workspace overview
@@ -85,11 +91,6 @@ Then apply database migrations
   * New workspace will be created as public (internal) by default
   * Configurable workspace title validation
   * Select users to share a private workspace with
-
-## Planned features
-
-* Caching of changes counts
-* Faster workspace review module
 
 ## License
 

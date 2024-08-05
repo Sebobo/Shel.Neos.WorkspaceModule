@@ -15,11 +15,11 @@ namespace Shel\Neos\WorkspaceModule\Controller;
  */
 
 use Neos\ContentRepository\Domain\Model\NodeInterface;
+use Neos\ContentRepository\Domain\Model\Workspace;
 use Neos\ContentRepository\TypeConverter\NodeConverter;
 use Neos\ContentRepository\Utility;
-use Neos\Flow\Annotations as Flow;
-use Neos\ContentRepository\Domain\Model\Workspace;
 use Neos\Error\Messages\Message;
+use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Mvc\View\JsonView;
 use Neos\Flow\Persistence\Exception\IllegalObjectTypeException;
 use Neos\Flow\Property\Exception as PropertyException;
@@ -38,29 +38,19 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         'json' => JsonView::class,
     ];
 
-    /**
-     * @Flow\Inject
-     * @var WorkspaceDetailsRepository
-     */
-    protected $workspaceDetailsRepository;
+    protected static array $nodeConnectionState = [];
 
-    /**
-     * @Flow\InjectConfiguration(path="staleTime")
-     * @var int
-     */
-    protected $staleTime;
+    #[Flow\Inject]
+    protected WorkspaceDetailsRepository $workspaceDetailsRepository;
 
-    /**
-     * @Flow\Inject
-     * @var PrivilegeManagerInterface
-     */
-    protected $privilegeManager;
+    #[Flow\InjectConfiguration('staleTime')]
+    protected int $staleTime;
 
-    /**
-     * @Flow\Inject
-     * @var UserRepository
-     */
-    protected $userRepository;
+    #[Flow\Inject]
+    protected PrivilegeManagerInterface $privilegeManager;
+
+    #[Flow\Inject]
+    protected UserRepository $userRepository;
 
     public function indexAction(): void
     {
@@ -660,9 +650,95 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
     {
         // Workaround to make personal workspaces with missing owners manageable
         if ($workspace->isPersonalWorkspace() && !$workspace->getOwner()) {
-            return $this->privilegeManager->isPrivilegeTargetGranted('Neos.Neos:Backend.Module.Management.Workspaces.ManageAllPrivateWorkspaces');
+            return $this->privilegeManager->isPrivilegeTargetGranted(
+                'Neos.Neos:Backend.Module.Management.Workspaces.ManageAllPrivateWorkspaces'
+            );
         }
         return $this->userService->currentUserCanManageWorkspace($workspace);
     }
 
+    /**
+     * Computes the number of added, changed and removed nodes for the given workspace
+     */
+    protected function computeChangesCount(Workspace $selectedWorkspace): array
+    {
+        $changes = [];
+        foreach ($this->publishingService->getUnpublishedNodes($selectedWorkspace) as $node) {
+            $isPureCollection = $node->getNodeType()->isOfType('Neos.Neos:ContentCollection')
+                && !$node->getNodeType()->isOfType('Neos.Neos:Content');
+            if ($isPureCollection) {
+                continue;
+            }
+            // Ignore top level nodes
+            $pathParts = explode('/', $node->getPath());
+            if (count($pathParts) <= 2) {
+                continue;
+            }
+            $changes[] = $node;
+        }
+
+        $baseContext = $this->contextFactory->create([
+            'workspaceName' => $selectedWorkspace->getBaseWorkspace()?->getName() ?? 'live',
+        ]);
+
+        return array_reduce($changes, function (array $carry, NodeInterface $node) use ($baseContext) {
+            $baseNode = $baseContext->getNodeByIdentifier($node->getIdentifier());
+            $carry['total']++;
+            match (true) {
+                !$this->isNodeConnected($node) => $carry['orphaned']++,
+                $node->isRemoved() => $carry['removed']++,
+                is_null($baseNode) => $carry['new']++,
+                default => $carry['changed']++,
+            };
+            return $carry;
+        }, [
+            'new' => 0,
+            'changed' => 0,
+            'removed' => 0,
+            'orphaned' => 0,
+            'total' => 0,
+        ]);
+    }
+
+    /**
+     * Returns the connection state of a node to their root node.
+     * This method does several optimisations as it stores the connected state of all traversed parent nodes in
+     * addition to the checked node itself. This way, most traversals can be skipped,
+     * as most nodes share a close common parent in their path.
+     */
+    protected function isNodeConnected(NodeInterface $node): bool
+    {
+        // X:926 Y:4799 original
+        // X:933 Y:4754 with sort
+        // X:1246 Y:3769 with path
+        // X:1253 Y:3715 with path and sort
+        // X:1408 Y:1124 with parent memory
+        if ($node->isRoot()) {
+            return true;
+        }
+        $contextPath = $node->getPath();
+        $parentNode = $node->getParent();
+        $parentPaths = [];
+        while ($parentNode) {
+            if ($parentNode->isRoot()) {
+                // Mark traversed parents as connected
+                foreach ($parentPaths as $path) {
+                    self::$nodeConnectionState[$path] = true;
+                }
+                return self::$nodeConnectionState[$contextPath] = true;
+            }
+            $parentPath = $parentNode->getPath();
+            if (isset(self::$nodeConnectionState[$parentPath])) {
+                $parentState = self::$nodeConnectionState[$parentPath];
+                // Mark traversed parents as connected based on a previously resolved parent
+                foreach ($parentPaths as $path) {
+                    self::$nodeConnectionState[$path] = $parentState;
+                }
+                return self::$nodeConnectionState[$contextPath] = $parentState;
+            }
+            $parentPaths[]= $parentPath;
+            $parentNode = $parentNode->getParent();
+        }
+        return self::$nodeConnectionState[$contextPath] = false;
+    }
 }

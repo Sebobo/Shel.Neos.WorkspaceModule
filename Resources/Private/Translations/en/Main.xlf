@@ -89,7 +89,7 @@
                 <source>Create workspace</source>
             </trans-unit>
             <trans-unit id="dialog.action.delete">
-                <source>Delete this workspace</source>
+                <source>Delete workspace "{workspace}"</source>
             </trans-unit>
             <trans-unit id="dialog.action.update">
                 <source>Save changes</source>

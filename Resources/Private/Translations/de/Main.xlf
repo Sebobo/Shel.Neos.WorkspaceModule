@@ -116,8 +116,8 @@
                 <target>Arbeitsbereich anlegen</target>
             </trans-unit>
             <trans-unit id="dialog.action.delete">
-                <source>Delete this workspace</source>
-                <target>Diesen Arbeitsbereich löschen</target>
+                <source>Delete workspace "{workspace}"</source>
+                <target>Arbeitsbereich "{workspace}" löschen</target>
             </trans-unit>
             <trans-unit id="dialog.action.update">
                 <source>Save changes</source>

@@ -31,14 +31,17 @@ const BaseWorkspaceSelection: React.FC<SectionProps> = ({ workspace }) => {
                     return false;
                 }
 
-                // Allow to selecting workspaces as base workspace if they have no base workspace
+                // Allow selecting workspaces as base workspace if they have no base workspace
                 if (!workspaceToCheck.baseWorkspace) {
                     return true;
                 }
-                // Don't allow to selecting workspaces that have the current workspace in their base workspace chain
+                // Don't allow selecting workspaces that have the current workspace in their base workspace chain
                 let baseWorkspaceName = workspaceToCheck.baseWorkspace?.name;
                 while (baseWorkspaceName && baseWorkspaceName !== 'live') {
                     if (baseWorkspaceName === workspace.name) {
+                        return false;
+                    }
+                    if (!workspaces[baseWorkspaceName]) {
                         return false;
                     }
                     baseWorkspaceName = workspaces[baseWorkspaceName].baseWorkspace?.name;

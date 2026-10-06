@@ -9,7 +9,7 @@
   "scripts": {
     "build": "yarn workspace @workspace-module/app build",
     "watch": "yarn workspace @workspace-module/app watch",
-    "lint": "yarn eslint Resources/Private/JavaScript",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false yarn eslint Resources/Private/JavaScript",
     "dev": "yarn workspace @workspace-module/dev-server dev",
     "test:integration": "yarn cypress run"
   },

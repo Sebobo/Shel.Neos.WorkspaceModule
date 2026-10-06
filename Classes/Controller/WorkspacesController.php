@@ -15,6 +15,7 @@ namespace Shel\Neos\WorkspaceModule\Controller;
  */
 
 use Neos\ContentRepository\Domain\Model\NodeInterface;
+use Neos\ContentRepository\Domain\Repository\WorkspaceRepository;
 use Neos\ContentRepository\TypeConverter\NodeConverter;
 use Neos\ContentRepository\Utility;
 use Neos\Flow\Annotations as Flow;
@@ -28,6 +29,7 @@ use Neos\Flow\Security\Authorization\PrivilegeManagerInterface;
 use Neos\Flow\Security\Exception as SecurityException;
 use Neos\Neos\Domain\Model\User;
 use Neos\Neos\Domain\Repository\UserRepository;
+use Neos\Neos\Domain\Service\UserService;
 use Neos\Neos\Utility\User as UserUtility;
 use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
 use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
@@ -61,6 +63,18 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      * @var UserRepository
      */
     protected $userRepository;
+
+    /**
+     * @Flow\Inject
+     * @var WorkspaceRepository
+     */
+    protected $workspaceRepository;
+
+    /**
+     * @Flow\Inject
+     * @var UserService
+     */
+    protected $userService;
 
     public function indexAction(): void
     {
@@ -413,6 +427,12 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
     protected function prepareBaseWorkspaceOptions(Workspace $excludedWorkspace = null): array
     {
         $options = parent::prepareBaseWorkspaceOptions($excludedWorkspace);
+        foreach (array_keys($options) as $workspaceName) {
+            $workspace = $this->workspaceRepository->findByIdentifier($workspaceName);
+            if (!$workspace || !$this->userService->currentUserCanReadWorkspace($workspace)) {
+                unset($options[$workspaceName]);
+            }
+        }
         asort($options, SORT_FLAG_CASE | SORT_NATURAL);
         return $options;
     }

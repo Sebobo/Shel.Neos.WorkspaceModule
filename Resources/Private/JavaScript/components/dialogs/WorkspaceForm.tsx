@@ -90,7 +90,7 @@ const WorkspaceForm: React.FC<FormProps> = ({ enabled, onSubmit, onCancel, submi
     }, [workspaceForm.current]);
 
     return (
-        <Form ref={workspaceForm}>
+        <Form ref={workspaceForm} onSubmit={handleSubmit}>
             <input type="hidden" name={'__csrfToken'} value={csrfToken} />
             {workspace && <input type="hidden" name={`${argumentPrefix}[__identity]`} value={workspace.name} />}
             <label>
@@ -123,10 +123,9 @@ const WorkspaceForm: React.FC<FormProps> = ({ enabled, onSubmit, onCancel, submi
                     {translate('dialog.action.cancel', 'Cancel')}
                 </button>
                 <button
-                    type="button"
+                    type="submit"
                     id="createWorkspaceDialogSubmit"
                     className="neos-button neos-button-primary"
-                    onClick={handleSubmit}
                     disabled={!enabled || !titleIsValid}
                 >
                     {submitLabel}

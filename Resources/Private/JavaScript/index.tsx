@@ -19,36 +19,31 @@ window.onload = async (): Promise<void> => {
     }
 
     const container = document.getElementById('workspace-module-app');
-
     if (!container) {
         return;
     }
 
-    const { userWorkspace, moduleCsrfToken, endpoints, userCanManageInternalWorkspaces, validation, username } =
-        Object.keys(container.dataset).reduce((carry, key) => {
-            carry[key] = JSON.parse(container.dataset[key]);
-            return carry;
-        }, {}) as unknown as {
-            username: UserID;
-            userWorkspace: WorkspaceName;
-            moduleCsrfToken: string;
-            endpoints: WorkspaceEndpoints;
-            userCanManageInternalWorkspaces: boolean;
-            validation: WorkspaceValidation;
-        };
+    const workspaceModuleConfigurationDataElement = document.getElementById('workspace-module-configuration');
+    const workspacesDataElement = document.getElementById('workspace-module-workspaces');
+    const baseWorkspaceOptionsDataElement = document.getElementById('workspace-module-baseWorkspaceOptions');
+    const userListDataElement = document.getElementById('workspace-module-userList');
 
-    const workspacesDataElement = document.getElementById('workspaces');
-    const baseWorkspaceOptionsDataElement = document.getElementById('baseWorkspaceOptions');
-    const userListDataElement = document.getElementById('userList');
-
-    if (!workspacesDataElement || !baseWorkspaceOptionsDataElement || !userListDataElement) {
+    if (
+        !workspaceModuleConfigurationDataElement ||
+        !workspacesDataElement ||
+        !baseWorkspaceOptionsDataElement ||
+        !userListDataElement
+    ) {
         container.innerText = 'Workspace module is missing required data elements';
         return;
     }
 
-    const workspaces = JSON.parse(document.getElementById('workspaces').textContent);
-    const baseWorkspaceOptions = JSON.parse(document.getElementById('baseWorkspaceOptions').textContent);
-    const userList = JSON.parse(document.getElementById('userList').textContent);
+    const workspaceModuleConfiguration = JSON.parse(
+        workspaceModuleConfigurationDataElement.textContent as string,
+    ) as WorkspaceModuleConfiguration;
+    const workspaces = JSON.parse(workspacesDataElement.textContent);
+    const baseWorkspaceOptions = JSON.parse(baseWorkspaceOptionsDataElement.textContent);
+    const userList = JSON.parse(userListDataElement.textContent);
 
     const { I18n, Notification } = (window as AppWindow).NeosCMS;
 
@@ -67,15 +62,10 @@ window.onload = async (): Promise<void> => {
             <IntlProvider translate={translate}>
                 <NotifyProvider notificationApi={Notification}>
                     <WorkspaceProvider
-                        username={username}
+                        {...workspaceModuleConfiguration}
                         workspaceList={workspaces}
                         baseWorkspaceOptions={baseWorkspaceOptions}
-                        userCanManageInternalWorkspaces={userCanManageInternalWorkspaces}
                         userList={userList}
-                        userWorkspace={userWorkspace}
-                        endpoints={endpoints}
-                        csrfToken={moduleCsrfToken}
-                        validation={validation}
                     >
                         <AppWithHmr />
                     </WorkspaceProvider>

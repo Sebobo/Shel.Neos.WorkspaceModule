@@ -15,12 +15,12 @@ namespace Shel\Neos\WorkspaceModule\Controller;
  */
 
 use Neos\ContentRepository\Domain\Model\NodeInterface;
+use Neos\ContentRepository\Domain\Model\Workspace;
 use Neos\ContentRepository\Domain\Repository\WorkspaceRepository;
 use Neos\ContentRepository\TypeConverter\NodeConverter;
 use Neos\ContentRepository\Utility;
-use Neos\Flow\Annotations as Flow;
-use Neos\ContentRepository\Domain\Model\Workspace;
 use Neos\Error\Messages\Message;
+use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Mvc\View\JsonView;
 use Neos\Flow\Persistence\Exception\IllegalObjectTypeException;
 use Neos\Flow\Property\Exception as PropertyException;
@@ -100,12 +100,10 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             'username' => $currentAccount->getAccountIdentifier(),
             'userWorkspace' => $userWorkspace,
             'baseWorkspaceOptions' => $this->prepareBaseWorkspaceOptions(),
-            'userCanManageInternalWorkspaces' => $this->privilegeManager->isPrivilegeTargetGranted(
-                'Neos.Neos:Backend.Module.Management.Workspaces.ManageInternalWorkspaces'
-            ),
+            'userCanManageInternalWorkspaces' => $this->userCanManageInternalWorkspaces(),
+            'userCanCreateWorkspaces' => $this->userCanCreateWorkspaces(),
             'userList' => $this->prepareOwnerOptions(),
             'workspaces' => $workspaceData,
-            'csrfToken' => $this->securityContext->getCsrfProtectionToken(),
             'validation' => $this->settings['validation'],
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
         ]);
@@ -375,7 +373,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
                 $workspaceName = $this->renderWorkspaceName($title);
             }
 
-            if ($visibility === 'private' || !$this->userCanManageInternalWorkspaces()) {
+            if ($visibility === 'private' || !$this->userCanCreateWorkspaces()) {
                 $owner = $this->userService->getCurrentUser();
             } else {
                 $owner = null;
@@ -645,6 +643,13 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
     {
         return $this->privilegeManager->isPrivilegeTargetGranted(
             'Neos.Neos:Backend.Module.Management.Workspaces.ManageInternalWorkspaces'
+        );
+    }
+
+    private function userCanCreateWorkspaces(): bool
+    {
+        return $this->privilegeManager->isPrivilegeTargetGranted(
+            'Neos.Neos:Backend.CreateWorkspaces'
         );
     }
 

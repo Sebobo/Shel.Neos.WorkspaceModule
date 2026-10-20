@@ -13,6 +13,7 @@ type WorkspaceProviderProps = {
     endpoints: WorkspaceEndpoints;
     csrfToken: string;
     userCanManageInternalWorkspaces: boolean;
+    userCanCreateWorkspaces: boolean;
     validation: WorkspaceValidation;
 };
 
@@ -39,6 +40,7 @@ type WorkspaceValues = {
     baseWorkspaceOptions: BaseWorkspaceOptions;
     userList: UserList;
     userCanManageInternalWorkspaces: boolean;
+    userCanCreateWorkspaces: boolean;
     creationDialogVisible: boolean;
     setCreationDialogVisible: (visible: boolean) => void;
     validation: WorkspaceValidation;
@@ -57,6 +59,7 @@ export const WorkspaceProvider = ({
     csrfToken,
     children,
     userCanManageInternalWorkspaces,
+    userCanCreateWorkspaces,
     validation,
 }: WorkspaceProviderProps) => {
     const [baseWorkspaceOptions, setBaseWorkspaceOptions] = React.useState(initialBaseWorkspaceOptions);
@@ -378,6 +381,7 @@ export const WorkspaceProvider = ({
                 setSelectedWorkspaceForEdit,
                 csrfToken,
                 userCanManageInternalWorkspaces,
+                userCanCreateWorkspaces,
                 creationDialogVisible,
                 setCreationDialogVisible,
                 validation,

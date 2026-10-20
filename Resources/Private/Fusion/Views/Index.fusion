@@ -1,63 +1,61 @@
 Shel.Neos.WorkspaceModule.WorkspacesController {
     index = Neos.Fusion:Component {
-        username = ${username}
-        userWorkspace = ${userWorkspace}
+        configuration = Neos.Fusion:DataStructure {
+            username = ${username}
+            userWorkspace = ${userWorkspace.name}
+            csrfToken = ${Security.csrfToken()}
+            userCanManageInternalWorkspaces = ${userCanManageInternalWorkspaces}
+            userCanCreateWorkspaces = ${userCanCreateWorkspaces}
+            validation = ${Json.stringify(validation)}
+
+            endpoints = Neos.Fusion:DataStructure {
+                deleteWorkspace = Neos.Fusion:UriBuilder {
+                    action = 'delete'
+                    arguments.workspace = '---workspace---'
+                    format = 'json'
+                }
+                pruneWorkspace = Neos.Fusion:UriBuilder {
+                    action = 'prune'
+                    arguments.workspace = '---workspace---'
+                    format = 'json'
+                }
+                updateWorkspace = Neos.Fusion:UriBuilder {
+                    action = 'update'
+                    format = 'json'
+                }
+                createWorkspace = Neos.Fusion:UriBuilder {
+                    action = 'create'
+                    format = 'json'
+                }
+                showWorkspace = Neos.Fusion:UriBuilder {
+                    action = 'show'
+                    arguments.workspace = '---workspace---'
+                }
+                getChanges = Neos.Fusion:UriBuilder {
+                    action = 'getChanges'
+                    format = 'json'
+                }
+            }
+        }
         baseWorkspaceOptions = ${baseWorkspaceOptions}
         userList = ${userList}
         workspaces = ${workspaces}
-        csrfToken = ${csrfToken}
-        userCanManageInternalWorkspaces = ${userCanManageInternalWorkspaces}
-        validation = ${validation}
         flashMessages = ${flashMessages}
-
-        endpoints = Neos.Fusion:DataStructure {
-            deleteWorkspace = Neos.Fusion:UriBuilder {
-                action = 'delete'
-                arguments.workspace = '---workspace---'
-                format = 'json'
-            }
-            pruneWorkspace = Neos.Fusion:UriBuilder {
-                action = 'prune'
-                arguments.workspace = '---workspace---'
-                format = 'json'
-            }
-            updateWorkspace = Neos.Fusion:UriBuilder {
-                action = 'update'
-                format = 'json'
-            }
-            createWorkspace = Neos.Fusion:UriBuilder {
-                action = 'create'
-                format = 'json'
-            }
-            showWorkspace = Neos.Fusion:UriBuilder {
-                action = 'show'
-                arguments.workspace = '---workspace---'
-            }
-            getChanges = Neos.Fusion:UriBuilder {
-                action = 'getChanges'
-                format = 'json'
-            }
-        }
 
         renderer = afx`
             <div class="neos-content neos-container-fluid">
                 <div class="neos-row-fluid">
-                    <div
-                        id="workspace-module-app"
-                        data-endpoints={Json.stringify(props.endpoints)}
-                        data-username={Json.stringify(props.username)}
-                        data-user-workspace={Json.stringify(props.userWorkspace.name)}
-                        data-module-csrf-token={Json.stringify(props.csrfToken)}
-                        data-user-can-manage-internal-workspaces={props.userCanManageInternalWorkspaces ? 'true' : 'false'}
-                        data-validation={Json.stringify(props.validation)}
-                    >
-                        <script type="application/json" id="workspaces">
+                    <div id="workspace-module-app">
+                        <script type="application/json" id="workspace-module-configuration">
+                            {Json.stringify(props.configuration)}
+                        </script>
+                        <script type="application/json" id="workspace-module-workspaces">
                             {Json.stringify(props.workspaces)}
                         </script>
-                        <script type="application/json" id="baseWorkspaceOptions">
+                        <script type="application/json" id="workspace-module-baseWorkspaceOptions">
                             {Json.stringify(props.baseWorkspaceOptions)}
                         </script>
-                        <script type="application/json" id="userList">
+                        <script type="application/json" id="workspace-module-userList">
                             {Json.stringify(props.userList)}
                         </script>
                         {I18n.translate('module.loadingText', 'Loading workspace module…', {}, 'Main', 'Shel.Neos.WorkspaceModule')}

@@ -99,3 +99,13 @@ interface Workspace {
 type WorkspaceList = Record<WorkspaceName, Workspace>;
 type BaseWorkspaceOptions = Record<WorkspaceName, WorkspaceTitle>;
 type UserList = Record<UserID, UserLabel>;
+
+type WorkspaceModuleConfiguration = {
+    username: UserID;
+    userWorkspace: WorkspaceName;
+    csrfToken: string;
+    endpoints: WorkspaceEndpoints;
+    userCanManageInternalWorkspaces: boolean;
+    userCanCreateWorkspaces: boolean;
+    validation: WorkspaceValidation;
+};

@@ -7,5 +7,6 @@ export default defineConfig({
         },
         specPattern: 'Tests/integration/**/*.cy.{js,jsx,ts,tsx}',
         baseUrl: 'http://localhost:4000',
+        supportFile: false,
     },
 });

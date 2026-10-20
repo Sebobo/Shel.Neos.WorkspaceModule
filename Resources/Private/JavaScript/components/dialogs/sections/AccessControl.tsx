@@ -109,13 +109,11 @@ const AccessControl: React.FC<SectionProps> = ({ workspace }) => {
     ) : (
         <FormGroup>
             <label className="neos-control-label">{translate('workspace.visibility.label', 'Visibility')}</label>
-            {userCanManageInternalWorkspaces && (
-                <RadioLabel className="neos-radio">
-                    <input type="radio" name="moduleArguments[visibility]" defaultChecked value="internal" />
-                    <span />
-                    <span>{translate('workspace.visibility.internal', 'Internal')}</span>
-                </RadioLabel>
-            )}
+            <RadioLabel className="neos-radio">
+                <input type="radio" name="moduleArguments[visibility]" defaultChecked value="internal" />
+                <span />
+                <span>{translate('workspace.visibility.internal', 'Internal')}</span>
+            </RadioLabel>
             <RadioLabel className="neos-radio">
                 <input type="radio" name="moduleArguments[visibility]" value="private" />
                 <span />

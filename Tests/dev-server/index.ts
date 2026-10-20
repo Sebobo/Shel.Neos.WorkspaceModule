@@ -1,9 +1,15 @@
 import { loadFixtures } from './fixtures';
 
+import '../../Resources/Private/JavaScript/index.tsx';
+
 (() => {
     console.info('Started Workspace Module dev server script');
 
     const container = document.getElementById('workspace-module-app');
+
+    if (!container) {
+        return;
+    }
 
     // Create Neos API mock
     (window as AppWindow).NeosCMS = {
@@ -26,33 +32,37 @@ import { loadFixtures } from './fixtures';
 
     const fixtures = loadFixtures();
 
-    const workspacesData = document.createElement('script');
-    workspacesData.id = 'workspaces';
-    workspacesData.type = 'application/json';
-    workspacesData.innerText = JSON.stringify(fixtures.workspaces);
-    container.appendChild(workspacesData);
+    // The module expects the data as JSON script tags with the very same ids as in the Fusion view
+    const addDataElement = (id: string, data: unknown): void => {
+        const element = document.createElement('script');
+        element.id = id;
+        element.type = 'application/json';
+        element.innerText = JSON.stringify(data);
+        container.appendChild(element);
+    };
 
-    const baseWorkspaceOptionsData = document.createElement('script');
-    baseWorkspaceOptionsData.id = 'baseWorkspaceOptions';
-    baseWorkspaceOptionsData.type = 'application/json';
-    baseWorkspaceOptionsData.innerText = JSON.stringify(fixtures.baseWorkspaceOptions);
-    container.appendChild(baseWorkspaceOptionsData);
-
-    const ownerOptionsData = document.createElement('script');
-    ownerOptionsData.id = 'ownerOptions';
-    ownerOptionsData.type = 'application/json';
-    ownerOptionsData.innerText = '{}';
-    container.appendChild(ownerOptionsData);
-
-    container.dataset.endpoints = JSON.stringify({
-        deleteWorkspace: '/deleteWorkspace?workspace=---workspace---',
-        updateWorkspace: '/updateWorkspace?workspace=---workspace---',
-        createWorkspace: '/createWorkspace',
-        showWorkspace: '/showWorkspace?workspace=---workspace---',
-        getChanges: '/getChanges',
+    addDataElement('workspace-module-configuration', {
+        username: 'sskinner',
+        userWorkspace: 'user-sskinner',
+        csrfToken: 'abc',
+        userCanManageInternalWorkspaces: true,
+        userCanCreateWorkspaces: true,
+        validation: {
+            titlePattern: '^[A-Z][\\s\\w\\d\\-\\.\\[\\]\\(\\)]+\\b(?!\\s)$',
+        },
+        endpoints: {
+            deleteWorkspace: '/deleteWorkspace?workspace=---workspace---',
+            pruneWorkspace: '/pruneWorkspace?workspace=---workspace---',
+            updateWorkspace: '/updateWorkspace?workspace=---workspace---',
+            createWorkspace: '/createWorkspace',
+            showWorkspace: '/showWorkspace?workspace=---workspace---',
+            getChanges: '/getChanges',
+        },
     });
-    container.dataset.userWorkspace = JSON.stringify('user-sskinner');
-    container.dataset.moduleCsrfToken = JSON.stringify('abc');
-    container.dataset.userCanManageInteralWorkspaces = JSON.stringify(true);
-    container.dataset.validation = JSON.stringify({});
+    addDataElement('workspace-module-workspaces', fixtures.workspaces);
+    addDataElement('workspace-module-baseWorkspaceOptions', fixtures.baseWorkspaceOptions);
+    addDataElement('workspace-module-userList', {
+        sskinner: 'Sidney Skinner',
+        apayne: 'Ashley Payne',
+    });
 })();

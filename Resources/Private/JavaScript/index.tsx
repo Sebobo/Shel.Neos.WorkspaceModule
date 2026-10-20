@@ -1,6 +1,5 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { hot, setConfig } from 'react-hot-loader';
 import ReactModal from 'react-modal';
 
 import WorkspaceModule from './components/WorkspaceModule';
@@ -8,10 +7,6 @@ import { WorkspaceProvider } from './provider/WorkspaceProvider';
 import { IntlProvider } from './provider/IntlProvider';
 import { NotifyProvider } from './provider/NotifyProvider';
 import ErrorBoundary from './components/ErrorBoundary';
-
-setConfig({
-    showReactDomPatchNotification: false,
-});
 
 window.onload = async (): Promise<void> => {
     while (!(window as AppWindow).NeosCMS?.I18n?.initialized) {
@@ -53,9 +48,6 @@ window.onload = async (): Promise<void> => {
 
     ReactModal.setAppElement(container);
 
-    // @ts-ignore
-    const AppWithHmr = hot(module)(WorkspaceModule);
-
     const root = createRoot(container);
     root.render(
         <ErrorBoundary>
@@ -67,7 +59,7 @@ window.onload = async (): Promise<void> => {
                         baseWorkspaceOptions={baseWorkspaceOptions}
                         userList={userList}
                     >
-                        <AppWithHmr />
+                        <WorkspaceModule />
                     </WorkspaceProvider>
                 </NotifyProvider>
             </IntlProvider>

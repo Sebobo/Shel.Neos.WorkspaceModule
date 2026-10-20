@@ -16,8 +16,8 @@ describe('Workspace list', () => {
                 expect($dialog.text()).contains('Create new workspace');
                 cy.get('@createWorkspaceDialog').find('[name*="title"]').type('My new workspace');
                 cy.get('@createWorkspaceDialog').get('[name*="description"]').type('This is a great workspace');
-                cy.get('@createWorkspaceDialog').get('#createWorkspaceDialogCreate').click();
-                expect(!$dialog);
+                cy.get('@createWorkspaceDialog').get('#createWorkspaceDialogSubmit').click();
             });
+        cy.get('#createWorkspaceDialog').should('not.exist');
     });
 });

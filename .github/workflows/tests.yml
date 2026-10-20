@@ -23,6 +23,9 @@ jobs:
       - name: Run linting
         run: yarn lint
 
+      - name: Run type checking
+        run: yarn typecheck
+
       - name: Build sources
         run: yarn build
 

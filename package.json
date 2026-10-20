@@ -10,6 +10,7 @@
     "build": "yarn workspace @workspace-module/app build",
     "watch": "yarn workspace @workspace-module/app watch",
     "lint": "ESLINT_USE_FLAT_CONFIG=false yarn eslint Resources/Private/JavaScript",
+    "typecheck": "yarn tsc --noEmit",
     "dev": "yarn workspace @workspace-module/dev-server dev",
     "test:integration": "yarn cypress run"
   },
@@ -21,8 +22,6 @@
     "@workspace-module/app": "*"
   },
   "devDependencies": {
-    "@parcel/transformer-typescript-tsc": "^2.12.0",
-    "@parcel/transformer-typescript-types": "2.12.0",
     "@types/node": "^20.14.2",
     "@typescript-eslint/eslint-plugin": "^7.12.0",
     "@typescript-eslint/parser": "^7.12.0",
@@ -34,7 +33,6 @@
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-testcafe": "^0.2.1",
-    "parcel": "^2.12.0",
     "prettier": "^3.3.1",
     "typescript": "^4.9.5"
   },
@@ -43,5 +41,5 @@
     "last 2 versions",
     "not dead"
   ],
-  "packageManager": "yarn@4.2.2"
+  "packageManager": "yarn@4.18.1"
 }

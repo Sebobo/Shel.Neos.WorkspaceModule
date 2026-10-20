@@ -1,5 +1,4 @@
 node_modules
-.parcel-cache
 .yarn/*
 !.yarn/cache
 !.yarn/patches
@@ -9,3 +8,4 @@ node_modules
 !.yarn/versions
 Tests/dev-server/dist
 /cypress
+.DS_Store

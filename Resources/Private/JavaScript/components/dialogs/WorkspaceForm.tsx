@@ -85,9 +85,13 @@ const WorkspaceForm: React.FC<FormProps> = ({ enabled, onSubmit, onCancel, submi
         return regex.test(title);
     }, [title]);
 
-    const handleSubmit = useCallback(() => {
-        onSubmit(new FormData(workspaceForm.current));
-    }, [workspaceForm.current]);
+    const handleSubmit = useCallback(
+        (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            onSubmit(new FormData(workspaceForm.current));
+        },
+        [workspaceForm.current],
+    );
 
     return (
         <Form ref={workspaceForm} onSubmit={handleSubmit}>

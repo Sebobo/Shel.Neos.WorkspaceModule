@@ -6,7 +6,7 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
             csrfToken = ${Security.csrfToken()}
             userCanManageInternalWorkspaces = ${userCanManageInternalWorkspaces}
             userCanCreateWorkspaces = ${userCanCreateWorkspaces}
-            validation = ${Json.stringify(validation)}
+            validation = ${validation}
 
             endpoints = Neos.Fusion:DataStructure {
                 deleteWorkspace = Neos.Fusion:UriBuilder {

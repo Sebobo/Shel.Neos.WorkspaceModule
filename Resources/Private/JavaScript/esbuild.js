@@ -12,6 +12,13 @@ const options = {
     entryPoints: { main: 'index.tsx' },
     outdir: '../../Public/Assets',
     sourcemap: true,
+    // React is only used for its types, the runtime is provided by preact/compat
+    // which is roughly 120kb smaller than react-dom
+    alias: {
+        react: 'preact/compat',
+        'react-dom': 'preact/compat',
+        'react-dom/client': 'preact/compat/client',
+    },
 };
 
 if (isWatch) {

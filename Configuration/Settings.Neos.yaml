@@ -8,6 +8,8 @@ Neos:
             additionalResources:
               javaScripts:
                 Shel.Neos.WorkspaceModule: 'resource://Shel.Neos.WorkspaceModule/Public/Assets/main.js'
+              styleSheets:
+                Shel.Neos.WorkspaceModule: 'resource://Shel.Neos.WorkspaceModule/Public/Styles/Module.css'
 
     userInterface:
       translation:

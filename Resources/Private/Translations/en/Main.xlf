@@ -216,6 +216,47 @@
             <trans-unit id="nagging.staleWorkspacesWarning">
                 <source>You own {0} stale workspaces. Please consider deleting them.</source>
             </trans-unit>
+
+            <!-- Review view: legend of a change, and the node state as a change of its own -->
+            <trans-unit id="review.legend.created">
+                <source>created</source>
+            </trans-unit>
+            <trans-unit id="review.legend.edited">
+                <source>edited</source>
+            </trans-unit>
+            <trans-unit id="review.legend.moved">
+                <source>moved</source>
+            </trans-unit>
+            <trans-unit id="review.legend.hidden">
+                <source>hidden</source>
+            </trans-unit>
+            <trans-unit id="review.legend.deleted">
+                <source>deleted</source>
+            </trans-unit>
+            <trans-unit id="review.nodeState.hidden">
+                <source>hidden</source>
+            </trans-unit>
+            <trans-unit id="review.nodeState.hiddenInIndex">
+                <source>hidden in index</source>
+            </trans-unit>
+            <trans-unit id="review.nodeState.hiddenBeforeDateTime">
+                <source>hidden before</source>
+            </trans-unit>
+            <trans-unit id="review.nodeState.hiddenAfterDateTime">
+                <source>hidden after</source>
+            </trans-unit>
+            <trans-unit id="review.noRenderableChanges">
+                <source>No changes that can be displayed</source>
+            </trans-unit>
+            <trans-unit id="review.noChangesAtAll">
+                <source>This node has no content differences to the published version, only metadata such as the modification time changed.</source>
+            </trans-unit>
+            <trans-unit id="review.value.true">
+                <source>Yes</source>
+            </trans-unit>
+            <trans-unit id="review.value.false">
+                <source>No</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

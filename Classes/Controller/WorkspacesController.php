@@ -608,6 +608,189 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         parent::showAction($workspace);
     }
 
+    /**
+     * Hands the review view the information it needs beyond the core's change list: whether the
+     * node state itself changed, so the legend can say "hidden" only when the node was actually
+     * hidden and not merely edited while being hidden.
+     *
+     * @return array<string,mixed>
+     */
+    protected function computeSiteChanges(Workspace $selectedWorkspace)
+    {
+        $siteChanges = parent::computeSiteChanges($selectedWorkspace);
+        foreach ($siteChanges as $siteKey => $site) {
+            foreach ($site['documents'] as $documentDimension => $documents) {
+                foreach ($documents as $documentKey => $document) {
+                    foreach ($document['changes'] as $changeKey => $change) {
+                        $siteChanges[$siteKey]['documents'][$documentDimension][$documentKey]['changes'][$changeKey]['nodeStateChanged']
+                            = $this->nodeStateDifferences($change['node']);
+                    }
+                }
+            }
+        }
+
+        return $siteChanges;
+    }
+
+    /**
+     * The core diff only renders string properties: a boolean and a number both render to an
+     * empty string, so a change of such a property produced no diff at all and the review listed
+     * the node without being able to say what had changed.
+     *
+     * @param mixed $propertyValue
+     * @return string
+     */
+    protected function renderSlimmedDownContent($propertyValue)
+    {
+        if (is_int($propertyValue) || is_float($propertyValue)) {
+            return (string)$propertyValue;
+        }
+
+        return parent::renderSlimmedDownContent($propertyValue);
+    }
+
+    /**
+     * Extends the core's diff by what it cannot represent: boolean properties and the node state
+     * itself (hidden, hidden in index and the two visibility dates).
+     *
+     * The core method is kept as it is and only added to, so that the text, image, asset and
+     * datetime diffs stay the core's. The node state is not part of the property store at all -
+     * getProperties() returns declared properties only, while the state lives in columns of its
+     * own - which is why hiding a node produced an empty diff in the review.
+     *
+     * @return array<string,mixed>
+     */
+    protected function renderContentChanges(NodeInterface $changedNode)
+    {
+        $contentChanges = parent::renderContentChanges($changedNode);
+
+        return $contentChanges
+            + $this->renderBooleanPropertyChanges($changedNode, $contentChanges)
+            + $this->renderNodeStateChanges($changedNode);
+    }
+
+    /**
+     * Boolean properties the core skipped because both values render to an empty string.
+     *
+     * @param array<string,mixed> $alreadyRendered the changes the core has already produced
+     * @return array<string,array<string,mixed>>
+     */
+    protected function renderBooleanPropertyChanges(NodeInterface $changedNode, array $alreadyRendered): array
+    {
+        if ($changedNode->isRemoved()) {
+            return [];
+        }
+
+        /** @var NodeInterface|null $originalNode */
+        $originalNode = $this->getOriginalNode($changedNode);
+        $propertyDefaults = $changedNode->getNodeType()->getDefaultValuesForProperties();
+
+        $booleanChanges = [];
+        foreach ($changedNode->getProperties() as $propertyName => $changedValue) {
+            if (isset($alreadyRendered[$propertyName])) {
+                continue;
+            }
+            $originalValue = $originalNode === null ? null : $originalNode->getProperty($propertyName);
+            if (!is_bool($changedValue) && !is_bool($originalValue)) {
+                continue;
+            }
+            // The same conditions the core applies before it renders a property at all
+            if ($originalNode === null && empty($changedValue)) {
+                continue;
+            }
+            if (isset($propertyDefaults[$propertyName]) && $changedValue === $propertyDefaults[$propertyName]) {
+                continue;
+            }
+            if ($changedValue === $originalValue) {
+                continue;
+            }
+            $booleanChanges[$propertyName] = [
+                'type' => 'boolean',
+                'propertyLabel' => $this->getPropertyLabel($propertyName, $changedNode),
+                'original' => $originalValue,
+                'changed' => $changedValue,
+            ];
+        }
+
+        return $booleanChanges;
+    }
+
+    /**
+     * @return array<string,array<string,mixed>>
+     */
+    protected function renderNodeStateChanges(NodeInterface $changedNode): array
+    {
+        $stateChanges = [];
+        foreach ($this->nodeStateDifferences($changedNode) as $stateName => $difference) {
+            $isDate = $difference['changed'] instanceof \DateTimeInterface
+                || $difference['original'] instanceof \DateTimeInterface;
+            $stateChanges[$stateName] = [
+                'type' => $isDate ? 'datetime' : 'boolean',
+                'propertyLabel' => 'Shel.Neos.WorkspaceModule:Main:review.nodeState.' . $stateName,
+                'original' => $difference['original'],
+                'changed' => $difference['changed'],
+            ];
+        }
+
+        return $stateChanges;
+    }
+
+    /**
+     * The node state that differs from the published version, keyed by state name.
+     *
+     * @return array<string,array{original: mixed, changed: mixed}>
+     */
+    protected function nodeStateDifferences(NodeInterface $changedNode): array
+    {
+        if ($changedNode->isRemoved()) {
+            return [];
+        }
+
+        /** @var NodeInterface|null $originalNode */
+        $originalNode = $this->getOriginalNode($changedNode);
+        if ($originalNode === null) {
+            return [];
+        }
+
+        $differences = [];
+        foreach (['hidden', 'hiddenInIndex'] as $stateName) {
+            $changedValue = $this->readBooleanState($changedNode, $stateName);
+            $originalValue = $this->readBooleanState($originalNode, $stateName);
+            if ($changedValue === $originalValue) {
+                continue;
+            }
+            $differences[$stateName] = ['original' => $originalValue, 'changed' => $changedValue];
+        }
+        foreach (['hiddenBeforeDateTime', 'hiddenAfterDateTime'] as $stateName) {
+            $changedValue = $this->readDateState($changedNode, $stateName);
+            $originalValue = $this->readDateState($originalNode, $stateName);
+            if ($changedValue?->getTimestamp() === $originalValue?->getTimestamp()) {
+                continue;
+            }
+            $differences[$stateName] = ['original' => $originalValue, 'changed' => $changedValue];
+        }
+
+        return $differences;
+    }
+
+    private function readBooleanState(NodeInterface $node, string $stateName): bool
+    {
+        return match ($stateName) {
+            'hidden' => $node->isHidden(),
+            'hiddenInIndex' => $node->isHiddenInIndex(),
+            default => throw new \InvalidArgumentException('Not a boolean node state: ' . $stateName),
+        };
+    }
+
+    private function readDateState(NodeInterface $node, string $stateName): ?\DateTimeInterface
+    {
+        return match ($stateName) {
+            'hiddenBeforeDateTime' => $node->getHiddenBeforeDateTime(),
+            'hiddenAfterDateTime' => $node->getHiddenAfterDateTime(),
+            default => throw new \InvalidArgumentException('Not a date node state: ' . $stateName),
+        };
+    }
+
     protected function getUserId(User $user): string
     {
         return $this->persistenceManager->getIdentifierByObject($user);

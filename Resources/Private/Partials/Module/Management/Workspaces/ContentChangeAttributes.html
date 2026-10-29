@@ -1,0 +1,20 @@
+{namespace neos=Neos\Neos\ViewHelpers}
+<f:if condition="{change.node.removed}">
+    <f:then>class="neos-content-change legend-deleted" data-nodepath="{change.node.path}" title="{neos:backend.translate(id: 'Shel.Neos.WorkspaceModule:Main:review.legend.deleted')}"</f:then>
+    <f:else>
+        <f:if condition="{change.isNew}">
+            <f:then>class="neos-content-change legend-created" data-nodepath="{change.node.path}" title="{neos:backend.translate(id: 'Shel.Neos.WorkspaceModule:Main:review.legend.created')}"</f:then>
+            <f:else>
+                <f:if condition="{change.isMoved}">
+                    <f:then>class="neos-content-change legend-moved" data-nodepath="{change.node.path}" title="{neos:backend.translate(id: 'Shel.Neos.WorkspaceModule:Main:review.legend.moved')}"</f:then>
+                    <f:else>
+                        <f:if condition="{change.nodeStateChanged.hidden}">
+                            <f:then>class="neos-content-change legend-hidden" data-nodepath="{change.node.path}" title="{neos:backend.translate(id: 'Shel.Neos.WorkspaceModule:Main:review.legend.hidden')}"</f:then>
+                            <f:else>class="neos-content-change legend-edited" data-nodepath="{change.node.path}" title="{neos:backend.translate(id: 'Shel.Neos.WorkspaceModule:Main:review.legend.edited')}"</f:else>
+                        </f:if>
+                    </f:else>
+                </f:if>
+            </f:else>
+        </f:if>
+    </f:else>
+</f:if>

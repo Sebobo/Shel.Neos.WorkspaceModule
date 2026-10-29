@@ -1,0 +1,17 @@
+// Styles for the review view of the workspace module.
+//
+// The change rows carry a legend colour from the core on their left edge. The "hidden" legend is
+// white there, which is invisible on the light background of a change row, so it is overridden
+// here instead of patching the core stylesheet. The selector repeats the core's in full and adds
+// the class of the change cell, so it wins no matter which of the two stylesheets is loaded last.
+
+.neos.neos-module.neos-module-management-workspaces .neos-content-change.legend-hidden {
+  border-left-color: #adadad;
+}
+
+// A change without anything to show (a node whose row differs only in metadata) states its
+// reason instead of rendering an empty diff table.
+.neos-module-management-workspaces .neos-content-diff .neos-content-diff-empty {
+  font-style: italic;
+  color: #5b5b5b;
+}

@@ -1,15 +1,17 @@
 Neos:
   Flow:
-    security:
-      authentication:
-        providers:
-          Neos.Neos:Backend:
-            requestPatterns:
-              Shel.Neos.WorkspaceModule:Controller:
-                pattern: 'ControllerObjectName'
-                patternOptions:
-                  controllerObjectNamePattern: 'Shel\Neos\WorkspaceModule\Controller\.*'
-
     aop:
+      # The policy of the module decides about the access to shared workspaces with the
+      # workspaces the current user is allowed to see. The matcher refers to them as
+      # "current.workspaceDetails", which is a global object.
       globalObjects:
         workspaceDetails: Shel\Neos\WorkspaceModule\WorkspaceDetailsContext
+
+    mvc:
+      flashMessages:
+        containers:
+          'Shel.Neos.WorkspaceModule:httpHeaderFlashMessages':
+            storage: 'Shel\Neos\WorkspaceModule\Mvc\HttpHeaderFlashMessageStorage'
+            requestPatterns:
+              'htmx':
+                pattern: 'Shel\Neos\WorkspaceModule\Mvc\HtmxRequestPattern'

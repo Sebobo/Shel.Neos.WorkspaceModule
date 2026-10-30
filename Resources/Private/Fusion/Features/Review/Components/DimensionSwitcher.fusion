@@ -1,0 +1,66 @@
+##
+# The switcher of the content dimensions, above the list of the documents.
+#
+# It is only rendered when the installation has content dimensions - an installation without
+# them has no configuration and no switcher.
+#
+# The choice filters the view of the review: only the documents and the changes of the chosen
+# variant are shown. The buttons of the review are not affected by it - they always act on the
+# whole workspace.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.DimensionSwitcher) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = false
+        contentDimensions = ${PropTypes.arrayOf(PropTypes.any)}
+        selectedWorkspaceName = ${PropTypes.string}
+    }
+
+    @private {
+        # The review of the workspace with a chosen variant: the choice of a preset leads to
+        # the review of the workspace with the selection of the preset.
+        reviewUriTemplate = Neos.Fusion:UriBuilder {
+            action = 'show'
+            format = 'html'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = '---dimensions---'
+        }
+    }
+
+    renderer = afx`
+        <div @if.hasDimensions={props.contentDimensions != []} class="workspace-review-dimension-switcher">
+            <Neos.Fusion:Loop items={props.contentDimensions} itemName="dimension">
+                <div class="workspace-review-dimension">
+                    <button
+                        type="button"
+                        class="neos-button workspace-review-dimension-trigger"
+                        popovertarget={'workspace-review-dimension-' + dimension.name}
+                        aria-controls={'workspace-review-dimension-' + dimension.name}
+                        aria-expanded="false"
+                        title={dimension.label}
+                    >
+                        <i class={dimension.icon}></i>
+                        <span class="workspace-review-dimension-name">{dimension.label}</span>
+                        <span class="workspace-review-dimension-value">{dimension.selectedLabel}</span>
+                        <i class="fas fa-caret-down"></i>
+                    </button>
+                    <div
+                        id={'workspace-review-dimension-' + dimension.name}
+                        class="neos-dropdown-content workspace-review-dimension-list"
+                        popover="auto"
+                        data-placement="below"
+                    >
+                        <Neos.Fusion:Loop items={dimension.presets} itemName="preset">
+                            <a
+                                class={preset.selected ? 'workspace-review-dimension-preset selected' : 'workspace-review-dimension-preset'}
+                                href={String.replace(private.reviewUriTemplate, '---dimensions---', preset.selection)}
+                            >
+                                <i class={preset.selected ? 'fas fa-check' : 'fas fa-check invisible'}></i>
+                                <span>{preset.label}</span>
+                            </a>
+                        </Neos.Fusion:Loop>
+                    </div>
+                </div>
+            </Neos.Fusion:Loop>
+        </div>
+    `
+}

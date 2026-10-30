@@ -1,0 +1,18 @@
+##
+# The kind of a change, as a badge.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.ChangeBadge) < prototype(Neos.Fusion:Component) {
+    type = ${'changed'}
+
+    @private {
+        i18n = ${I18n.id('').source('Main').package('Shel.Neos.WorkspaceModule')}
+        icon = ${props.type == 'created' ? 'fas fa-plus' : (props.type == 'deleted' ? 'fas fa-trash' : (props.type == 'hidden' ? 'fas fa-eye-slash' : (props.type == 'moved' ? 'fas fa-arrows-alt' : 'fas fa-pencil-alt')))}
+    }
+
+    renderer = afx`
+        <span class={'neos-label workspace-review-badge workspace-review-badge-' + props.type}>
+            <i class={private.icon}></i>
+            {private.i18n.id('review.changeType.' + props.type).translate()}
+        </span>
+    `
+}

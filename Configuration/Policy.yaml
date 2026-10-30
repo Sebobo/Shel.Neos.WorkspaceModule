@@ -9,6 +9,10 @@ privilegeTargets:
       label: Allowed to publish all changes to the live workspace
       matcher: 'method(Shel\Neos\WorkspaceModule\Controller\WorkspacesController->publishWorkspaceAction(workspace.baseWorkspace.name === "live"))'
 
+    'Shel.Neos.WorkspaceModule:Backend.ReviewWorkspace':
+      label: Allowed to review the changes of a workspace
+      matcher: 'method(Shel\Neos\WorkspaceModule\Controller\WorkspacesController->(show|documentTree|documentChanges|publishChange|discardChange|publishSelected|discardSelected|publishAll|discardAll|publishDocument|discardDocument)Action())'
+
     'Shel.Neos.WorkspaceModule:Backend.CreateWorkspaces':
       label: Allowed to create new workspaces
       matcher: 'method(Neos\Neos\Controller\Service\WorkspacesController->(new|create)Action()) || method(Shel\Neos\WorkspaceModule\Controller\WorkspacesController->(create|new)Action())'
@@ -19,7 +23,7 @@ privilegeTargets:
 
     'Shel.Neos.WorkspaceModule:Backend.ManageSharedWorkspaces':
       label: Allowed to manage shared workspaces
-      matcher: 'method(Shel\Neos\WorkspaceModule\Controller\WorkspacesController->(show|publishWorkspace|discardWorkspace|publishOrDiscardNodes|edit|update|delete)Action()) && evaluate(this.workspace.owner !== current.userInformation.backendUser, this.workspace.personalWorkspace === false, current.workspaceDetails.sharedWorkspaces contains this.workspace.name)'
+      matcher: 'method(Shel\Neos\WorkspaceModule\Controller\WorkspacesController->(show|publishWorkspace|discardWorkspace|publishOrDiscardNodes|edit|update|delete|documentTree|documentChanges|publishChange|discardChange|publishSelected|discardSelected|publishAll|discardAll|publishDocument|discardDocument)Action()) && evaluate(this.workspace.owner !== current.userInformation.backendUser, this.workspace.personalWorkspace === false, current.workspaceDetails.sharedWorkspaces contains this.workspace.name)'
 
     'Shel.Neos.WorkspaceModule:Backend.PublishOrDiscardSharedWorkspaces':
       label: Allowed to discard shared workspaces
@@ -39,6 +43,9 @@ roles:
       - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.WorkspaceController'
         permission: GRANT
 
+      - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.ReviewWorkspace'
+        permission: GRANT
+
       - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.ManageSharedWorkspaces'
         permission: GRANT
 
@@ -48,5 +55,8 @@ roles:
   'Neos.Neos:UserManager':
     privileges:
       - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.WorkspaceController'
+        permission: GRANT
+
+      - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.ReviewWorkspace'
         permission: GRANT
 

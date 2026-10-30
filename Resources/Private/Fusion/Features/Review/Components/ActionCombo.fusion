@@ -1,0 +1,98 @@
+##
+# A button with a second button next to it that opens the other options.
+#
+# The main button does what fits the state: publishing the document when nothing is selected,
+# publishing the selection when something is. The second button opens the menu with the other
+# options - the menu holds the action of the document and the action of the whole workspace.
+#
+# The state is decided in the browser, because the selection lives there: the button carries the
+# labels of both states, and the script of the module picks the one that fits.
+#
+# The urls of the buttons do not change - htmx reads them once, when the page is loaded. What
+# changes is the selection: it is in the hidden fields of the review, and every button sends
+# them along.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.ActionCombo) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = false
+        id = ${PropTypes.string}
+        color = ${PropTypes.string}
+        icon = ${PropTypes.string}
+        label = ${PropTypes.string}
+        labelWithSelection = ${PropTypes.string}
+        labelWithOneSelection = ${PropTypes.string}
+        url = ${PropTypes.string}
+        urlDocument = ${PropTypes.string}
+        documentIcon = ${PropTypes.string}
+        documentLabel = ${PropTypes.string}
+        workspaceIcon = ${PropTypes.string}
+        workspaceLabel = ${PropTypes.string}
+        workspaceModal = ${PropTypes.string}
+        canPublish = ${PropTypes.boolean}
+        disabled = ${PropTypes.boolean}
+    }
+
+    @private {
+        i18n = ${I18n.id('').source('Main').package('Shel.Neos.WorkspaceModule')}
+    }
+
+    renderer = afx`
+        <div class="neos-dropdown workspace-review-combo" data-neos-expandable="dropdown">
+            <button
+                type="button"
+                id={props.id}
+                class={'neos-button neos-button-' + props.color + ' workspace-review-combo-main'}
+                hx-post={props.url}
+                hx-include="#reviewSelection"
+                hx-target="#document-changes"
+                hx-swap="outerHTML"
+                hx-indicator="#document-changes-reload"
+                data-label={props.label}
+                data-label-with-selection={props.labelWithSelection}
+                data-label-with-one-selection={props.labelWithOneSelection}
+                data-can-publish={props.canPublish ? 'true' : 'false'}
+                disabled={props.disabled ? 'disabled' : null}
+            >
+                <i class={props.icon}></i>
+                <span class="workspace-review-combo-label">{props.label}</span>
+            </button>
+            <button
+                type="button"
+                class={'neos-button neos-button-' + props.color + ' workspace-review-combo-toggle'}
+                popovertarget={props.id + '-options'}
+                aria-controls={props.id + '-options'}
+                aria-expanded="false"
+                title={private.i18n.id('review.showOptions').translate()}
+                data-neos-toggle="tooltip"
+            >
+                <i class="fas fa-caret-down"></i>
+            </button>
+            <div
+                id={props.id + '-options'}
+                class="neos-dropdown-content workspace-review-combo-menu"
+                popover="auto"
+            >
+                <a
+                    class="workspace-review-combo-option workspace-review-combo-option-document"
+                    href="#"
+                    hx-post={props.urlDocument}
+                    hx-include="#reviewSelection"
+                    hx-target="#document-changes"
+                    hx-swap="outerHTML"
+                    hx-indicator="#document-changes-reload"
+                >
+                    <i class={props.documentIcon}></i>
+                    <span>{props.documentLabel}</span>
+                </a>
+                <a
+                    class="workspace-review-combo-option"
+                    href={'#' + props.workspaceModal}
+                    data-toggle="modal"
+                >
+                    <i class={props.workspaceIcon}></i>
+                    <span>{props.workspaceLabel}</span>
+                </a>
+            </div>
+        </div>
+    `
+}

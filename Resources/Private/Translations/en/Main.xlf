@@ -67,16 +67,16 @@
                 <source>(This is your workspace)</source>
             </trans-unit>
             <trans-unit id="badge.changes.new">
-                <source>{count} new nodes were added</source>
+                <source>{count} new content items were added</source>
             </trans-unit>
             <trans-unit id="badge.changes.changed">
-                <source>{count} nodes were changed</source>
+                <source>{count} content items were changed</source>
             </trans-unit>
             <trans-unit id="badge.changes.removed">
-                <source>{count} nodes were removed</source>
+                <source>{count} content items were removed</source>
             </trans-unit>
             <trans-unit id="badge.changes.unknown">
-                <source>{count} nodes were changed but might be orphaned</source>
+                <source>{count} content items were changed but might be orphaned</source>
             </trans-unit>
             <trans-unit id="badge.staleWorkspaceOfCurrentUser">
                 <source>This workspace is stale and owned by you, consider deleting it.</source>
@@ -191,7 +191,7 @@
                 <source>The workspace "{workspaceName}" has been removed, {unpublishedNodes} changes have been discarded and {dependentWorkspaces} dependent workspaces have been rebased.</source>
             </trans-unit>
             <trans-unit id="message.workspacePruned">
-                <source>The workspace "{workspaceName}" has been pruned, {nodeCount} changes have been discarded.</source>
+                <source>The workspace "{workspaceName}" has been pruned, {contentCount} changes have been discarded.</source>
             </trans-unit>
             <trans-unit id="message.workspaceIsPersonal">
                 <source>The workspace "{workspaceName}" is personal and cannot be deleted.</source>
@@ -218,21 +218,6 @@
             </trans-unit>
 
             <!-- Review view: legend of a change, and the node state as a change of its own -->
-            <trans-unit id="review.legend.created">
-                <source>created</source>
-            </trans-unit>
-            <trans-unit id="review.legend.edited">
-                <source>edited</source>
-            </trans-unit>
-            <trans-unit id="review.legend.moved">
-                <source>moved</source>
-            </trans-unit>
-            <trans-unit id="review.legend.hidden">
-                <source>hidden</source>
-            </trans-unit>
-            <trans-unit id="review.legend.deleted">
-                <source>deleted</source>
-            </trans-unit>
             <trans-unit id="review.nodeState.hidden">
                 <source>hidden</source>
             </trans-unit>
@@ -245,11 +230,14 @@
             <trans-unit id="review.nodeState.hiddenAfterDateTime">
                 <source>hidden after</source>
             </trans-unit>
+            <trans-unit id="review.nodeDeleted">
+                <source>This content has been deleted.</source>
+            </trans-unit>
             <trans-unit id="review.noRenderableChanges">
                 <source>No changes that can be displayed</source>
             </trans-unit>
             <trans-unit id="review.noChangesAtAll">
-                <source>This node has no content differences to the published version, only metadata such as the modification time changed.</source>
+                <source>This content has no differences to the published version, only metadata such as the modification time changed.</source>
             </trans-unit>
             <trans-unit id="review.value.true">
                 <source>Yes</source>
@@ -257,6 +245,192 @@
             <trans-unit id="review.value.false">
                 <source>No</source>
             </trans-unit>
+            <trans-unit id="review.publishDocument">
+                <source>Publish current document</source>
+            </trans-unit>
+            <trans-unit id="review.discardDocument">
+                <source>Discard document</source>
+            </trans-unit>
+            <trans-unit id="review.documentPublished">
+                <source>The changes of the document have been published</source>
+            </trans-unit>
+            <trans-unit id="review.documentDiscarded">
+                <source>The changes of the document have been discarded</source>
+            </trans-unit>
+            <trans-unit id="review.publishAll.confirmTitle">
+                <source>Publish all changes?</source>
+            </trans-unit>
+            <trans-unit id="review.publishAll.confirmText">
+                <source>All changes of the workspace "{0}" are published into its base workspace.</source>
+            </trans-unit>
+            <trans-unit id="review.discardAll.confirmTitle">
+                <source>Discard all changes?</source>
+            </trans-unit>
+            <trans-unit id="review.discardAll.confirmText">
+                <source>All changes of the workspace "{0}" are discarded. This cannot be undone.</source>
+            </trans-unit>
+            <trans-unit id="review.confirm">
+                <source>Confirm</source>
+            </trans-unit>
+            <trans-unit id="review.cancel">
+                <source>Cancel</source>
+            </trans-unit>
+            <trans-unit id="review.reload">
+                <source>Reload</source>
+            </trans-unit>
+            <trans-unit id="review.openInContentModule">
+                <source>Open the page in the content module</source>
+            </trans-unit>
+            <trans-unit id="review.documents">
+                <source>Documents</source>
+            </trans-unit>
+            <trans-unit id="review.dimension.all">
+                <source>All variants</source>
+            </trans-unit>
+            <trans-unit id="review.value.notSet">
+                <source>Not set</source>
+            </trans-unit>
+            <trans-unit id="review.value.empty">
+                <source>Empty</source>
+            </trans-unit>
+            <trans-unit id="review.unpublishedChanges">
+                <source>Unpublished changes in the workspace "{0}"</source>
+            </trans-unit>
+
+            <trans-unit id="review.noDocuments">
+                <source>No documents with changes</source>
+            </trans-unit>
+
+            <trans-unit id="review.noChanges">
+                <source>This document has no changes</source>
+            </trans-unit>
+
+            <!-- The number of the changes of a document, for the hint of the document. -->
+            <group restype="x-gettext-plurals">
+                <trans-unit id="review.hintChanges[0]">
+                    <source><![CDATA[<strong>{0}</strong> change]]></source>
+                </trans-unit>
+                <trans-unit id="review.hintChanges[1]">
+                    <source><![CDATA[<strong>{0}</strong> changes]]></source>
+                </trans-unit>
+            </group>
+
+            <trans-unit id="review.hintNew">
+                <source>{0} new</source>
+            </trans-unit>
+
+            <trans-unit id="review.hintChanged">
+                <source>{0} changed</source>
+            </trans-unit>
+
+            <trans-unit id="review.hintRemoved">
+                <source>{0} deleted</source>
+            </trans-unit>
+
+            <trans-unit id="review.selectionNone">
+                <source>No changes selected</source>
+            </trans-unit>
+
+            <trans-unit id="review.selectionAll">
+                <source>All changes selected</source>
+            </trans-unit>
+
+            <trans-unit id="review.selectionSome">
+                <source>{0} of {1} changes selected</source>
+            </trans-unit>
+
+            <trans-unit id="review.selectChange">
+                <source>Select this change</source>
+            </trans-unit>
+
+            <trans-unit id="review.publishChange">
+                <source>Publish this change</source>
+            </trans-unit>
+
+            <trans-unit id="review.discardChange">
+                <source>Discard this change</source>
+            </trans-unit>
+
+            <!-- The number of the changes is part of the label, so the label needs a form
+                 for one change and one for more. -->
+            <group restype="x-gettext-plurals">
+                <trans-unit id="review.publishSelected[0]">
+                    <source>Publish <![CDATA[<strong>{0}</strong>]]> change</source>
+                </trans-unit>
+                <trans-unit id="review.publishSelected[1]">
+                    <source>Publish <![CDATA[<strong>{0}</strong>]]> changes</source>
+                </trans-unit>
+            </group>
+
+            <group restype="x-gettext-plurals">
+                <trans-unit id="review.discardSelected[0]">
+                    <source>Discard <![CDATA[<strong>{0}</strong>]]> change</source>
+                </trans-unit>
+                <trans-unit id="review.discardSelected[1]">
+                    <source>Discard <![CDATA[<strong>{0}</strong>]]> changes</source>
+                </trans-unit>
+            </group>
+
+            <trans-unit id="review.publishAll">
+                <source>Publish all changes in workspace</source>
+            </trans-unit>
+
+            <trans-unit id="review.discardAll">
+                <source>Discard all changes in workspace</source>
+            </trans-unit>
+
+            <trans-unit id="review.showOptions">
+                <source>Show the other options</source>
+            </trans-unit>
+
+            <trans-unit id="review.changeType.created">
+                <source>created</source>
+            </trans-unit>
+
+            <trans-unit id="review.changeType.changed">
+                <source>changed</source>
+            </trans-unit>
+
+            <trans-unit id="review.changeType.moved">
+                <source>moved</source>
+            </trans-unit>
+
+            <trans-unit id="review.changeType.hidden">
+                <source>hidden</source>
+            </trans-unit>
+
+            <trans-unit id="review.changeType.deleted">
+                <source>deleted</source>
+            </trans-unit>
+
+            <trans-unit id="review.changePublished">
+                <source>The change has been published</source>
+            </trans-unit>
+
+            <trans-unit id="review.changeDiscarded">
+                <source>The change has been discarded</source>
+            </trans-unit>
+
+            <trans-unit id="review.changesPublished">
+                <source>The selected changes have been published</source>
+            </trans-unit>
+
+            <trans-unit id="review.changesDiscarded">
+                <source>The selected changes have been discarded</source>
+            </trans-unit>
+
+            <trans-unit id="review.allChangesPublished">
+                <source>All changes of the workspace have been published</source>
+            </trans-unit>
+
+            <trans-unit id="review.allChangesDiscarded">
+                <source>All changes of the workspace have been discarded</source>
+            </trans-unit>
+
+            <trans-unit id="review.noSite">
+                <source>no site</source>
+            </trans-unit>
+
         </body>
     </file>
 </xliff>

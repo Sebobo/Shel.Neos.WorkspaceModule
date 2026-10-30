@@ -15,9 +15,9 @@ namespace Shel\Neos\WorkspaceModule\Controller;
  */
 
 use Neos\ContentRepository\Domain\Model\NodeInterface;
+use Neos\ContentRepository\TypeConverter\NodeConverter;
 use Neos\ContentRepository\Domain\Model\Workspace;
 use Neos\ContentRepository\Domain\Repository\WorkspaceRepository;
-use Neos\ContentRepository\TypeConverter\NodeConverter;
 use Neos\ContentRepository\Utility;
 use Neos\Error\Messages\Message;
 use Neos\Flow\Annotations as Flow;
@@ -32,6 +32,7 @@ use Neos\Neos\Domain\Repository\UserRepository;
 use Neos\Neos\Domain\Service\UserService;
 use Neos\Neos\Utility\User as UserUtility;
 use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
+use Shel\Neos\WorkspaceModule\Service\WorkspaceChangesService;
 use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
 
 class WorkspacesController extends \Neos\Neos\Controller\Module\Management\WorkspacesController
@@ -75,6 +76,12 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      * @var UserService
      */
     protected $userService;
+
+    /**
+     * @Flow\Inject
+     * @var WorkspaceChangesService
+     */
+    protected $workspaceChangesService;
 
     public function indexAction(): void
     {
@@ -233,7 +240,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
                 $this->addFlashMessage(
                     $this->translateById(
                         'message.workspacePruned',
-                        ['workspaceName' => $workspace->getTitle(), 'nodeCount' => count($unpublishedNodes)]
+                        ['workspaceName' => $workspace->getTitle(), 'contentCount' => count($unpublishedNodes)]
                     ),
                 );
 
@@ -571,7 +578,9 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
                 );
                 break;
             case 'discard':
-                $this->publishingService->discardNodes($nodes);
+                foreach ($nodes as $node) {
+                    $this->workspaceChangesService->discardNodeWithItsChildren($node);
+                }
                 $this->addFlashMessage(
                     $this->translator->translateById(
                         'workspaces.selectedChangesHaveBeenDiscarded',
@@ -602,193 +611,422 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         parent::discardWorkspaceAction($workspace);
     }
 
-    public function showAction(Workspace $workspace): void
+    /**
+     * The review of a workspace: the documents with changes on the left, the changes of the
+     * selected document on the right.
+     *
+     * Both parts are loaded asynchronously, so this action only renders the frame they are
+     * loaded into.
+     */
+    public function showAction(Workspace $workspace, string $dimensions = ''): void
     {
         $this->validateWorkspaceAccess($workspace);
-        parent::showAction($workspace);
+        $dimensionValues = $this->assignDimensions($dimensions);
+        $this->view->assignMultiple([
+            'selectedWorkspace' => $workspace,
+            'selectedWorkspaceName' => $workspace->getName(),
+            'selectedWorkspaceLabel' => $workspace->getTitle() ?: $workspace->getName(),
+            'baseWorkspaceLabel' => $workspace->getBaseWorkspace()?->getTitle() ?: $workspace->getBaseWorkspace()?->getName(),
+            'canPublishToBaseWorkspace' => $workspace->getBaseWorkspace() !== null
+                && $this->userService->currentUserCanPublishToWorkspace($workspace->getBaseWorkspace()),
+            'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
+        ]);
     }
 
     /**
-     * Hands the review view the information it needs beyond the core's change list: whether the
-     * node state itself changed, so the legend can say "hidden" only when the node was actually
-     * hidden and not merely edited while being hidden.
+     * The documents of the workspace that have changes, loaded asynchronously.
      *
-     * @return array<string,mixed>
+     * The tree is loaded on its own when the review opens and travels with every answer that
+     * changes something afterwards. When it is reloaded by hand, the document that is open
+     * stays open - only the first load opens the first document.
      */
-    protected function computeSiteChanges(Workspace $selectedWorkspace)
+    public function documentTreeAction(Workspace $workspace, bool $reload = false, string $selectedDocument = '', string $dimensions = ''): void
     {
-        $siteChanges = parent::computeSiteChanges($selectedWorkspace);
-        foreach ($siteChanges as $siteKey => $site) {
-            foreach ($site['documents'] as $documentDimension => $documents) {
-                foreach ($documents as $documentKey => $document) {
-                    foreach ($document['changes'] as $changeKey => $change) {
-                        $siteChanges[$siteKey]['documents'][$documentDimension][$documentKey]['changes'][$changeKey]['nodeStateChanged']
-                            = $this->nodeStateDifferences($change['node']);
-                    }
-                }
-            }
-        }
-
-        return $siteChanges;
+        $this->validateWorkspaceAccess($workspace);
+        $dimensionValues = $this->assignDimensions($dimensions);
+        $this->view->assignMultiple([
+            'selectedWorkspace' => $workspace,
+            'selectedWorkspaceName' => $workspace->getName(),
+            'sites' => $this->workspaceChangesService->getDocumentsWithChanges($workspace, $dimensionValues),
+            'autoLoad' => !$reload,
+            // The document that is open stays marked, even when the tree is loaded again.
+            'selectedDocument' => $selectedDocument,
+        ]);
     }
 
     /**
-     * The core diff only renders string properties: a boolean and a number both render to an
-     * empty string, so a change of such a property produced no diff at all and the review listed
-     * the node without being able to say what had changed.
-     *
-     * @param mixed $propertyValue
-     * @return string
+     * The changes of a single document, loaded asynchronously.
      */
-    protected function renderSlimmedDownContent($propertyValue)
+    public function documentChangesAction(Workspace $workspace, string $document, string $dimensions = ''): void
     {
-        if (is_int($propertyValue) || is_float($propertyValue)) {
-            return (string)$propertyValue;
-        }
-
-        return parent::renderSlimmedDownContent($propertyValue);
+        $this->validateWorkspaceAccess($workspace);
+        $dimensionValues = $this->assignDimensions($dimensions);
+        $documentData = $this->workspaceChangesService->getDocumentWithChanges($workspace, $document, $dimensionValues);
+        $this->view->assignMultiple([
+            'selectedWorkspace' => $workspace,
+            'selectedWorkspaceName' => $workspace->getName(),
+            // The list of documents travels with the answer, so that the tree can mark the
+            // document that is open.
+            'sites' => $this->workspaceChangesService->getDocumentsWithChanges($workspace, $dimensionValues),
+            'selectedDocument' => $document,
+            'changes' => $documentData['changes'],
+            'documentLabel' => $documentData['label'],
+            'documentIcon' => $documentData['icon'],
+            'documentBreadcrumb' => $documentData['breadcrumb'],
+            'documentDimensionLabel' => $documentData['dimensionLabel'],
+            'canPublishToBaseWorkspace' => $this->canPublishToBaseWorkspace($workspace),
+        ]);
     }
 
     /**
-     * Extends the core's diff by what it cannot represent: boolean properties and the node state
-     * itself (hidden, hidden in index and the two visibility dates).
-     *
-     * The core method is kept as it is and only added to, so that the text, image, asset and
-     * datetime diffs stay the core's. The node state is not part of the property store at all -
-     * getProperties() returns declared properties only, while the state lives in columns of its
-     * own - which is why hiding a node produced an empty diff in the review.
-     *
-     * @return array<string,mixed>
+     * Publishes one change.
      */
-    protected function renderContentChanges(NodeInterface $changedNode)
+    public function publishChangeAction(string $node, Workspace $workspace, string $dimensions = ''): void
     {
-        $contentChanges = parent::renderContentChanges($changedNode);
-
-        return $contentChanges
-            + $this->renderBooleanPropertyChanges($changedNode, $contentChanges)
-            + $this->renderNodeStateChanges($changedNode);
+        $this->validateWorkspaceAccess($workspace);
+        $dimensionValues = $this->assignDimensions($dimensions);
+        $nodeInstance = $this->resolveNode($node);
+        $this->publishNodesWithTheirAncestors([$nodeInstance]);
+        $this->addFlashMessage((string)$this->translator->translateById('review.changePublished', [], null, null, 'Main', 'Shel.Neos.WorkspaceModule'));
+        $this->assignReviewResponse($workspace, $this->workspaceChangesService->findClosestDocument($nodeInstance), $dimensionValues);
     }
 
     /**
-     * Boolean properties the core skipped because both values render to an empty string.
-     *
-     * @param array<string,mixed> $alreadyRendered the changes the core has already produced
-     * @return array<string,array<string,mixed>>
+     * Discards a single change.
      */
-    protected function renderBooleanPropertyChanges(NodeInterface $changedNode, array $alreadyRendered): array
+    public function discardChangeAction(string $node, Workspace $workspace, string $dimensions = ''): void
     {
-        if ($changedNode->isRemoved()) {
-            return [];
-        }
-
-        /** @var NodeInterface|null $originalNode */
-        $originalNode = $this->getOriginalNode($changedNode);
-        $propertyDefaults = $changedNode->getNodeType()->getDefaultValuesForProperties();
-
-        $booleanChanges = [];
-        foreach ($changedNode->getProperties() as $propertyName => $changedValue) {
-            if (isset($alreadyRendered[$propertyName])) {
-                continue;
-            }
-            $originalValue = $originalNode === null ? null : $originalNode->getProperty($propertyName);
-            if (!is_bool($changedValue) && !is_bool($originalValue)) {
-                continue;
-            }
-            // The same conditions the core applies before it renders a property at all
-            if ($originalNode === null && empty($changedValue)) {
-                continue;
-            }
-            if (isset($propertyDefaults[$propertyName]) && $changedValue === $propertyDefaults[$propertyName]) {
-                continue;
-            }
-            if ($changedValue === $originalValue) {
-                continue;
-            }
-            $booleanChanges[$propertyName] = [
-                'type' => 'boolean',
-                'propertyLabel' => $this->getPropertyLabel($propertyName, $changedNode),
-                'original' => $originalValue,
-                'changed' => $changedValue,
-            ];
-        }
-
-        return $booleanChanges;
+        $this->validateWorkspaceAccess($workspace);
+        $dimensionValues = $this->assignDimensions($dimensions);
+        $nodeInstance = $this->resolveNode($node);
+        $this->workspaceChangesService->discardNodeWithItsChildren($nodeInstance);
+        $this->addFlashMessage((string)$this->translator->translateById('review.changeDiscarded', [], null, null, 'Main', 'Shel.Neos.WorkspaceModule'));
+        $this->assignReviewResponse($workspace, $this->workspaceChangesService->findClosestDocument($nodeInstance), $dimensionValues);
     }
 
     /**
-     * @return array<string,array<string,mixed>>
+     * Publishes all the changes of a document.
      */
-    protected function renderNodeStateChanges(NodeInterface $changedNode): array
+    public function publishDocumentAction(Workspace $workspace, string $document = '', string $dimensions = ''): void
     {
-        $stateChanges = [];
-        foreach ($this->nodeStateDifferences($changedNode) as $stateName => $difference) {
-            $isDate = $difference['changed'] instanceof \DateTimeInterface
-                || $difference['original'] instanceof \DateTimeInterface;
-            $stateChanges[$stateName] = [
-                'type' => $isDate ? 'datetime' : 'boolean',
-                'propertyLabel' => 'Shel.Neos.WorkspaceModule:Main:review.nodeState.' . $stateName,
-                'original' => $difference['original'],
-                'changed' => $difference['changed'],
-            ];
+        $this->validateWorkspaceAccess($workspace);
+        $dimensionValues = $this->assignDimensions($dimensions);
+        $documentData = $this->workspaceChangesService->getDocumentWithChanges($workspace, $document, $dimensionValues);
+        $nodes = [];
+        foreach ($documentData['changes'] as $change) {
+            $nodes[] = $this->resolveNode((string)$change['contextPath']);
         }
-
-        return $stateChanges;
+        $this->publishNodesWithTheirAncestors($nodes);
+        $this->addFlashMessage((string)$this->translator->translateById('review.documentPublished', [], null, null, 'Main', 'Shel.Neos.WorkspaceModule'));
+        $this->assignReviewResponse($workspace, $documentData['document'], $dimensionValues);
     }
 
     /**
-     * The node state that differs from the published version, keyed by state name.
-     *
-     * @return array<string,array{original: mixed, changed: mixed}>
+     * Discards all the changes of a document.
      */
-    protected function nodeStateDifferences(NodeInterface $changedNode): array
+    public function discardDocumentAction(Workspace $workspace, string $document = '', string $dimensions = ''): void
     {
-        if ($changedNode->isRemoved()) {
-            return [];
-        }
-
-        /** @var NodeInterface|null $originalNode */
-        $originalNode = $this->getOriginalNode($changedNode);
-        if ($originalNode === null) {
-            return [];
-        }
-
-        $differences = [];
-        foreach (['hidden', 'hiddenInIndex'] as $stateName) {
-            $changedValue = $this->readBooleanState($changedNode, $stateName);
-            $originalValue = $this->readBooleanState($originalNode, $stateName);
-            if ($changedValue === $originalValue) {
-                continue;
-            }
-            $differences[$stateName] = ['original' => $originalValue, 'changed' => $changedValue];
-        }
-        foreach (['hiddenBeforeDateTime', 'hiddenAfterDateTime'] as $stateName) {
-            $changedValue = $this->readDateState($changedNode, $stateName);
-            $originalValue = $this->readDateState($originalNode, $stateName);
-            if ($changedValue?->getTimestamp() === $originalValue?->getTimestamp()) {
-                continue;
-            }
-            $differences[$stateName] = ['original' => $originalValue, 'changed' => $changedValue];
-        }
-
-        return $differences;
+        $this->validateWorkspaceAccess($workspace);
+        $dimensionValues = $this->assignDimensions($dimensions);
+        $documentData = $this->workspaceChangesService->getDocumentWithChanges($workspace, $document, $dimensionValues);
+        $this->discardChanges($documentData['changes']);
+        $this->addFlashMessage((string)$this->translator->translateById('review.documentDiscarded', [], null, null, 'Main', 'Shel.Neos.WorkspaceModule'));
+        $this->assignReviewResponse($workspace, $documentData['document'], $dimensionValues);
     }
 
-    private function readBooleanState(NodeInterface $node, string $stateName): bool
+    /**
+     * Publishes the selected changes.
+     *
+     * The selection can hold single changes and whole documents: a document stands for all the
+     * changes it has, so that the changes of several documents can be published at once.
+     *
+     * Without a selection the changes of the document that is open are published - the button
+     * of the review acts on the document then.
+     */
+    public function publishSelectedAction(Workspace $workspace, string $dimensions = ''): void
     {
-        return match ($stateName) {
-            'hidden' => $node->isHidden(),
-            'hiddenInIndex' => $node->isHiddenInIndex(),
-            default => throw new \InvalidArgumentException('Not a boolean node state: ' . $stateName),
+        $this->validateWorkspaceAccess($workspace);
+        $dimensionValues = $this->assignDimensions($dimensions);
+        $selection = $this->selectionFromRequest();
+        $selectedNodes = [];
+        foreach ($selection['nodes'] as $node) {
+            $selectedNodes[] = $this->resolveNode($node);
+        }
+        foreach ($selection['documents'] as $document) {
+            foreach ($this->changesOfDocument($workspace, $document, $dimensionValues) as $change) {
+                $selectedNodes[] = $change;
+            }
+        }
+        if ($selectedNodes === []) {
+            // nothing is selected - the changes of the document that is open are published
+            $selectedNodes = $this->changesOfDocument($workspace, $selection['document'], $dimensionValues);
+        }
+        $this->publishNodesWithTheirAncestors($selectedNodes);
+        $this->addFlashMessage((string)$this->translator->translateById('review.changesPublished', [], null, null, 'Main', 'Shel.Neos.WorkspaceModule'));
+        $this->assignReviewResponse($workspace, $this->documentThatStaysOpen($workspace, $selection['document']), $dimensionValues);
+    }
+
+    /**
+     * Discards the selected changes.
+     */
+    public function discardSelectedAction(Workspace $workspace, string $dimensions = ''): void
+    {
+        $this->validateWorkspaceAccess($workspace);
+        $dimensionValues = $this->assignDimensions($dimensions);
+        $selection = $this->selectionFromRequest();
+        $changes = [];
+        foreach ($selection['nodes'] as $node) {
+            $changes[] = $this->resolveNode($node);
+        }
+        foreach ($selection['documents'] as $document) {
+            foreach ($this->changesOfDocument($workspace, $document, $dimensionValues) as $change) {
+                $changes[] = $change;
+            }
+        }
+        if ($changes === []) {
+            // nothing is selected - the changes of the document that is open are discarded
+            $changes = $this->changesOfDocument($workspace, $selection['document'], $dimensionValues);
+        }
+        $this->discardChanges($changes);
+        $this->addFlashMessage((string)$this->translator->translateById('review.changesDiscarded', [], null, null, 'Main', 'Shel.Neos.WorkspaceModule'));
+        $this->assignReviewResponse($workspace, $this->documentThatStaysOpen($workspace, $selection['document']), $dimensionValues);
+    }
+
+    /**
+     * The selection of the review: the changes and the documents that are selected, and the
+     * document that is open.
+     *
+     * The selection travels in the hidden fields of the review, in the namespace of the module
+     * arguments - the arguments of a module action are read from there.
+     *
+     * @return array{nodes: list<string>, documents: list<string>, document: string}
+     */
+    private function selectionFromRequest(): array
+    {
+        $arguments = $this->request->getArguments();
+        $strings = static function (mixed $value): array {
+            if (!is_array($value)) {
+                return [];
+            }
+
+            return array_values(array_filter($value, 'is_string'));
         };
+
+        return [
+            'nodes' => $strings($arguments['nodes'] ?? []),
+            'documents' => $strings($arguments['documents'] ?? []),
+            'document' => (string)($arguments['document'] ?? ''),
+        ];
     }
 
-    private function readDateState(NodeInterface $node, string $stateName): ?\DateTimeInterface
+    /**
+     * The changes of a document, addressed by its context path.
+     *
+     * @param array<string, list<string>> $dimensionValues the variants to show, empty for all
+     * @return list<NodeInterface>
+     */
+    private function changesOfDocument(Workspace $workspace, string $documentContextPath, array $dimensionValues): array
     {
-        return match ($stateName) {
-            'hiddenBeforeDateTime' => $node->getHiddenBeforeDateTime(),
-            'hiddenAfterDateTime' => $node->getHiddenAfterDateTime(),
-            default => throw new \InvalidArgumentException('Not a date node state: ' . $stateName),
-        };
+        if ($documentContextPath === '') {
+            return [];
+        }
+        $documentNode = $this->resolveNode($documentContextPath);
+
+        return $this->workspaceChangesService->getChangesOfDocument($workspace, $documentNode, $dimensionValues);
+    }
+
+    /**
+     * Discards a list of changes, without leaving orphans behind.
+     *
+     * The deepest change comes first: a node that was created in the workspace is removed
+     * together with its children, and a change that is gone already must not be discarded
+     * again.
+     *
+     * @param array<NodeInterface|array<string,mixed>> $changes
+     */
+    private function discardChanges(array $changes): void
+    {
+        $nodes = [];
+        foreach ($changes as $change) {
+            $nodes[] = $change instanceof NodeInterface
+                ? $change
+                : $this->resolveNode((string)$change['contextPath']);
+        }
+        usort(
+            $nodes,
+            static fn (NodeInterface $left, NodeInterface $right): int => substr_count($right->getPath(), '/') <=> substr_count($left->getPath(), '/')
+        );
+        foreach ($nodes as $node) {
+            $this->workspaceChangesService->discardNodeWithItsChildren($node);
+        }
+    }
+
+    /**
+     * The document that stays open after an action.
+     *
+     * A selection can span several documents. The document that was open stays open when it
+     * still has changes, so that the review does not jump away under the reviewer.
+     */
+    private function documentThatStaysOpen(Workspace $workspace, string $documentContextPath): ?NodeInterface
+    {
+        if ($documentContextPath === '') {
+            return null;
+        }
+
+        try {
+            return $this->resolveNode($documentContextPath);
+        } catch (\Exception) {
+            // The document is gone - it was published or discarded with the selection.
+            return null;
+        }
+    }
+
+    /**
+     * Publishes nodes together with the ancestors they need.
+     *
+     * A node can only be published if its parents exist in the workspace it is published to. The
+     * parents that were created in the workspace are published with it - otherwise the node
+     * would end up below a parent that does not exist.
+     *
+     * @param NodeInterface[] $nodes
+     */
+    private function publishNodesWithTheirAncestors(array $nodes): void
+    {
+        $nodesToPublish = [];
+        foreach ($nodes as $node) {
+            foreach ($this->workspaceChangesService->unpublishedAncestorsOf($node) as $ancestor) {
+                $nodesToPublish[$ancestor->getContextPath()] = $ancestor;
+            }
+            $nodesToPublish[$node->getContextPath()] = $node;
+        }
+
+        // The publishing service sorts the nodes, so that the parents come first.
+        $this->publishingService->publishNodes(array_values($nodesToPublish));
+    }
+
+    /**
+     * Publishes all changes of the workspace.
+     */
+    public function publishAllAction(Workspace $workspace, string $dimensions = ''): void
+    {
+        $this->validateWorkspaceAccess($workspace);
+        $dimensionValues = $this->assignDimensions($dimensions);
+        $targetWorkspace = $workspace->getBaseWorkspace();
+        if ($targetWorkspace === null) {
+            throw new \RuntimeException('The workspace ' . $workspace->getName() . ' has no base workspace to publish to.');
+        }
+        $this->publishingService->publishNodes(
+            $this->publishingService->getUnpublishedNodes($workspace),
+            $targetWorkspace
+        );
+        $this->addFlashMessage((string)$this->translator->translateById('review.allChangesPublished', [], null, null, 'Main', 'Shel.Neos.WorkspaceModule'));
+        $this->assignReviewResponse($workspace, null, $dimensionValues);
+    }
+
+    /**
+     * Discards all changes of the workspace.
+     */
+    public function discardAllAction(Workspace $workspace, string $dimensions = ''): void
+    {
+        $this->validateWorkspaceAccess($workspace);
+        $dimensionValues = $this->assignDimensions($dimensions);
+        $this->publishingService->discardNodes($this->publishingService->getUnpublishedNodes($workspace));
+        $this->addFlashMessage((string)$this->translator->translateById('review.allChangesDiscarded', [], null, null, 'Main', 'Shel.Neos.WorkspaceModule'));
+        $this->assignReviewResponse($workspace, null, $dimensionValues);
+    }
+
+    /**
+     * The answer of an action that changed something: the list of documents and the changes of
+     * the document that was open, both refreshed.
+     *
+     * @param array<string, list<string>> $dimensionValues the variants that are shown
+     */
+    private function assignReviewResponse(Workspace $workspace, NodeInterface|null $document = null, array $dimensionValues = []): void
+    {
+        $this->workspaceChangesService->clearCache();
+        // A published or discarded node is only removed from the database when the request
+        // ends. The answer shows the workspace as it is after the change, so the pending
+        // changes have to be written before the changes are calculated again.
+        $this->persistenceManager->persistAll();
+        // The answer holds the changes of the document and the list of documents, so that the
+        // tree is refreshed together with the changes: a document whose last change was
+        // published or discarded leaves the list.
+        $changes = $document === null
+            ? []
+            : $this->workspaceChangesService->getChangesForDocument($workspace, $document, $dimensionValues);
+        if ($document !== null && $changes === []) {
+            // The document has no change any more - it is not in the list of the documents
+            // with changes, so it cannot be the open one.
+            $document = null;
+        }
+        $documentDescription = $document === null
+            ? []
+            : $this->workspaceChangesService->describeDocument($document);
+        $this->view->assignMultiple([
+            'selectedWorkspace' => $workspace,
+            'selectedWorkspaceName' => $workspace->getName(),
+            'sites' => $this->workspaceChangesService->getDocumentsWithChanges($workspace, $dimensionValues),
+            'selectedDocument' => $document?->getContextPath() ?? '',
+            'changes' => $changes,
+            'documentLabel' => $documentDescription['label'] ?? '',
+            'documentIcon' => $documentDescription['icon'] ?? '',
+            'documentBreadcrumb' => $documentDescription['breadcrumb'] ?? [],
+            'documentDimensionLabel' => implode(', ', $documentDescription['dimensions'] ?? []),
+            'canPublishToBaseWorkspace' => $this->canPublishToBaseWorkspace($workspace),
+        ]);
+    }
+
+    /**
+     * The content dimensions of the review: the presets that can be chosen and the values the
+     * changes are filtered with.
+     *
+     * The selection is a list of "dimension:preset" pairs in the url of the review, so that it
+     * can be shared and survives a reload.
+     *
+     * @return array<string, list<string>> the dimension values of the selected presets
+     */
+    private function assignDimensions(string $selection): array
+    {
+        $selected = $this->workspaceChangesService->parseDimensionSelection($selection);
+        $this->view->assignMultiple([
+            'contentDimensions' => $this->workspaceChangesService->getDimensionConfiguration($selected),
+            'selectedDimensions' => $selection,
+        ]);
+
+        return $this->workspaceChangesService->getDimensionValues($selected);
+    }
+
+    /**
+     * Resolves the node of a change from its context path.
+     *
+     * The node can be a removed one - a deleted page is a change like any other - and the
+     * property mapper only resolves those when it is told to show removed content, the same
+     * way the core does it before it publishes or discards nodes.
+     */
+    private function resolveNode(string $contextPath): NodeInterface
+    {
+        $propertyMappingConfiguration = $this->propertyMapper->buildPropertyMappingConfiguration();
+        $propertyMappingConfiguration->setTypeConverterOption(
+            NodeConverter::class,
+            NodeConverter::REMOVED_CONTENT_SHOWN,
+            true
+        );
+        $node = $this->propertyMapper->convert($contextPath, NodeInterface::class, $propertyMappingConfiguration);
+        if (!$node instanceof NodeInterface) {
+            throw new \RuntimeException('Could not resolve the node "' . $contextPath . '".');
+        }
+
+        return $node;
+    }
+
+    /**
+     * Whether the current user may publish the changes of the workspace into its base workspace.
+     */
+    private function canPublishToBaseWorkspace(Workspace $workspace): bool
+    {
+        $baseWorkspace = $workspace->getBaseWorkspace();
+
+        return $baseWorkspace !== null && $this->userService->currentUserCanPublishToWorkspace($baseWorkspace);
     }
 
     protected function getUserId(User $user): string

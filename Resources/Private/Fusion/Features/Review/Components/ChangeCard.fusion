@@ -1,0 +1,134 @@
+##
+# A single change with the diff of the properties that changed on it.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.ChangeCard) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = false
+        change = ${PropTypes.any}
+        selectedWorkspaceName = ${PropTypes.string}
+        selectedDimensions = ${PropTypes.string}
+        canPublishToBaseWorkspace = ${PropTypes.boolean}
+    }
+
+    @private {
+        i18n = ${I18n.id('').source('Main').package('Shel.Neos.WorkspaceModule')}
+        // The classes of the core, which carry the colour of the kind of the change.
+        legendClasses = Neos.Fusion:DataStructure {
+            changed = 'legend-edited'
+            deleted = 'legend-deleted'
+            created = 'legend-created'
+            hidden = 'legend-hidden'
+            moved = 'legend-moved'
+        }
+        // What a change without a diff of properties says about itself. A node that was
+        // deleted is not described by its properties - the node itself is the change.
+        emptyNotes = Neos.Fusion:DataStructure {
+            deleted = ${I18n.id('review.nodeDeleted').source('Main').package('Shel.Neos.WorkspaceModule').translate()}
+            created = ${I18n.id('review.noRenderableChanges').source('Main').package('Shel.Neos.WorkspaceModule').translate()}
+            moved = ${I18n.id('review.noRenderableChanges').source('Main').package('Shel.Neos.WorkspaceModule').translate()}
+            changed = ${I18n.id('review.noChangesAtAll').source('Main').package('Shel.Neos.WorkspaceModule').translate()}
+            hidden = ${I18n.id('review.noChangesAtAll').source('Main').package('Shel.Neos.WorkspaceModule').translate()}
+        }
+        publishUri = Neos.Fusion:UriBuilder {
+            action = 'publishChange'
+            format = 'htmx'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = ${props.selectedDimensions}
+            arguments.node = '---node---'
+        }
+        discardUri = Neos.Fusion:UriBuilder {
+            action = 'discardChange'
+            format = 'htmx'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = ${props.selectedDimensions}
+            arguments.node = '---node---'
+        }
+    }
+
+    renderer = afx`
+        <div
+            class={'neos-content-change ' + private.legendClasses[props.change.type]}
+            data-nodepath={props.change.path}
+            style={'--depth: ' + props.change.depth}
+        >
+            <div class="neos-content-change-main">
+                <div class="neos-content-change-header">
+                    <label class="neos-checkbox" title={private.i18n.id('review.selectChange').translate()}>
+                        <input
+                            type="checkbox"
+                            value={props.change.contextPath}
+                            data-required-parents={Array.join(props.change.requiredParents || [], ' ')}
+                        />
+                        <span></span>
+                    </label>
+                    <span class="neos-content-change-label">
+                        <i class={props.change.icon}></i>
+                        {props.change.label}
+                    </span>
+                    <Shel.Neos.WorkspaceModule:Component.ChangeBadge type={props.change.type}/>
+                    <span class="neos-content-change-node-type">{props.change.nodeTypeLabel}</span>
+                </div>
+                <div @if.hasAncestors={props.change.ancestors != []} class="workspace-review-change-context">
+                    <Neos.Fusion:Loop items={props.change.ancestors} itemName="ancestor">
+                        <span class="workspace-review-change-ancestor">
+                            <i class={ancestor.icon}></i>
+                            {ancestor.label}
+                        </span>
+                    </Neos.Fusion:Loop>
+                </div>
+                <table class="neos-content-diff">
+                    <Neos.Fusion:Loop @if.hasContentChanges={props.change.contentChanges != [] && props.change.type != 'deleted'} items={props.change.contentChanges} itemKey="propertyName" itemName="contentChange">
+                        <tr>
+                            <th colspan="3" class="neos-content-diff-property">
+                                {contentChange.properties.propertyLabel}
+                            </th>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <Shel.Neos.WorkspaceModule:Component.ChangeDiff
+                                    type={contentChange.properties.type}
+                                    changes={contentChange.changes}
+                                />
+                            </td>
+                        </tr>
+                    </Neos.Fusion:Loop>
+                    <tr @if.noContentChanges={props.change.contentChanges == [] || props.change.type == 'deleted'}>
+                        <td colspan="3" class="neos-content-diff-empty">
+                            {private.emptyNotes[props.change.type]}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="neos-content-change-date">
+                {Date.formatCldrDateTime(props.change.lastModificationDateTime, 'short')}
+            </div>
+            <div class="neos-content-change-actions">
+                <button
+                    type="button"
+                    class="neos-button neos-button-primary"
+                    title={private.i18n.id('review.publishChange').translate()}
+                    data-neos-toggle="tooltip"
+                    hx-post={String.replace(private.publishUri, '---node---', props.change.contextPath)}
+                    hx-target="#document-changes"
+                    hx-swap="outerHTML"
+                    hx-indicator="#document-changes-reload"
+                    disabled={props.canPublishToBaseWorkspace ? null : 'disabled'}
+                >
+                    <i class="fas fa-check icon-white"></i>
+                </button>
+                <button
+                    type="button"
+                    class="neos-button neos-button-danger"
+                    title={private.i18n.id('review.discardChange').translate()}
+                    data-neos-toggle="tooltip"
+                    hx-post={String.replace(private.discardUri, '---node---', props.change.contextPath)}
+                    hx-target="#document-changes"
+                    hx-swap="outerHTML"
+                    hx-indicator="#document-changes-reload"
+                >
+                    <i class="fas fa-times icon-white"></i>
+                </button>
+            </div>
+        </div>
+    `
+}

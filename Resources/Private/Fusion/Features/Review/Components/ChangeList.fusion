@@ -14,6 +14,9 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
         documentDimensionLabel = ${PropTypes.string}
         documentIdentifier = ${PropTypes.string}
         documentBreadcrumb = ${PropTypes.arrayOf(PropTypes.any)}
+        documentIsNew = ${PropTypes.boolean}
+        documentIsDeleted = ${PropTypes.boolean}
+        documentBaseContextPath = ${PropTypes.string}
         selectedWorkspaceName = ${PropTypes.string}
         selectedDimensions = ${PropTypes.string}
         outOfBand = ${PropTypes.boolean}
@@ -51,6 +54,28 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
             format = 'html'
             arguments.node = '---node---'
         }
+        # The preview of the document: the page as it is rendered in a workspace. The uri is
+        # built for the main request, for the same reason as the one of the content module.
+        previewUri = Neos.Fusion:ActionUri {
+            request = ${request.parentRequest}
+            package = 'Neos.Neos'
+            controller = 'Frontend\\Node'
+            action = 'preview'
+            format = 'html'
+            arguments.node = ${props.documentIdentifier}
+        }
+        previewUrl = ${private.previewUri}
+        # A document that was created in the workspace has no published version - there is
+        # nothing to compare it with.
+        previewBaseUri = Neos.Fusion:ActionUri {
+            request = ${request.parentRequest}
+            package = 'Neos.Neos'
+            controller = 'Frontend\\Node'
+            action = 'preview'
+            format = 'html'
+            arguments.node = ${props.documentBaseContextPath}
+        }
+        previewBaseUrl = ${props.documentIsNew ? '' : private.previewBaseUri}
     }
     renderer = afx`
         <div
@@ -71,6 +96,20 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
                         </span>
                     </span>
                 </span>
+                <button
+                    @if.hasDocument={props.documentIdentifier != ''}
+                    type="button"
+                    id="document-preview-button"
+                    class="workspace-review-reload workspace-review-preview"
+                    title={private.i18n.id('review.preview').translate()}
+                    data-neos-toggle="tooltip"
+                    data-preview-url={private.previewUrl}
+                    data-preview-base-url={private.previewBaseUrl}
+                    data-preview-title={props.documentLabel}
+                    disabled={props.documentIsDeleted ? 'disabled' : null}
+                >
+                    <i class="fas fa-eye"></i>
+                </button>
                 <a
                     @if.hasDocument={props.documentIdentifier != ''}
                     class="workspace-review-reload workspace-review-open"

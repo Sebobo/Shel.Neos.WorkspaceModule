@@ -73,6 +73,9 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                     documentDimensionLabel={documentDimensionLabel}
                     documentIdentifier={selectedDocument}
                     documentBreadcrumb={documentBreadcrumb}
+                    documentIsNew={documentIsNew}
+                    documentIsDeleted={documentIsDeleted}
+                    documentBaseContextPath={documentBaseContextPath}
                     selectedWorkspaceName={selectedWorkspaceName}
                     selectedDimensions={selectedDimensions}
                     canPublishToBaseWorkspace={canPublishToBaseWorkspace}
@@ -109,6 +112,9 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                     documentDimensionLabel={documentDimensionLabel}
                     documentIdentifier={selectedDocument}
                     documentBreadcrumb={documentBreadcrumb}
+                    documentIsNew={documentIsNew}
+                    documentIsDeleted={documentIsDeleted}
+                    documentBaseContextPath={documentBaseContextPath}
                     selectedWorkspaceName={selectedWorkspaceName}
                     selectedDimensions={selectedDimensions}
                     canPublishToBaseWorkspace={canPublishToBaseWorkspace}
@@ -145,6 +151,9 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                     documentDimensionLabel={documentDimensionLabel}
                     documentIdentifier={selectedDocument}
                     documentBreadcrumb={documentBreadcrumb}
+                    documentIsNew={documentIsNew}
+                    documentIsDeleted={documentIsDeleted}
+                    documentBaseContextPath={documentBaseContextPath}
                     selectedWorkspaceName={selectedWorkspaceName}
                     selectedDimensions={selectedDimensions}
                     canPublishToBaseWorkspace={canPublishToBaseWorkspace}
@@ -181,6 +190,9 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                     documentDimensionLabel={documentDimensionLabel}
                     documentIdentifier={selectedDocument}
                     documentBreadcrumb={documentBreadcrumb}
+                    documentIsNew={documentIsNew}
+                    documentIsDeleted={documentIsDeleted}
+                    documentBaseContextPath={documentBaseContextPath}
                     selectedWorkspaceName={selectedWorkspaceName}
                     selectedDimensions={selectedDimensions}
                     canPublishToBaseWorkspace={canPublishToBaseWorkspace}
@@ -217,6 +229,9 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                     documentDimensionLabel={documentDimensionLabel}
                     documentIdentifier={selectedDocument}
                     documentBreadcrumb={documentBreadcrumb}
+                    documentIsNew={documentIsNew}
+                    documentIsDeleted={documentIsDeleted}
+                    documentBaseContextPath={documentBaseContextPath}
                     selectedWorkspaceName={selectedWorkspaceName}
                     selectedDimensions={selectedDimensions}
                     canPublishToBaseWorkspace={canPublishToBaseWorkspace}
@@ -253,6 +268,9 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                     documentDimensionLabel={documentDimensionLabel}
                     documentIdentifier={selectedDocument}
                     documentBreadcrumb={documentBreadcrumb}
+                    documentIsNew={documentIsNew}
+                    documentIsDeleted={documentIsDeleted}
+                    documentBaseContextPath={documentBaseContextPath}
                     selectedWorkspaceName={selectedWorkspaceName}
                     selectedDimensions={selectedDimensions}
                     canPublishToBaseWorkspace={canPublishToBaseWorkspace}
@@ -289,6 +307,9 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                     documentDimensionLabel={documentDimensionLabel}
                     documentIdentifier={selectedDocument}
                     documentBreadcrumb={documentBreadcrumb}
+                    documentIsNew={documentIsNew}
+                    documentIsDeleted={documentIsDeleted}
+                    documentBaseContextPath={documentBaseContextPath}
                     selectedWorkspaceName={selectedWorkspaceName}
                     selectedDimensions={selectedDimensions}
                     canPublishToBaseWorkspace={canPublishToBaseWorkspace}
@@ -324,6 +345,9 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                     documentDimensionLabel={documentDimensionLabel}
                     documentIdentifier={selectedDocument}
                     documentBreadcrumb={documentBreadcrumb}
+                    documentIsNew={documentIsNew}
+                    documentIsDeleted={documentIsDeleted}
+                    documentBaseContextPath={documentBaseContextPath}
                     selectedWorkspaceName={selectedWorkspaceName}
                     selectedDimensions={selectedDimensions}
                     canPublishToBaseWorkspace={canPublishToBaseWorkspace}
@@ -360,6 +384,9 @@ Shel.Neos.WorkspaceModule.WorkspacesController {
                     documentDimensionLabel={documentDimensionLabel}
                     documentIdentifier={selectedDocument}
                     documentBreadcrumb={documentBreadcrumb}
+                    documentIsNew={documentIsNew}
+                    documentIsDeleted={documentIsDeleted}
+                    documentBaseContextPath={documentBaseContextPath}
                     selectedWorkspaceName={selectedWorkspaceName}
                     selectedDimensions={selectedDimensions}
                     canPublishToBaseWorkspace={canPublishToBaseWorkspace}

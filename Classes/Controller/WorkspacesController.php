@@ -674,6 +674,12 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             'documentIcon' => $documentData['icon'],
             'documentBreadcrumb' => $documentData['breadcrumb'],
             'documentDimensionLabel' => $documentData['dimensionLabel'],
+            // The preview of the document: the published version and the version of the
+            // workspace. A document that was created in the workspace has no published
+            // version to compare it with.
+            'documentIsNew' => $documentData['isNew'],
+            'documentIsDeleted' => $documentData['isDeleted'],
+            'documentBaseContextPath' => $documentData['baseContextPath'],
             'canPublishToBaseWorkspace' => $this->canPublishToBaseWorkspace($workspace),
         ]);
     }
@@ -972,6 +978,12 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             'documentIcon' => $documentDescription['icon'] ?? '',
             'documentBreadcrumb' => $documentDescription['breadcrumb'] ?? [],
             'documentDimensionLabel' => implode(', ', $documentDescription['dimensions'] ?? []),
+            // The preview of the document: the published version and the version of the
+            // workspace. A document that was created in the workspace has no published
+            // version to compare it with.
+            'documentIsNew' => $documentDescription['isNew'] ?? false,
+            'documentIsDeleted' => $documentDescription['isDeleted'] ?? false,
+            'documentBaseContextPath' => $documentDescription['baseContextPath'] ?? '',
             'canPublishToBaseWorkspace' => $this->canPublishToBaseWorkspace($workspace),
         ]);
     }

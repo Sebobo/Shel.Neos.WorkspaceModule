@@ -361,6 +361,16 @@
                 <source>Reload</source>
                 <target>Neu laden</target>
             </trans-unit>
+            <trans-unit id="review.preview">
+                <source>Preview the document</source>
+                <target>Vorschau des Dokuments</target>
+            </trans-unit>
+
+            <trans-unit id="review.close">
+                <source>Close</source>
+                <target>Schließen</target>
+            </trans-unit>
+
             <trans-unit id="review.openInContentModule">
                 <source>Open the page in the content module</source>
                 <target>Seite im Inhaltsmodul öffnen</target>

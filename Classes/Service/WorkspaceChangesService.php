@@ -304,11 +304,11 @@ final class WorkspaceChangesService
      * repository, because a document whose change is a removal does not exist any more in the
      * workspace - it is only there as a removed node, which the content repository hides.
      *
-     * @return array{document: NodeInterface|null, label: string, icon: string, breadcrumb: list<string>, dimensionLabel: string, changes: list<array<string,mixed>>}
+     * @return array{document: NodeInterface|null, label: string, icon: string, breadcrumb: list<string>, dimensionLabel: string, isNew: bool, isDeleted: bool, baseContextPath: string, changes: list<array<string,mixed>>}
      */
     /**
      * @param array<string, list<string>> $dimensionValues the variants to show, empty for all
-     * @return array{document: NodeInterface|null, label: string, icon: string, breadcrumb: list<string>, dimensionLabel: string, changes: list<array<string,mixed>>}
+     * @return array{document: NodeInterface|null, label: string, icon: string, breadcrumb: list<string>, dimensionLabel: string, isNew: bool, isDeleted: bool, baseContextPath: string, changes: list<array<string,mixed>>}
      */
     public function getDocumentWithChanges(Workspace $workspace, string $documentContextPath, array $dimensionValues = []): array
     {
@@ -327,6 +327,9 @@ final class WorkspaceChangesService
                     'icon' => $description['icon'],
                     'breadcrumb' => $description['breadcrumb'],
                     'dimensionLabel' => implode(', ', $description['dimensions']),
+                    'isNew' => $description['isNew'],
+                    'isDeleted' => $description['isDeleted'],
+                    'baseContextPath' => $description['baseContextPath'],
                     'changes' => $changes,
                 ];
             }
@@ -338,6 +341,9 @@ final class WorkspaceChangesService
             'icon' => '',
             'breadcrumb' => [],
             'dimensionLabel' => '',
+            'isNew' => false,
+            'isDeleted' => false,
+            'baseContextPath' => '',
             'changes' => [],
         ];
     }
@@ -373,7 +379,7 @@ final class WorkspaceChangesService
      * The breadcrumb names the documents the document sits below, from the site down to its
      * parent - the path of the document, without the node names the repository uses.
      *
-     * @return array{label: string, icon: string, breadcrumb: list<string>, dimensions: list<string>}
+     * @return array{label: string, icon: string, breadcrumb: list<string>, dimensions: list<string>, isNew: bool, isDeleted: bool, baseContextPath: string}
      */
     public function describeDocument(NodeInterface $document): array
     {
@@ -386,7 +392,29 @@ final class WorkspaceChangesService
             // A node type without an icon is not an error, the icon is simply empty.
             'icon' => $icon,
             'breadcrumb' => $this->breadcrumb($document, $siteNodeName),
+            // The document was created in the workspace - there is nothing to compare it
+            // with in the base workspace.
+            'isNew' => $this->isNewInBaseWorkspace($document),
+            // The document is deleted in the workspace - there is nothing left to show.
+            'isDeleted' => $document->isRemoved(),
+            // The document as it is in the base workspace, for the preview of the published
+            // version.
+            'baseContextPath' => $this->contextPathInBaseWorkspace($document),
         ];
+    }
+
+    /**
+     * The context path of a node in the workspace the workspace of the node is based on.
+     *
+     * The path of a node can be different in the base workspace - a node that was moved has
+     * its old path there - so the node is looked up by its identifier.
+     *
+     * The path is empty when the node does not exist in the base workspace - it was created
+     * there.
+     */
+    public function contextPathInBaseWorkspace(NodeInterface $node): string
+    {
+        return $this->baseNode($node)?->getContextPath() ?? '';
     }
 
     /**

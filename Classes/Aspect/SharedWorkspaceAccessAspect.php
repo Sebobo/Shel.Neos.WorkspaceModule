@@ -58,6 +58,7 @@ class SharedWorkspaceAccessAspect
 
         /** @var UserService $userService */
         $userService = $joinPoint->getProxy();
+        /** @var User|null $currentUser */
         $currentUser = $userService->getCurrentUser();
         $workspace = $joinPoint->getMethodArgument('workspace');
 
@@ -71,7 +72,7 @@ class SharedWorkspaceAccessAspect
      * Adjust workspace permission check for shared workspaces in the Neos UI
      *
      * @Flow\Around("method(Neos\Neos\Ui\ContentRepository\Service\WorkspaceService->getAllowedTargetWorkspaces())")
-     * @return Workspace[]
+     * @return array<string, array{name: string, title: string, description: string|null, readonly: bool}>
      * @throws PropertyNotAccessibleException
      */
     public function getAllowedTargetWorkspacesIncludingSharedOnes(JoinPointInterface $joinPoint): array
@@ -81,6 +82,7 @@ class SharedWorkspaceAccessAspect
         /** @var UserService $userService */
         $userService = ObjectAccess::getProperty($workspaceService, 'domainUserService', true);
         $workspaceRepository = ObjectAccess::getProperty($workspaceService, 'workspaceRepository', true);
+        /** @var User|null $user */
         $user = $userService->getCurrentUser();
         $sharedWorkspaceNames = $user ? $this->workspaceDetailsRepository->findAllowedWorkspaceNamesForUser($user) : [];
 

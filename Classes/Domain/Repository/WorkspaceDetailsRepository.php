@@ -24,7 +24,7 @@ use Neos\Neos\Domain\Model\User;
 use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
 
 /**
- * @method WorkspaceDetails findOneByWorkspace(Workspace $workspace)
+ * @method WorkspaceDetails|null findOneByWorkspace(Workspace $workspace)
  * @method QueryResultInterface<WorkspaceDetails> findAll()
  *
  * @Flow\Scope("singleton")

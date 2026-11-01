@@ -29,6 +29,37 @@ jobs:
       - name: Build sources
         run: yarn build
 
+  codestyle:
+    runs-on: ubuntu-latest
+    name: 'Neos workspace module static analysis'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: ['8.4']
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.composer/cache
+          key: dependencies-composer-${{ hashFiles('composer.json') }}
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress
+
+      # The version of phpstan that is installed with the package - the action would bring
+      # its own version, which can be another one than the one the code is checked with.
+      - name: PHPStan
+        run: vendor/bin/phpstan analyse --configuration=phpstan.neon --no-progress --memory-limit=1G
+
   test-integration:
     runs-on: ubuntu-latest
     name: 'Neos workspace module integration tests'

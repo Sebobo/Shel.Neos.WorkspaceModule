@@ -17,6 +17,7 @@ namespace Shel\Neos\WorkspaceModule;
 use Neos\Flow\Annotations as Flow;
 use Neos\Cache\CacheAwareInterface;
 use Neos\Flow\Persistence\PersistenceManagerInterface;
+use Neos\Neos\Domain\Model\User;
 use Neos\Neos\Domain\Service\UserService;
 use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
 
@@ -54,10 +55,7 @@ class WorkspaceDetailsContext implements CacheAwareInterface
      */
     public function getSharedWorkspaces(): array
     {
-        if (!$this->userDomainService) {
-            return [];
-        }
-
+        /** @var User|null $user */
         $user = $this->userDomainService->getCurrentUser();
 
         if (!$user) {

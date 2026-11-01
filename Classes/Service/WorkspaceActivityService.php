@@ -41,7 +41,9 @@ class WorkspaceActivityService
     protected $securityContext;
 
     /**
-     * @var array<string, boolean>
+     * The workspaces that were touched, by their name.
+     *
+     * @var array<string, Workspace>
      */
     protected $updatedWorkspaces = [];
 

@@ -46,7 +46,7 @@
 }
 
 .neos.neos-module.neos-module-management-workspaces .neos-content-change.legend-hidden {
-    border-left: 2px solid #adadad;
+    border-left: 2px solid #b8b8b8;
 }
 
 /*
@@ -58,7 +58,7 @@
     /* the core does not wrap the cells of the module, and the note is a cell */
     white-space: normal;
     font-style: italic;
-    color: #5b5b5b;
+    color: #909090;
 }
 
 /*
@@ -82,7 +82,7 @@
     width: 100%;
     margin: 0;
     padding: 10px 12px;
-    color: #adadad;
+    color: #b8b8b8;
     font-size: 11.9px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -110,19 +110,24 @@
     white-space: nowrap;
 }
 
+/*
+ * The list of the presets is a popup of the browser: it sits in the layer above the page,
+ * so that the sidebar of the review - which scrolls - cannot cut it off.
+ */
 .neos-module-management-workspaces .workspace-review-dimension-list {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 100;
-    min-width: 100%;
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    padding: 0;
+    min-width: 220px;
     background: #222;
     border: 1px solid #3f3f3f;
     box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+    display: none;
 }
 
-.neos-module-management-workspaces .workspace-review-dimension-list[hidden] {
-    display: none;
+.neos-module-management-workspaces .workspace-review-dimension-list:popover-open {
+    display: block;
 }
 
 .neos-module-management-workspaces .workspace-review-dimension-preset {
@@ -158,10 +163,18 @@
 }
 
 .neos-module-management-workspaces .workspace-review-sidebar {
-    flex: 0 0 280px;
-    max-width: 280px;
-    /* the list of the presets of a dimension opens over the tree, so that nothing is cut off */
-    overflow: visible;
+    /*
+     * The list of the documents takes a third of the review, and it can be made wider or
+     * narrower with the grip in its lower corner. The width is the property the grip
+     * changes, so it has to be the one the layout takes - not the flex basis.
+     */
+    flex: 0 0 auto;
+    width: 30%;
+    min-width: 220px;
+    max-width: 70%;
+    resize: horizontal;
+    /* the grip only shows on an element that scrolls */
+    overflow: auto;
     box-sizing: border-box;
     border: 1px solid #3f3f3f;
     background: #222;
@@ -170,10 +183,17 @@
 /*
  * The list of documents scrolls, the header of the tree does not - so that the button that
  * loads the tree again and the indicator stay in sight.
+ *
+ * The list is a grid with a single column that is as wide as its widest entry: every row is
+ * as wide as the longest one, so that the lines between them all reach the right of the
+ * list - even when it is scrolled to the side.
  */
 .neos-module-management-workspaces .workspace-review-document-list {
+    display: grid;
+    /* the column is as wide as the list, and wider when a document needs the space */
+    grid-template-columns: minmax(100%, max-content);
     max-height: calc(100vh - 304px);
-    overflow-y: auto;
+    overflow: auto;
 }
 
 .neos-module-management-workspaces .workspace-review-content {
@@ -193,12 +213,250 @@
     text-decoration: none;
     background: none;
     border: 0;
-    border-bottom: 1px solid #3f3f3f;
     cursor: pointer;
 }
 
-.neos-module-management-workspaces .workspace-review-document:hover {
+/*
+ * The row of a document: the checkbox that selects the document and the button that opens
+ * it. The documents below a document are indented, so that the place of a document in the
+ * hierarchy of the documents can be seen.
+ */
+.neos-module-management-workspaces .workspace-review-document-row {
+    display: flex;
+    align-items: center;
+    padding-left: calc(12px + var(--level, 0) * 18px);
+    border-bottom: 1px solid #3f3f3f;
+}
+
+.neos-module-management-workspaces .workspace-review-document-row .workspace-review-document {
+    padding: 10px 12px 10px 4px;
+}
+
+/*
+ * The pointer is over the row, not only over the label of the document.
+ */
+.neos-module-management-workspaces .workspace-review-document-row:hover {
     background: #3f3f3f;
+}
+
+/*
+ * The document that is open is marked by the colour of its label - the way the neos.ui marks
+ * the node in its tree. The bar at the left of the row belongs to the kind of the change.
+ */
+.neos-module-management-workspaces .workspace-review-document-row.active .workspace-review-document-label {
+    color: #00b5ff;
+}
+
+/*
+ * The kind of the change of the document, as a bar at the very left of the row: a deleted
+ * document is red, a created one green, a changed one orange - the colours of the kinds of
+ * the changes.
+ */
+.neos-module-management-workspaces .workspace-review-document-row[data-kind="deleted"] {
+    box-shadow: inset 3px 0 0 #ff460d;
+}
+
+.neos-module-management-workspaces .workspace-review-document-row[data-kind="created"] {
+    box-shadow: inset 3px 0 0 #00a338;
+}
+
+.neos-module-management-workspaces .workspace-review-document-row[data-kind="edited"] {
+    box-shadow: inset 3px 0 0 #ff8700;
+}
+
+.neos-module-management-workspaces .workspace-review-document-checkbox {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+/*
+ * A part of the changes of the document is selected: the check is greyed, and the box is a
+ * muted blue - the blue says that something is selected, the grey that not everything is.
+ *
+ * The selector repeats the one of the core, so that the colour of the core does not win.
+ */
+.neos.neos-module.neos-module-management-workspaces .workspace-review-document-select[data-state="partial"] + span::before {
+    background-color: #1c5a70;
+    border-color: #b8b8b8;
+    color: #b8b8b8;
+}
+
+/*
+ * The documents a document sits below, named above it - only when its parent is not in the
+ * list itself, otherwise the list shows the place of the document.
+ */
+.neos-module-management-workspaces .workspace-review-document-breadcrumb {
+    padding: 4px 12px 0 calc(12px + var(--level, 0) * 18px);
+    color: #909090;
+    font-size: 11.9px;
+    /* the chain of the documents is one line, cropped when it is too long */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.neos-module-management-workspaces .workspace-review-document-breadcrumb-ancestor i {
+    margin-right: 4px;
+}
+
+.neos-module-management-workspaces .workspace-review-document-breadcrumb-ancestor + .workspace-review-document-breadcrumb-ancestor::before {
+    content: " › ";
+}
+
+/*
+ * The preview of a document: a dialog that takes nearly the whole window, with the published
+ * version of the document on the left and the version of the workspace on the right.
+ */
+.neos-module-management-workspaces .workspace-review-preview-dialog {
+    width: 96vw;
+    max-width: 96vw;
+    height: 92vh;
+    max-height: 92vh;
+    padding: 0;
+    border: 1px solid #3f3f3f;
+    background: #222;
+    color: #fff;
+}
+
+.neos-module-management-workspaces .workspace-review-preview-dialog::backdrop {
+    background: rgba(0, 0, 0, .6);
+}
+
+.neos-module-management-workspaces .workspace-review-preview-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px;
+    border-bottom: 1px solid #3f3f3f;
+}
+
+.neos-module-management-workspaces .workspace-review-preview-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    font-weight: bold;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/*
+ * The switch that keeps the two previews in step while scrolling.
+ */
+.neos-module-management-workspaces .workspace-review-preview-sync {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    color: #b8b8b8;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.neos-module-management-workspaces .workspace-review-preview-sync input[type="checkbox"] {
+    margin: 0;
+}
+
+.neos-module-management-workspaces .workspace-review-preview-sync:hover {
+    color: #fff;
+}
+
+/*
+ * The button that closes the preview: a square, like the one of the dialogs of the core.
+ */
+.neos-module-management-workspaces .workspace-review-preview-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    padding: 0;
+    color: #fff;
+    font-size: 18px;
+    line-height: 1;
+    background: none;
+    border: 0;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.neos-module-management-workspaces .workspace-review-preview-close:hover {
+    color: #fff;
+    background: #00b5ff;
+}
+
+.neos-module-management-workspaces .workspace-review-preview-body {
+    display: flex;
+    gap: 1px;
+    height: calc(100% - 49px);
+    background: #3f3f3f;
+}
+
+.neos-module-management-workspaces .workspace-review-preview-pane {
+    display: flex;
+    flex: 1 1 50%;
+    flex-direction: column;
+    min-width: 0;
+    background: #222;
+}
+
+.neos-module-management-workspaces .workspace-review-preview-pane[hidden] {
+    display: none;
+}
+
+/* the workspace the frame below shows the document of */
+.neos-module-management-workspaces .workspace-review-preview-pane-header {
+    padding: 8px 12px;
+    border-bottom: 1px solid #3f3f3f;
+    color: #b8b8b8;
+    font-size: 11.9px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.neos-module-management-workspaces .workspace-review-preview-frame {
+    flex: 1 1 auto;
+    width: 100%;
+    border: 0;
+    background: #fff;
+}
+
+/*
+ * The hint of a document: how many of its changes are selected. It is a popup of the
+ * browser, so that it is not cut off by the list of the documents.
+ */
+.neos-module-management-workspaces .workspace-review-document-hint {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    padding: 6px 10px;
+    max-width: 260px;
+    font-size: 12px;
+    color: #fff;
+    background: #222;
+    border: 1px solid #3f3f3f;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+    display: none;
+}
+
+.neos-module-management-workspaces .workspace-review-document-hint:popover-open {
+    display: block;
+}
+
+/*
+ * The hint has two lines: what changed in the document, and how much of it is selected.
+ */
+.neos-module-management-workspaces .workspace-review-document-hint-changes,
+.neos-module-management-workspaces .workspace-review-document-hint-selection {
+    display: block;
+}
+
+.neos-module-management-workspaces .workspace-review-document-hint-selection {
+    color: #b8b8b8;
 }
 
 .neos-module-management-workspaces .workspace-review-document-title {
@@ -217,18 +475,13 @@
     white-space: nowrap;
 }
 
-.neos-module-management-workspaces .workspace-review-document.active {
-    background: #3f3f3f;
-    box-shadow: inset 3px 0 0 #00b5ff;
-}
-
 /*
  * The variant of a document, so that the variants of a document can be told apart in the
  * list of the documents.
  */
 .neos-module-management-workspaces .workspace-review-document-dimension {
     flex: 0 0 auto;
-    color: #adadad;
+    color: #b8b8b8;
     font-size: 11.9px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -248,7 +501,7 @@
     gap: 8px;
     padding: 10px 12px;
     border-bottom: 1px solid #3f3f3f;
-    color: #adadad;
+    color: #b8b8b8;
     font-size: 11.9px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -260,36 +513,25 @@
 
 .neos-module-management-workspaces .workspace-review-site-label {
     padding: 12px 12px 4px;
-    color: #adadad;
+    color: #b8b8b8;
     font-size: 11.9px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
-.neos-module-management-workspaces .workspace-review-document-count {
-    flex: 0 0 auto;
-}
-
 .neos-module-management-workspaces .workspace-review-no-documents,
 .neos-module-management-workspaces .workspace-review-no-changes {
     padding: 12px;
-    color: #adadad;
+    color: #b8b8b8;
   font-style: italic;
 }
 
 /*
  * The buttons that publish or discard all the changes of the document that is open.
  */
-.neos-module-management-workspaces .workspace-review-document-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    justify-content: flex-end;
-}
-
 /*
- * The actions of the review. The buttons are not allowed to shrink, otherwise their label is
- * clipped - there is no room for four of them side by side.
+ * The actions of the review: a button with the action that fits the state, and a second one
+ * next to it that opens the other options.
  */
 .neos-module-management-workspaces .workspace-review-actions {
     display: flex;
@@ -303,6 +545,89 @@
 .neos-module-management-workspaces .workspace-review-actions button {
     flex: 0 0 auto;
     white-space: nowrap;
+}
+
+/*
+ * The combo button: the button with the action and the button that opens the menu next to
+ * it, like the publish button of the neos.ui in the top bar.
+ */
+.neos-module-management-workspaces .workspace-review-combo {
+    position: relative;
+    display: inline-flex;
+    vertical-align: top;
+}
+
+.neos-module-management-workspaces .workspace-review-combo-main {
+    border-right: none;
+}
+
+.neos-module-management-workspaces .workspace-review-combo-toggle {
+    width: 32px;
+    margin: 0;
+    padding: 0;
+}
+
+/* the icon and the label of a button are one gap apart */
+.neos-module-management-workspaces .workspace-review-combo-main > i {
+    margin-right: 1ch;
+}
+
+/*
+ * The menu is a popup of the browser: it sits in the layer above the page, so that it is not
+ * cut off by the footer, and only one of them can be open at a time.
+ *
+ * The place of the menu is set by the script of the module, which knows where the button is.
+ */
+.neos-module-management-workspaces .workspace-review-combo-menu {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    padding: 0;
+    min-width: 280px;
+    /* the footer of the core has no font size of its own, so that the buttons sit next to
+       each other without a gap - the menu needs one */
+    font-size: 14px;
+    color: #fff;
+    background: #222;
+    border: 1px solid #3f3f3f;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+    /* a browser without the popup feature of the browser keeps the menu closed */
+    display: none;
+}
+
+.neos-module-management-workspaces .workspace-review-combo-menu:popover-open {
+    display: block;
+}
+
+.neos-module-management-workspaces .workspace-review-combo-option {
+    display: block;
+    padding: 10px 12px;
+    color: #fff;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+/* the option of the document is hidden while nothing is selected */
+.neos-module-management-workspaces .workspace-review-combo-option[hidden] {
+    display: none;
+}
+
+/*
+ * The hovered option gets a dark background instead of the bright blue of the core: white on
+ * blue is hard to read.
+ *
+ * The selector repeats the one of the core, so that the colour of the core does not win.
+ */
+.neos.neos-module.neos-module-management-workspaces .workspace-review-combo-option:hover {
+    background: #3f3f3f;
+    color: #fff;
+    text-decoration: none;
+}
+
+.neos-module-management-workspaces .workspace-review-combo-option i {
+    margin-right: 1ch;
+    width: 14px;
+    text-align: center;
 }
 
 /*
@@ -328,7 +653,7 @@
 /* the variant of the document stands next to its name */
 .neos-module-management-workspaces .neos-content-change-document-dimension {
     margin-left: 1ch;
-    color: #adadad;
+    color: #b8b8b8;
     font-weight: normal;
     font-size: 11.9px;
     text-transform: uppercase;
@@ -353,7 +678,7 @@
 .neos.neos-module.neos-module-management-workspaces .neos-content-change-document-header > .workspace-review-open {
     align-self: flex-start;
     margin-left: auto;
-    color: #adadad;
+    color: #b8b8b8;
     /* a button centres its icon, a link does not - the quicklink has to do it by itself, or
        the two icons do not stand on the same line */
     display: flex;
@@ -376,14 +701,14 @@
 }
 
 .neos-module-management-workspaces .neos-content-change-document-breadcrumb {
-    color: #adadad;
+    color: #b8b8b8;
     font-weight: normal;
     line-height: 1.6;
 }
 
 .neos-module-management-workspaces .neos-content-change-document-crumb + .neos-content-change-document-crumb::before {
     content: ' / ';
-  color: #5b5b5b;
+  color: #909090;
 }
 
 /*
@@ -417,8 +742,38 @@
     color: #fff;
 }
 
+/*
+ * The changes are indented by the containers they sit in, so that it can be seen that a text
+ * belongs to a column of a multi column element. The whole block is indented, not only its
+ * header.
+ */
+.neos-module-management-workspaces .neos-content-change {
+    margin-left: calc(var(--depth, 0) * 16px);
+}
+
 .neos-module-management-workspaces .neos-content-change-header > .neos-checkbox {
     margin: 0 4px 0 0;
+}
+
+/*
+ * The containers a change sits in, named above the diff.
+ */
+.neos-module-management-workspaces .workspace-review-change-context {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: -4px 16px 8px 40px;
+    padding-left: 8px;
+    border-left: 1px solid #3f3f3f;
+    color: #909090;
+    font-size: 11.9px;
+}
+
+.neos-module-management-workspaces .workspace-review-change-ancestor {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 /* the icon of the node type stands in the line of the label, like it does in the list */
@@ -429,7 +784,7 @@
 .neos-module-management-workspaces .neos-content-change-date {
     flex: 0 0 auto;
     padding: 12px 8px;
-    color: #5b5b5b;
+    color: #909090;
     font-size: 11.9px;
     white-space: nowrap;
 }
@@ -440,7 +795,7 @@
 }
 
 .neos-module-management-workspaces .neos-content-change-node-type {
-    color: #5b5b5b;
+    color: #909090;
     font-size: 11.9px;
     margin-left: 8px;
     padding-left: 8px;
@@ -459,6 +814,25 @@
 .neos-module-management-workspaces .neos-content-change-actions button {
     width: 46px;
     margin: 0;
+}
+
+/*
+ * The buttons of a single change are gray, like the ones of the core module, and take the
+ * colour of their action on hover: a review holds a lot of them, and a wall of blue and red
+ * drowns the diffs.
+ */
+.neos-module-management-workspaces .neos-content-change-actions .neos-button {
+    background-color: #323232;
+}
+
+.neos-module-management-workspaces .neos-content-change-actions .neos-button.neos-button-primary:not([disabled]):hover,
+.neos-module-management-workspaces .neos-content-change-actions .neos-button.neos-button-primary:not([disabled]):active {
+    background-color: #00b5ff;
+}
+
+.neos-module-management-workspaces .neos-content-change-actions .neos-button.neos-button-danger:not([disabled]):hover,
+.neos-module-management-workspaces .neos-content-change-actions .neos-button.neos-button-danger:not([disabled]):active {
+    background-color: #ff460d;
 }
 
 .neos-module-management-workspaces .workspace-review-badge {
@@ -481,7 +855,7 @@
 }
 
 .neos-module-management-workspaces .workspace-review-badge-hidden {
-    background: #adadad;
+    background: #b8b8b8;
     color: #141414;
     text-shadow: none;
 }
@@ -529,7 +903,7 @@
 }
 
 .neos-module-management-workspaces .neos-content-diff .diff-property-content-left div {
-    color: #adadad;
+    color: #b8b8b8;
     text-decoration: line-through;
 }
 
@@ -543,7 +917,7 @@
  * value that was removed.
  */
 .neos-module-management-workspaces .neos-content-diff .neos-content-diff-no-value {
-    color: #adadad;
+    color: #b8b8b8;
     font-style: italic;
 }
 
@@ -577,10 +951,16 @@
     height: 24px;
     margin: 0;
     padding: 0;
-    color: #adadad;
+    color: #b8b8b8;
     background: none;
     border: 0;
     cursor: pointer;
+}
+
+/* a button that cannot be used - the preview of a document that is deleted */
+.neos-module-management-workspaces .workspace-review-reload:disabled {
+    color: #5b5b5b;
+    cursor: not-allowed;
 }
 
 .neos-module-management-workspaces .workspace-review-reload:hover {

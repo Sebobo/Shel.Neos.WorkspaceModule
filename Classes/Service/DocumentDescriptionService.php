@@ -65,6 +65,9 @@ final class DocumentDescriptionService
      * A document that was deleted is red, a document that was created is green, and a
      * document that is changed - or that has changed content - is orange.
      *
+     * A document that only lost something below it is changed as well: the content of the
+     * document is not the same as the published one any more.
+     *
      * @param list<NodeInterface> $changes
      */
     public function kindOfDocument(NodeInterface $document, array $changes): string
@@ -75,13 +78,8 @@ final class DocumentDescriptionService
         if ($this->nodeTreeService->isNewInBaseWorkspace($document)) {
             return 'created';
         }
-        foreach ($changes as $change) {
-            if (!$change->isRemoved()) {
-                return 'edited';
-            }
-        }
 
-        return '';
+        return 'edited';
     }
 
     /**

@@ -3,11 +3,16 @@ parameters:
     phpVersion: 80300
     paths:
         - Classes
+        - Tests
     # The classes of the framework - in the distribution they are in the autoloader of the
     # distribution. The configuration of the CI (phpstan.ci.neon) does not need it: there the
     # autoloader of the package is found on its own.
     bootstrapFiles:
         - ../../../Packages/Libraries/autoload.php
+    # The test case of the framework - it is not part of the autoloader of the distribution,
+    # because the framework is a dependency of it.
+    scanDirectories:
+        - ../../../Packages/Framework/Neos.Flow/Tests
     ignoreErrors:
         # The magic methods of the Flow repositories - they exist, but the doctrine
         # annotations of the package are not read.

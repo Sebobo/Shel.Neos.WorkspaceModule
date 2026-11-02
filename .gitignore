@@ -9,3 +9,5 @@ node_modules
 Tests/dev-server/dist
 /cypress
 .DS_Store
+.phpunit.cache
+.phpunit.result.cache

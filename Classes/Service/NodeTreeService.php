@@ -161,15 +161,21 @@ final class NodeTreeService
     }
 
     /**
-     * The node as it is in the workspace the workspace of the node is based on.
+     * The node as it is in the workspace the workspace under review is based on.
      *
      * The comparison is made with the base workspace and not with the live workspace: a
      * workspace can be based on another workspace, and a node that was created in that base
      * workspace is not new - it is only changed.
+     *
+     * The base workspace is the one of the workspace the node is looked at in and not the one
+     * of the workspace of the node: a node that was not changed in the workspace under review
+     * is inherited from its base workspace, and it is not a change of the workspace under
+     * review.
      */
     public function baseNode(NodeInterface $node): ?NodeInterface
     {
-        $baseWorkspaceName = $node->getWorkspace()->getBaseWorkspace()?->getName();
+        $workspace = $node->getContext()->getWorkspace();
+        $baseWorkspaceName = $workspace->getBaseWorkspace()?->getName();
         if ($baseWorkspaceName === null) {
             return null;
         }

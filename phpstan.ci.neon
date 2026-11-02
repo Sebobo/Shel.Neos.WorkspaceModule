@@ -3,6 +3,11 @@ parameters:
     phpVersion: 80300
     paths:
         - Classes
+        - Tests
+    # The test case of the framework - it is not part of the autoloader of the package,
+    # because the framework is a dependency of it.
+    scanDirectories:
+        - vendor/neos/flow/Tests
     ignoreErrors:
         # The magic methods of the Flow repositories - they exist, but the doctrine
         # annotations of the package are not read.

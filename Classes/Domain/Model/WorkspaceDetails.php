@@ -1,18 +1,16 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Shel\Neos\WorkspaceModule\Domain\Model;
-
-/**
+/*
  * This file is part of the Shel.Neos.WorkspaceModule package.
- *
- * (c) 2022 Sebastian Helzle
  *
  * This package is Open Source Software. For the full copyright and license
  * information, please view the LICENSE file which was distributed with this
  * source code.
  */
+
+declare(strict_types=1);
+
+namespace Shel\Neos\WorkspaceModule\Domain\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -117,7 +115,7 @@ class WorkspaceDetails
     }
 
     /**
-     * @param User[] $acl
+     * @param list<User> $acl
      */
     public function setAcl(array $acl): void
     {
@@ -125,10 +123,10 @@ class WorkspaceDetails
     }
 
     /**
-     * @return User[]
+     * @return list<User>
      */
     public function getAcl(): array
     {
-        return $this->acl instanceof Collection ? $this->acl->toArray() : [];
+        return $this->acl === null ? [] : array_values($this->acl->toArray());
     }
 }

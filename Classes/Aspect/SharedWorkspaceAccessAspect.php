@@ -5,8 +5,6 @@ declare(strict_types=1);
 /**
  * This file is part of the Shel.Neos.WorkspaceModule package.
  *
- * (c) 2022 Sebastian Helzle
- *
  * This package is Open Source Software. For the full copyright and license
  * information, please view the LICENSE file which was distributed with this
  * source code.
@@ -25,30 +23,40 @@ use Neos\Utility\Exception\PropertyNotAccessibleException;
 use Neos\Utility\ObjectAccess;
 use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
 
-/**
- * @Flow\Aspect
- */
+#[Flow\Aspect]
 class SharedWorkspaceAccessAspect
 {
-    /**
-     * @Flow\Inject
-     * @var WorkspaceDetailsRepository
-     */
-    protected $workspaceDetailsRepository;
+    #[Flow\Inject]
+    protected WorkspaceDetailsRepository $workspaceDetailsRepository;
+
+    #[Flow\Inject]
+    protected PersistenceManagerInterface $persistenceManager;
 
     /**
-     * @Flow\Inject
-     * @var PersistenceManagerInterface
+     * Adjust the check whether the current user may read a shared workspace
      */
-    protected $persistenceManager;
-
-    /**
-     * Adjust workspace permission check for shared workspaces
-     *
-     * @Flow\Around("method(Neos\Neos\Domain\Service\UserService->currentUserCanReadWorkspace())")
-     * @Flow\Around("method(Neos\Neos\Domain\Service\UserService->currentUserCanPublishToWorkspace())")
-     */
+    #[Flow\Around("method(Neos\Neos\Domain\Service\UserService->currentUserCanReadWorkspace())")]
     public function currentUserCanManageSharedWorkspace(JoinPointInterface $joinPoint): bool
+    {
+        return $this->userCanManageSharedWorkspace($joinPoint);
+    }
+
+    /**
+     * Adjust the check whether the current user may publish to a shared workspace
+     */
+    #[Flow\Around("method(Neos\Neos\Domain\Service\UserService->currentUserCanPublishToWorkspace())")]
+    public function currentUserCanManageSharedWorkspaceForPublishing(JoinPointInterface $joinPoint): bool
+    {
+        return $this->userCanManageSharedWorkspace($joinPoint);
+    }
+
+    /**
+     * Whether the current user may work with the workspace of the advised method.
+     *
+     * A workspace that is shared with the user may be worked with, even when the privilege
+     * of the core does not allow it.
+     */
+    private function userCanManageSharedWorkspace(JoinPointInterface $joinPoint): bool
     {
         $result = $joinPoint->getAdviceChain()->proceed($joinPoint);
 
@@ -71,10 +79,10 @@ class SharedWorkspaceAccessAspect
     /**
      * Adjust workspace permission check for shared workspaces in the Neos UI
      *
-     * @Flow\Around("method(Neos\Neos\Ui\ContentRepository\Service\WorkspaceService->getAllowedTargetWorkspaces())")
      * @return array<string, array{name: string, title: string, description: string|null, readonly: bool}>
      * @throws PropertyNotAccessibleException
      */
+    #[Flow\Around("method(Neos\Neos\Ui\ContentRepository\Service\WorkspaceService->getAllowedTargetWorkspaces())")]
     public function getAllowedTargetWorkspacesIncludingSharedOnes(JoinPointInterface $joinPoint): array
     {
         /** @var WorkspaceService $workspaceService */

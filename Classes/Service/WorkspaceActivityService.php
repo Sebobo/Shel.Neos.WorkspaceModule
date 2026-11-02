@@ -6,8 +6,6 @@ namespace Shel\Neos\WorkspaceModule\Service;
 /**
  * This file is part of the Shel.Neos.WorkspaceModule package.
  *
- * (c) 2022 Sebastian Helzle
- *
  * This package is Open Source Software. For the full copyright and license
  * information, please view the LICENSE file which was distributed with this
  * source code.
@@ -23,47 +21,30 @@ use Psr\Log\LoggerInterface;
 use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
 use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
 
-/**
- * @Flow\Scope("singleton")
- */
+#[Flow\Scope('singleton')]
 class WorkspaceActivityService
 {
-    /**
-     * @Flow\Inject
-     * @var WorkspaceDetailsRepository
-     */
-    protected $workspaceDetailsRepository;
+    #[Flow\Inject]
+    protected WorkspaceDetailsRepository $workspaceDetailsRepository;
 
-    /**
-     * @Flow\Inject
-     * @var Context
-     */
-    protected $securityContext;
+    #[Flow\Inject]
+    protected Context $securityContext;
 
     /**
      * The workspaces that were touched, by their name.
      *
      * @var array<string, Workspace>
      */
-    protected $updatedWorkspaces = [];
+    protected array $updatedWorkspaces = [];
 
-    /**
-     * @Flow\Inject
-     * @var LoggerInterface
-     */
-    protected $systemLogger;
+    #[Flow\Inject]
+    protected LoggerInterface $systemLogger;
 
-    /**
-     * @Flow\Inject
-     * @var PersistenceManagerInterface
-     */
-    protected $persistenceManager;
+    #[Flow\Inject]
+    protected PersistenceManagerInterface $persistenceManager;
 
-    /**
-     * @Flow\Inject
-     * @var WorkspaceRepository
-     */
-    protected $workspaceRepository;
+    #[Flow\Inject]
+    protected WorkspaceRepository $workspaceRepository;
 
     public function nodePublished(NodeInterface $node, Workspace $targetWorkspace = null): void
     {

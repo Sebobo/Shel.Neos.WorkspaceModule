@@ -9,14 +9,8 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
     @propTypes {
         @strict = false
         changes = ${PropTypes.arrayOf(PropTypes.any)}
-        documentLabel = ${PropTypes.string}
-        documentIcon = ${PropTypes.string}
-        documentDimensionLabel = ${PropTypes.string}
+        document = ${PropTypes.any}
         documentIdentifier = ${PropTypes.string}
-        documentBreadcrumb = ${PropTypes.arrayOf(PropTypes.any)}
-        documentIsNew = ${PropTypes.boolean}
-        documentIsDeleted = ${PropTypes.boolean}
-        documentBaseContextPath = ${PropTypes.string}
         selectedWorkspaceName = ${PropTypes.string}
         selectedDimensions = ${PropTypes.string}
         outOfBand = ${PropTypes.boolean}
@@ -73,9 +67,9 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
             controller = 'Frontend\\Node'
             action = 'preview'
             format = 'html'
-            arguments.node = ${props.documentBaseContextPath}
+            arguments.node = ${props.document.baseContextPath}
         }
-        previewBaseUrl = ${props.documentIsNew ? '' : private.previewBaseUri}
+        previewBaseUrl = ${props.document.isNew ? '' : private.previewBaseUri}
     }
     renderer = afx`
         <div
@@ -85,14 +79,14 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
         >
             <div class="neos-content-change-document-header">
                 <span class="neos-content-change-document-breadcrumb">
-                    <Neos.Fusion:Loop items={props.documentBreadcrumb} itemName="crumb">
+                    <Neos.Fusion:Loop items={props.document.breadcrumb} itemName="crumb">
                         <span class="neos-content-change-document-crumb">{crumb}</span>
                     </Neos.Fusion:Loop>
                     <span class="neos-content-change-document-crumb neos-content-change-document-crumb-current">
-                        <i class={props.documentIcon}></i>
-                        <span class="neos-content-change-document-label">{props.documentLabel}</span>
-                        <span @if.hasDimension={props.documentDimensionLabel != ''} class="neos-content-change-document-dimension">
-                            {props.documentDimensionLabel}
+                        <Shel.Neos.WorkspaceModule:Component.Icon icon={props.document.icon}/>
+                        <span class="neos-content-change-document-label">{props.document.label}</span>
+                        <span @if.hasDimension={props.document.dimensionLabel != ''} class="neos-content-change-document-dimension">
+                            {props.document.dimensionLabel}
                         </span>
                     </span>
                 </span>
@@ -105,10 +99,10 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
                     data-neos-toggle="tooltip"
                     data-preview-url={private.previewUrl}
                     data-preview-base-url={private.previewBaseUrl}
-                    data-preview-title={props.documentLabel}
-                    disabled={props.documentIsDeleted ? 'disabled' : null}
+                    data-preview-title={props.document.label}
+                    disabled={props.document.isDeleted ? 'disabled' : null}
                 >
-                    <i class="fas fa-eye"></i>
+                    <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-eye"/>
                 </button>
                 <a
                     @if.hasDocument={props.documentIdentifier != ''}
@@ -119,7 +113,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
                     target="_blank"
                     rel="noopener"
                 >
-                    <i class="fas fa-external-link-alt"></i>
+                    <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-external-link-alt"/>
                 </a>
                 <button
                     @if.hasDocument={props.documentIdentifier != ''}
@@ -133,11 +127,11 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
                     hx-swap="outerHTML"
                     hx-indicator="#document-changes-reload"
                 >
-                    <i class="fas fa-sync"></i>
+                    <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-sync"/>
                 </button>
             </div>
             <div class="workspace-review-change-list">
-                <Neos.Fusion:Loop items={props.changes} itemName="change">
+                <Neos.Fusion:Loop items={props.changes.items} itemName="change">
                     <Shel.Neos.WorkspaceModule:Component.ChangeCard
                         change={change}
                         selectedWorkspaceName={props.selectedWorkspaceName}
@@ -146,7 +140,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
                     />
                 </Neos.Fusion:Loop>
             </div>
-            <div @if.noChanges={props.changes == []} class="workspace-review-no-changes">
+            <div @if.noChanges={props.changes.items == []} class="workspace-review-no-changes">
                 {private.i18n.id('review.noChanges').translate()}
             </div>
         </div>

@@ -38,10 +38,10 @@ prototype(Shel.Neos.WorkspaceModule:Component.DimensionSwitcher) < prototype(Neo
                         aria-expanded="false"
                         title={dimension.label}
                     >
-                        <i class={dimension.icon}></i>
+                        <Shel.Neos.WorkspaceModule:Component.Icon icon={dimension.icon}/>
                         <span class="workspace-review-dimension-name">{dimension.label}</span>
                         <span class="workspace-review-dimension-value">{dimension.selectedLabel}</span>
-                        <i class="fas fa-caret-down"></i>
+                        <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-caret-down"/>
                     </button>
                     <div
                         id={'workspace-review-dimension-' + dimension.name}
@@ -54,7 +54,9 @@ prototype(Shel.Neos.WorkspaceModule:Component.DimensionSwitcher) < prototype(Neo
                                 class={preset.selected ? 'workspace-review-dimension-preset selected' : 'workspace-review-dimension-preset'}
                                 href={String.replace(private.reviewUriTemplate, '---dimensions---', preset.selection)}
                             >
-                                <i class={preset.selected ? 'fas fa-check' : 'fas fa-check invisible'}></i>
+                                <Shel.Neos.WorkspaceModule:Component.Icon
+                                    icon={preset.selected ? 'fas fa-check' : 'fas fa-check invisible'}
+                                />
                                 <span>{preset.label}</span>
                             </a>
                         </Neos.Fusion:Loop>

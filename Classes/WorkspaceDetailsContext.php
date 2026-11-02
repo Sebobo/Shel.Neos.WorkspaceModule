@@ -7,8 +7,6 @@ namespace Shel\Neos\WorkspaceModule;
 /**
  * This file is part of the Shel.Neos.WorkspaceModule package.
  *
- * (c) 2022 Sebastian Helzle
- *
  * This package is Open Source Software. For the full copyright and license
  * information, please view the LICENSE file which was distributed with this
  * source code.
@@ -21,37 +19,22 @@ use Neos\Neos\Domain\Model\User;
 use Neos\Neos\Domain\Service\UserService;
 use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
 
-/**
- * @Flow\Scope("singleton")
- */
+#[Flow\Scope('singleton')]
 class WorkspaceDetailsContext implements CacheAwareInterface
 {
+    #[Flow\Inject]
+    protected UserService $userDomainService;
+
+    #[Flow\Inject]
+    protected PersistenceManagerInterface $persistenceManager;
+
+    #[Flow\Inject]
+    protected WorkspaceDetailsRepository $workspaceDetailsRepository;
+
+    protected ?string $cacheEntryIdentifier = null;
 
     /**
-     * @Flow\Inject
-     * @var UserService
-     */
-    protected $userDomainService;
-
-    /**
-     * @Flow\Inject
-     * @var PersistenceManagerInterface
-     */
-    protected $persistenceManager;
-
-    /**
-     * @Flow\Inject
-     * @var WorkspaceDetailsRepository
-     */
-    protected $workspaceDetailsRepository;
-
-    /**
-     * @var string
-     */
-    protected $cacheEntryIdentifier;
-
-    /**
-     * @return string[]
+     * @return list<string>
      */
     public function getSharedWorkspaces(): array
     {

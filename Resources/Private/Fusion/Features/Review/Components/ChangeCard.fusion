@@ -48,7 +48,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeCard) < prototype(Neos.Fusio
     renderer = afx`
         <div
             class={'neos-content-change ' + private.legendClasses[props.change.type]}
-            data-nodepath={props.change.path}
+            data-nodepath={props.change.contextPath}
             style={'--depth: ' + props.change.depth}
         >
             <div class="neos-content-change-main">
@@ -62,7 +62,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeCard) < prototype(Neos.Fusio
                         <span></span>
                     </label>
                     <span class="neos-content-change-label">
-                        <i class={props.change.icon}></i>
+                        <Shel.Neos.WorkspaceModule:Component.Icon icon={props.change.icon}/>
                         {props.change.label}
                     </span>
                     <Shel.Neos.WorkspaceModule:Component.ChangeBadge type={props.change.type}/>
@@ -77,7 +77,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeCard) < prototype(Neos.Fusio
                     </Neos.Fusion:Loop>
                 </div>
                 <table class="neos-content-diff">
-                    <Neos.Fusion:Loop @if.hasContentChanges={props.change.contentChanges != [] && props.change.type != 'deleted'} items={props.change.contentChanges} itemKey="propertyName" itemName="contentChange">
+                    <Neos.Fusion:Loop @if.hasContentChanges={props.change.contentChanges.items != [] && props.change.type != 'deleted'} items={props.change.contentChanges.items} itemName="contentChange">
                         <tr>
                             <th colspan="3" class="neos-content-diff-property">
                                 {contentChange.properties.propertyLabel}
@@ -92,7 +92,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeCard) < prototype(Neos.Fusio
                             </td>
                         </tr>
                     </Neos.Fusion:Loop>
-                    <tr @if.noContentChanges={props.change.contentChanges == [] || props.change.type == 'deleted'}>
+                    <tr @if.noContentChanges={props.change.contentChanges.items == [] || props.change.type == 'deleted'}>
                         <td colspan="3" class="neos-content-diff-empty">
                             {private.emptyNotes[props.change.type]}
                         </td>
@@ -103,31 +103,31 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeCard) < prototype(Neos.Fusio
                 {Date.formatCldrDateTime(props.change.lastModificationDateTime, 'short')}
             </div>
             <div class="neos-content-change-actions">
-                <button
-                    type="button"
-                    class="neos-button neos-button-primary"
+                <Shel.Neos.WorkspaceModule:Component.Button
+                    isPrimary={true}
+                    icon="fas fa-check icon-white"
                     title={private.i18n.id('review.publishChange').translate()}
-                    data-neos-toggle="tooltip"
-                    hx-post={String.replace(private.publishUri, '---node---', props.change.contextPath)}
-                    hx-target="#document-changes"
-                    hx-swap="outerHTML"
-                    hx-indicator="#document-changes-reload"
-                    disabled={props.canPublishToBaseWorkspace ? null : 'disabled'}
-                >
-                    <i class="fas fa-check icon-white"></i>
-                </button>
-                <button
-                    type="button"
-                    class="neos-button neos-button-danger"
+                    disabled={props.canPublishToBaseWorkspace ? false : true}
+                    attributes={{
+                        'data-neos-toggle': 'tooltip',
+                        'hx-post': String.replace(private.publishUri, '---node---', props.change.contextPath),
+                        'hx-target': '#document-changes',
+                        'hx-swap': 'outerHTML',
+                        'hx-indicator': '#document-changes-reload'
+                    }}
+                />
+                <Shel.Neos.WorkspaceModule:Component.Button
+                    isDanger={true}
+                    icon="fas fa-times icon-white"
                     title={private.i18n.id('review.discardChange').translate()}
-                    data-neos-toggle="tooltip"
-                    hx-post={String.replace(private.discardUri, '---node---', props.change.contextPath)}
-                    hx-target="#document-changes"
-                    hx-swap="outerHTML"
-                    hx-indicator="#document-changes-reload"
-                >
-                    <i class="fas fa-times icon-white"></i>
-                </button>
+                    attributes={{
+                        'data-neos-toggle': 'tooltip',
+                        'hx-post': String.replace(private.discardUri, '---node---', props.change.contextPath),
+                        'hx-target': '#document-changes',
+                        'hx-swap': 'outerHTML',
+                        'hx-indicator': '#document-changes-reload'
+                    }}
+                />
             </div>
         </div>
     `

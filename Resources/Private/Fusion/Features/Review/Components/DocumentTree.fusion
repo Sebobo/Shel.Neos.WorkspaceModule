@@ -74,27 +74,26 @@ prototype(Shel.Neos.WorkspaceModule:Component.DocumentTree) < prototype(Neos.Fus
                         </div>
                         <Neos.Fusion:Loop items={site.documents} itemName="document" iterationName="iteration">
                             <div
-                                @if.hasMissingAncestors={document.missingAncestors != []}
-                                class="workspace-review-document-missing"
+                                @if.showBreadcrumb={!document.parentIsInList && document.breadcrumb != []}
+                                class="workspace-review-document-breadcrumb"
                                 style={'--level: ' + document.level}
                             >
-                                <Neos.Fusion:Loop items={document.missingAncestors} itemName="ancestor">
-                                    <span class="workspace-review-document-missing-ancestor">
-                                        <i class={ancestor.icon}></i>
-                                        {ancestor.label}
+                                <Neos.Fusion:Loop items={document.breadcrumb} itemName="ancestor">
+                                    <span class="workspace-review-document-breadcrumb-ancestor">
+                                        {ancestor}
                                     </span>
                                 </Neos.Fusion:Loop>
                             </div>
                             <div
-                                class={'workspace-review-document-row' + (document.identifier == props.selectedDocument ? ' active' : '')}
+                                class={'workspace-review-document-row' + (document.contextPath == props.selectedDocument ? ' active' : '')}
                                 style={'--level: ' + document.level}
-                                data-document={document.identifier}
+                                data-document={document.contextPath}
                                 data-parent={document.parent}
                                 data-kind={document.kind}
-                                data-count={document.counts.total + ''}
-                                data-counts-new={document.counts.new + ''}
-                                data-counts-changed={document.counts.changed + ''}
-                                data-counts-removed={document.counts.removed + ''}
+                                data-count={document.pendingChanges.total + ''}
+                                data-counts-new={document.pendingChanges.new + ''}
+                                data-counts-changed={document.pendingChanges.changed + ''}
+                                data-counts-removed={document.pendingChanges.removed + ''}
                                 data-hint-changes={private.i18n.id('review.hintChanges').quantity(2).arguments(['{0}']).translate()}
                                 data-hint-changes-one={private.i18n.id('review.hintChanges').quantity(1).arguments(['{0}']).translate()}
                                 data-hint-new={private.i18n.id('review.hintNew').arguments(['{0}']).translate()}
@@ -113,16 +112,15 @@ prototype(Shel.Neos.WorkspaceModule:Component.DocumentTree) < prototype(Neos.Fus
                                 </label>
                                 <button
                                     type="button"
-                                    hx-get={String.replace(private.changesUriTemplate, '---document---', document.identifier)}
+                                    hx-get={String.replace(private.changesUriTemplate, '---document---', document.contextPath)}
                                     hx-target="#document-changes"
                                     hx-swap="outerHTML"
                                     hx-indicator="#document-changes-reload"
                                     hx-trigger={props.autoLoad && document.isFirst ? 'load' : null}
-                                    class={document.identifier == props.selectedDocument ? 'workspace-review-document active' : 'workspace-review-document'}
-                                    title={document.path}
+                                    class={document.contextPath == props.selectedDocument ? 'workspace-review-document active' : 'workspace-review-document'}
                                 >
                                     <span class="workspace-review-document-title">
-                                        <i class={document.icon}></i>
+                                        <Shel.Neos.WorkspaceModule:Component.Icon icon={document.icon}/>
                                         <span class="workspace-review-document-label">{document.label}</span>
                                         <span @if.hasDimension={document.dimensionLabel != ''} class="workspace-review-document-dimension">
                                             {document.dimensionLabel}

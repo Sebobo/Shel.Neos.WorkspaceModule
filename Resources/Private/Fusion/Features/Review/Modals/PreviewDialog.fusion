@@ -27,6 +27,15 @@ prototype(Shel.Neos.WorkspaceModule:Component.PreviewDialog) < prototype(Neos.Fu
         >
             <div class="workspace-review-preview-toolbar">
                 <span class="workspace-review-preview-title" data-role="preview-title"></span>
+                <label class="neos-checkbox workspace-review-preview-sync">
+                    <input
+                        type="checkbox"
+                        data-role="preview-sync"
+                        checked="checked"
+                    />
+                    <span></span>
+                    {private.i18n.id('review.syncScroll').translate()}
+                </label>
                 <button
                     type="button"
                     class="workspace-review-preview-close"

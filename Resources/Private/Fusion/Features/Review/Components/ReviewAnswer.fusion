@@ -1,0 +1,47 @@
+##
+# The answer of every action that changes something: the list of the documents and the changes
+# of the document that is open.
+#
+# The list of the documents travels with the answer, so that the tree is refreshed together
+# with the changes - a document whose last change was published or discarded leaves the list.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.ReviewAnswer) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = false
+        changes = ${PropTypes.arrayOf(PropTypes.any)}
+        sites = ${PropTypes.arrayOf(PropTypes.any)}
+        selectedDocument = ${PropTypes.string}
+        selectedWorkspaceName = ${PropTypes.string}
+        selectedDimensions = ${PropTypes.string}
+        canPublishToBaseWorkspace = ${PropTypes.boolean}
+        document = ${PropTypes.any}
+    }
+
+    # The variables of the action - the ones the controller assigned - are the props of the
+    # component, so that every action that answers with the changes renders the same.
+    changes = ${changes}
+    sites = ${sites}
+    selectedDocument = ${selectedDocument}
+    selectedWorkspaceName = ${selectedWorkspaceName}
+    selectedDimensions = ${selectedDimensions}
+    canPublishToBaseWorkspace = ${canPublishToBaseWorkspace}
+    document = ${document}
+
+    renderer = afx`
+        <Shel.Neos.WorkspaceModule:Component.DocumentTree
+            sites={props.sites}
+            selectedWorkspaceName={props.selectedWorkspaceName}
+            selectedDimensions={props.selectedDimensions}
+            selectedDocument={props.selectedDocument}
+            outOfBand={true}
+        />
+        <Shel.Neos.WorkspaceModule:Component.ChangeList
+            changes={props.changes}
+            document={props.document}
+            documentIdentifier={props.selectedDocument}
+            selectedWorkspaceName={props.selectedWorkspaceName}
+            selectedDimensions={props.selectedDimensions}
+            canPublishToBaseWorkspace={props.canPublishToBaseWorkspace}
+        />
+    `
+}

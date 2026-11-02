@@ -1,0 +1,18 @@
+##
+# An icon.
+#
+# The icon is a class of the font of the icons - the name of the node type brings it with the
+# prefix of the font, and the mapping of the core adds the prefix of the font to the names
+# that come without it.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.Icon) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = false
+        icon = ${PropTypes.string}
+        title = ${PropTypes.string}
+    }
+
+    renderer = afx`
+        <i @if.hasIcon={props.icon} class={props.icon} title={props.title}></i>
+    `
+}

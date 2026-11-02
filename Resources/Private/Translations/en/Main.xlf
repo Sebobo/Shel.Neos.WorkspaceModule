@@ -282,6 +282,10 @@
                 <source>Preview the document</source>
             </trans-unit>
 
+            <trans-unit id="review.syncScroll">
+                <source>Synchronise the scroll positions</source>
+            </trans-unit>
+
             <trans-unit id="review.close">
                 <source>Close</source>
             </trans-unit>

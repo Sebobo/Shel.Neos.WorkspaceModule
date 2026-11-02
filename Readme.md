@@ -52,6 +52,21 @@ Workspaces can be deleted at any time.
 
 ![Deletion dialog](Documentation/DeleteDialog.png)
 
+## The review of a workspace
+
+Beside the list of workspaces, the module offers a review of the unpublished changes of a
+workspace: the documents with changes on the left, the changes of the selected document on the
+right, with the diff of the changed properties. The list of the documents takes a third of the
+review and can be made wider or narrower with the grip in its lower corner.
+Discarding a change never leaves its children behind: a node that was created in the workspace
+is removed together with the subtree below it, so that no child is left below a parent that
+does not exist any more.
+
+## The structure of the code
+
+The code follows the style of the `Neos.Workspace.Ui` package of the core, so that the parts of
+it that are worth it can be merged into the core later on.
+
 ## Installation
 
 Run

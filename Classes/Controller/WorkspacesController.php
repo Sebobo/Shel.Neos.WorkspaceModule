@@ -7,8 +7,6 @@ namespace Shel\Neos\WorkspaceModule\Controller;
 /**
  * This file is part of the Shel.Neos.WorkspaceModule package.
  *
- * (c) 2022 Sebastian Helzle
- *
  * This package is Open Source Software. For the full copyright and license
  * information, please view the LICENSE file which was distributed with this
  * source code.
@@ -33,59 +31,52 @@ use Neos\Neos\Domain\Repository\UserRepository;
 use Neos\Neos\Domain\Service\UserService;
 use Neos\Neos\Utility\User as UserUtility;
 use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
+use Shel\Neos\WorkspaceModule\Service\ContentDimensionService;
+use Shel\Neos\WorkspaceModule\Service\DocumentDescriptionService;
+use Shel\Neos\WorkspaceModule\Service\NodeTreeService;
 use Shel\Neos\WorkspaceModule\Service\WorkspaceChangesService;
+use Shel\Neos\WorkspaceModule\Service\WorkspacePublishingService;
 use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
+use Shel\Neos\WorkspaceModule\ViewModel\ChangeItems;
 
 class WorkspacesController extends \Neos\Neos\Controller\Module\Management\WorkspacesController
 {
     /**
+     * The map of the view formats is a property of the action controller of the framework,
+     * which has no type of its own - so this one has none either.
+     *
      * @var array<string, class-string>
      */
     protected $viewFormatToObjectNameMap = [
         'json' => JsonView::class,
     ];
 
-    /**
-     * @Flow\Inject
-     * @var WorkspaceDetailsRepository
-     */
-    protected $workspaceDetailsRepository;
+    #[Flow\Inject]
+    protected WorkspaceDetailsRepository $workspaceDetailsRepository;
 
-    /**
-     * @Flow\InjectConfiguration(path="staleTime")
-     * @var int
-     */
-    protected $staleTime;
+    #[Flow\InjectConfiguration(path: 'staleTime')]
+    protected int $staleTime;
 
-    /**
-     * @Flow\Inject
-     * @var PrivilegeManagerInterface
-     */
-    protected $privilegeManager;
+    #[Flow\Inject]
+    protected PrivilegeManagerInterface $privilegeManager;
 
-    /**
-     * @Flow\Inject
-     * @var UserRepository
-     */
-    protected $userRepository;
+    #[Flow\Inject]
+    protected UserRepository $userRepository;
 
-    /**
-     * @Flow\Inject
-     * @var WorkspaceRepository
-     */
-    protected $workspaceRepository;
+    #[Flow\Inject]
+    protected WorkspaceChangesService $workspaceChangesService;
 
-    /**
-     * @Flow\Inject
-     * @var UserService
-     */
-    protected $userService;
+    #[Flow\Inject]
+    protected WorkspacePublishingService $workspacePublishingService;
 
-    /**
-     * @Flow\Inject
-     * @var WorkspaceChangesService
-     */
-    protected $workspaceChangesService;
+    #[Flow\Inject]
+    protected DocumentDescriptionService $documentDescriptionService;
+
+    #[Flow\Inject]
+    protected ContentDimensionService $contentDimensionService;
+
+    #[Flow\Inject]
+    protected NodeTreeService $nodeTreeService;
 
     public function indexAction(): void
     {
@@ -148,12 +139,12 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      * Descendent workspaces will be rebased on the live workspace.
      *
      * @throws IllegalObjectTypeException
-     * @Flow\SkipCsrfProtection
      */
+    #[Flow\SkipCsrfProtection]
     public function deleteAction(Workspace $workspace): void
     {
         $success = false;
-        /** @var Workspace[] $rebasedWorkspaces */
+        /** @var list<Workspace> $rebasedWorkspaces */
         $rebasedWorkspaces = [];
 
         if ($workspace->isPersonalWorkspace() && $workspace->getOwner() !== null) {
@@ -166,7 +157,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             $liveWorkspace = $this->workspaceRepository->findByIdentifier('live');
 
             // Fetch and delete dependent workspaces for target workspace
-            /** @var Workspace[] $dependentWorkspaces */
+            /** @var list<Workspace> $dependentWorkspaces */
             $dependentWorkspaces = $this->workspaceRepository->findByBaseWorkspace($workspace);
             foreach ($dependentWorkspaces as $dependentWorkspace) {
                 $dependentWorkspace->setBaseWorkspace($liveWorkspace);
@@ -230,8 +221,8 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      * Prune a workspace and all contained unpublished changes.
      *
      * @throws IllegalObjectTypeException
-     * @Flow\SkipCsrfProtection
      */
+    #[Flow\SkipCsrfProtection]
     public function pruneAction(Workspace $workspace): void
     {
         $success = false;
@@ -355,12 +346,12 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
     /**
      * Create action from Neos WorkspacesController but creates a new WorkspaceDetails object after workspace creation
      *
-     * @Flow\Validate(argumentName="title", type="\Neos\Flow\Validation\Validator\NotEmptyValidator")
      * @param string $title Human friendly title of the workspace, for example "Christmas Campaign"
      * @param Workspace $baseWorkspace Workspace the new workspace should be based on
      * @param string $visibility Visibility of the new workspace, must be either "internal" or "shared"
      * @param string $description A description explaining the purpose of the new workspace
      */
+    #[Flow\Validate(argumentName: 'title', type: '\Neos\Flow\Validation\Validator\NotEmptyValidator')]
     public function createAction($title, Workspace $baseWorkspace, $visibility, $description = ''): void
     {
         $success = true;
@@ -505,7 +496,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             }
 
             // Update access control list
-            /** @var string[] $providedAcl */
+            /** @var list<string> $providedAcl */
             $providedAcl = $this->request->hasArgument('acl') ? (array)$this->request->getArgument('acl') : [];
             $acl = $workspace->getOwner() ? $providedAcl : [];
             $allowedUsers = [];
@@ -565,7 +556,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
     /**
      * @inheritDoc
      *
-     * @param array<NodeInterface> $nodes
+     * @param list<NodeInterface> $nodes
      * @param string $action
      * @param Workspace|null $selectedWorkspace
      * @throws \Exception|PropertyException|SecurityException
@@ -602,7 +593,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
                 break;
             case 'discard':
                 foreach ($nodes as $node) {
-                    $this->workspaceChangesService->discardNodeWithItsChildren($node);
+                    $this->workspacePublishingService->discardNodeWithItsChildren($node);
                 }
                 $this->addFlashMessage(
                     (string)$this->translator->translateById(
@@ -684,7 +675,16 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
     {
         $this->validateWorkspaceAccess($workspace);
         $dimensionValues = $this->assignDimensions($dimensions);
-        $documentData = $this->workspaceChangesService->getDocumentWithChanges($workspace, $document, $dimensionValues);
+        $documentNode = $this->workspaceChangesService->findDocumentInChanges($workspace, $document, $dimensionValues);
+        $changesOfDocument = $documentNode === null
+            ? []
+            : $this->workspaceChangesService->getChangesOfDocument($workspace, $documentNode, $dimensionValues);
+        $changes = $documentNode === null
+            ? ChangeItems::fromArray([])
+            : $this->workspaceChangesService->getChangesForDocument($workspace, $documentNode, $dimensionValues);
+        $documentItem = $documentNode === null
+            ? null
+            : $this->documentDescriptionService->describeDocument($documentNode, $changesOfDocument);
         $this->view->assignMultiple([
             'selectedWorkspace' => $workspace,
             'selectedWorkspaceName' => $workspace->getName(),
@@ -692,17 +692,8 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             // document that is open.
             'sites' => $this->workspaceChangesService->getDocumentsWithChanges($workspace, $dimensionValues),
             'selectedDocument' => $document,
-            'changes' => $documentData['changes'],
-            'documentLabel' => $documentData['label'],
-            'documentIcon' => $documentData['icon'],
-            'documentBreadcrumb' => $documentData['breadcrumb'],
-            'documentDimensionLabel' => $documentData['dimensionLabel'],
-            // The preview of the document: the published version and the version of the
-            // workspace. A document that was created in the workspace has no published
-            // version to compare it with.
-            'documentIsNew' => $documentData['isNew'],
-            'documentIsDeleted' => $documentData['isDeleted'],
-            'documentBaseContextPath' => $documentData['baseContextPath'],
+            'changes' => $changes,
+            'document' => $documentItem,
             'canPublishToBaseWorkspace' => $this->canPublishToBaseWorkspace($workspace),
         ]);
     }
@@ -715,7 +706,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $this->validateWorkspaceAccess($workspace);
         $dimensionValues = $this->assignDimensions($dimensions);
         $nodeInstance = $this->resolveNode($node);
-        $this->publishNodesWithTheirAncestors([$nodeInstance]);
+        $this->workspacePublishingService->publishNodesWithTheirAncestors([$nodeInstance]);
         $this->addFlashMessage((string)$this->translator->translateById('review.changePublished', [], null, null, 'Main', 'Shel.Neos.WorkspaceModule'));
         $this->assignReviewResponse($workspace, $this->workspaceChangesService->findClosestDocument($nodeInstance), $dimensionValues);
     }
@@ -728,7 +719,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $this->validateWorkspaceAccess($workspace);
         $dimensionValues = $this->assignDimensions($dimensions);
         $nodeInstance = $this->resolveNode($node);
-        $this->workspaceChangesService->discardNodeWithItsChildren($nodeInstance);
+        $this->workspacePublishingService->discardNodeWithItsChildren($nodeInstance);
         $this->addFlashMessage((string)$this->translator->translateById('review.changeDiscarded', [], null, null, 'Main', 'Shel.Neos.WorkspaceModule'));
         $this->assignReviewResponse($workspace, $this->workspaceChangesService->findClosestDocument($nodeInstance), $dimensionValues);
     }
@@ -740,14 +731,13 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
     {
         $this->validateWorkspaceAccess($workspace);
         $dimensionValues = $this->assignDimensions($dimensions);
-        $documentData = $this->workspaceChangesService->getDocumentWithChanges($workspace, $document, $dimensionValues);
-        $nodes = [];
-        foreach ($documentData['changes'] as $change) {
-            $nodes[] = $this->resolveNode((string)$change['contextPath']);
-        }
-        $this->publishNodesWithTheirAncestors($nodes);
+        $documentNode = $this->workspaceChangesService->findDocumentInChanges($workspace, $document, $dimensionValues);
+        $nodes = $documentNode === null
+            ? []
+            : $this->workspaceChangesService->getChangesOfDocument($workspace, $documentNode, $dimensionValues);
+        $this->workspacePublishingService->publishNodesWithTheirAncestors($nodes);
         $this->addFlashMessage((string)$this->translator->translateById('review.documentPublished', [], null, null, 'Main', 'Shel.Neos.WorkspaceModule'));
-        $this->assignReviewResponse($workspace, $documentData['document'], $dimensionValues);
+        $this->assignReviewResponse($workspace, $documentNode, $dimensionValues);
     }
 
     /**
@@ -757,10 +747,12 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
     {
         $this->validateWorkspaceAccess($workspace);
         $dimensionValues = $this->assignDimensions($dimensions);
-        $documentData = $this->workspaceChangesService->getDocumentWithChanges($workspace, $document, $dimensionValues);
-        $this->discardChanges($documentData['changes']);
+        $documentNode = $this->workspaceChangesService->findDocumentInChanges($workspace, $document, $dimensionValues);
+        $this->discardChanges($documentNode === null
+            ? []
+            : $this->workspaceChangesService->getChangesOfDocument($workspace, $documentNode, $dimensionValues));
         $this->addFlashMessage((string)$this->translator->translateById('review.documentDiscarded', [], null, null, 'Main', 'Shel.Neos.WorkspaceModule'));
-        $this->assignReviewResponse($workspace, $documentData['document'], $dimensionValues);
+        $this->assignReviewResponse($workspace, $documentNode, $dimensionValues);
     }
 
     /**
@@ -790,7 +782,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             // nothing is selected - the changes of the document that is open are published
             $selectedNodes = $this->changesOfDocument($workspace, $selection['document'], $dimensionValues);
         }
-        $this->publishNodesWithTheirAncestors($selectedNodes);
+        $this->workspacePublishingService->publishNodesWithTheirAncestors($selectedNodes);
         $this->addFlashMessage((string)$this->translator->translateById('review.changesPublished', [], null, null, 'Main', 'Shel.Neos.WorkspaceModule'));
         $this->assignReviewResponse($workspace, $this->documentThatStaysOpen($workspace, $selection['document']), $dimensionValues);
     }
@@ -871,22 +863,20 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      * together with its children, and a change that is gone already must not be discarded
      * again.
      *
-     * @param array<NodeInterface|array<string,mixed>> $changes
+     * @param list<NodeInterface> $changes
      */
     private function discardChanges(array $changes): void
     {
         $nodes = [];
         foreach ($changes as $change) {
-            $nodes[] = $change instanceof NodeInterface
-                ? $change
-                : $this->resolveNode((string)$change['contextPath']);
+            $nodes[] = $change;
         }
         usort(
             $nodes,
             static fn (NodeInterface $left, NodeInterface $right): int => substr_count($right->getPath(), '/') <=> substr_count($left->getPath(), '/')
         );
         foreach ($nodes as $node) {
-            $this->workspaceChangesService->discardNodeWithItsChildren($node);
+            $this->workspacePublishingService->discardNodeWithItsChildren($node);
         }
     }
 
@@ -908,29 +898,6 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             // The document is gone - it was published or discarded with the selection.
             return null;
         }
-    }
-
-    /**
-     * Publishes nodes together with the ancestors they need.
-     *
-     * A node can only be published if its parents exist in the workspace it is published to. The
-     * parents that were created in the workspace are published with it - otherwise the node
-     * would end up below a parent that does not exist.
-     *
-     * @param NodeInterface[] $nodes
-     */
-    private function publishNodesWithTheirAncestors(array $nodes): void
-    {
-        $nodesToPublish = [];
-        foreach ($nodes as $node) {
-            foreach ($this->workspaceChangesService->unpublishedAncestorsOf($node) as $ancestor) {
-                $nodesToPublish[$ancestor->getContextPath()] = $ancestor;
-            }
-            $nodesToPublish[$node->getContextPath()] = $node;
-        }
-
-        // The publishing service sorts the nodes, so that the parents come first.
-        $this->publishingService->publishNodes(array_values($nodesToPublish));
     }
 
     /**
@@ -980,33 +947,27 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         // The answer holds the changes of the document and the list of documents, so that the
         // tree is refreshed together with the changes: a document whose last change was
         // published or discarded leaves the list.
-        $changes = $document === null
+        $changesOfDocument = $document === null
             ? []
+            : $this->workspaceChangesService->getChangesOfDocument($workspace, $document, $dimensionValues);
+        $changes = $document === null
+            ? ChangeItems::fromArray([])
             : $this->workspaceChangesService->getChangesForDocument($workspace, $document, $dimensionValues);
-        if ($document !== null && $changes === []) {
+        if ($document !== null && count($changes) === 0) {
             // The document has no change any more - it is not in the list of the documents
             // with changes, so it cannot be the open one.
             $document = null;
         }
-        $documentDescription = $document === null
-            ? []
-            : $this->workspaceChangesService->describeDocument($document);
+        $documentItem = $document === null
+            ? null
+            : $this->documentDescriptionService->describeDocument($document, $changesOfDocument);
         $this->view->assignMultiple([
             'selectedWorkspace' => $workspace,
             'selectedWorkspaceName' => $workspace->getName(),
             'sites' => $this->workspaceChangesService->getDocumentsWithChanges($workspace, $dimensionValues),
             'selectedDocument' => $document?->getContextPath() ?? '',
             'changes' => $changes,
-            'documentLabel' => $documentDescription['label'] ?? '',
-            'documentIcon' => $documentDescription['icon'] ?? '',
-            'documentBreadcrumb' => $documentDescription['breadcrumb'] ?? [],
-            'documentDimensionLabel' => implode(', ', $documentDescription['dimensions'] ?? []),
-            // The preview of the document: the published version and the version of the
-            // workspace. A document that was created in the workspace has no published
-            // version to compare it with.
-            'documentIsNew' => $documentDescription['isNew'] ?? false,
-            'documentIsDeleted' => $documentDescription['isDeleted'] ?? false,
-            'documentBaseContextPath' => $documentDescription['baseContextPath'] ?? '',
+            'document' => $documentItem,
             'canPublishToBaseWorkspace' => $this->canPublishToBaseWorkspace($workspace),
         ]);
     }
@@ -1022,13 +983,13 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      */
     private function assignDimensions(string $selection): array
     {
-        $selected = $this->workspaceChangesService->parseDimensionSelection($selection);
+        $selected = $this->contentDimensionService->parseDimensionSelection($selection);
         $this->view->assignMultiple([
-            'contentDimensions' => $this->workspaceChangesService->getDimensionConfiguration($selected),
+            'contentDimensions' => $this->contentDimensionService->getDimensionConfiguration($selected),
             'selectedDimensions' => $selection,
         ]);
 
-        return $this->workspaceChangesService->getDimensionValues($selected);
+        return $this->contentDimensionService->getDimensionValues($selected);
     }
 
     /**

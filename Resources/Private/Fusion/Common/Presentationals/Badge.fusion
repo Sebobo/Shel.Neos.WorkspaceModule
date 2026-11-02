@@ -1,0 +1,22 @@
+##
+# A badge - a short text that tells the kind of something.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.Badge) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = false
+        label = ${PropTypes.string}
+        title = ${PropTypes.string}
+        type = ${PropTypes.string}
+        icon = ${PropTypes.string}
+    }
+
+    renderer = afx`
+        <span
+            class={['neos-label', 'workspace-review-badge', 'workspace-review-badge-' + props.type]}
+            title={props.title}
+        >
+            <Shel.Neos.WorkspaceModule:Component.Icon icon={props.icon}/>
+            {props.label}
+        </span>
+    `
+}

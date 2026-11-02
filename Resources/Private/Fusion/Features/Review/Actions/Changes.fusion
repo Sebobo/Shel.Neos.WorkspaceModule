@@ -1,0 +1,17 @@
+##
+# The actions of the review that change something.
+#
+# Every one of them answers with the list of the documents and with the changes of the
+# document that is open - the answer is the same, whatever the action did.
+#
+Shel.Neos.WorkspaceModule.WorkspacesController {
+    documentChanges = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    publishChange = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    discardChange = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    publishSelected = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    discardSelected = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    publishDocument = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    discardDocument = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    publishAll = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    discardAll = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+}

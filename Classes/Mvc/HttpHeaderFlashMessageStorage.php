@@ -1,11 +1,7 @@
 <?php
 
-/*
+/**
  * This file is part of the Shel.Neos.WorkspaceModule package.
- *
- * (c) 2022 Sebastian Helzle
- *
- * This package is part of the Neos CMS.
  *
  * This package is Open Source Software. For the full copyright and license
  * information, please view the LICENSE file which was distributed with this

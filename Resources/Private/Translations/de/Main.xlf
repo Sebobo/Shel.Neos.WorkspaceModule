@@ -366,6 +366,11 @@
                 <target>Vorschau des Dokuments</target>
             </trans-unit>
 
+            <trans-unit id="review.syncScroll">
+                <source>Synchronise the scroll positions</source>
+                <target>Scrollpositionen koppeln</target>
+            </trans-unit>
+
             <trans-unit id="review.close">
                 <source>Close</source>
                 <target>Schließen</target>

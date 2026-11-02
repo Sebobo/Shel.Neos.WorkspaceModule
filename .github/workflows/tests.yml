@@ -58,7 +58,7 @@ jobs:
       # The version of phpstan that is installed with the package - the action would bring
       # its own version, which can be another one than the one the code is checked with.
       - name: PHPStan
-        run: vendor/bin/phpstan analyse --configuration=phpstan.neon --no-progress --memory-limit=1G
+        run: vendor/bin/phpstan analyse --configuration=phpstan.ci.neon --no-progress --memory-limit=1G
 
   test-integration:
     runs-on: ubuntu-latest

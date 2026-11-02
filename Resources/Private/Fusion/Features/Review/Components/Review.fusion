@@ -91,16 +91,18 @@ prototype(Shel.Neos.WorkspaceModule:Component.Review) < prototype(Neos.Fusion:Co
                                 hx-trigger="load"
                                 hx-swap="outerHTML"
                             >
-                                <span id="document-tree-reload" class="workspace-review-reload workspace-review-reload-placeholder htmx-indicator">
-                                    <i class="fas fa-sync"></i>
-                                </span>
+                                <Shel.Neos.WorkspaceModule:Component.Indicator
+                                    id="document-tree-reload"
+                                    icon="fas fa-sync"
+                                />
                             </div>
                         </div>
                         <div class="workspace-review-content">
                             <div id="document-changes">
-                                <span id="document-changes-reload" class="workspace-review-reload workspace-review-reload-placeholder htmx-indicator">
-                                    <i class="fas fa-sync"></i>
-                                </span>
+                                <Shel.Neos.WorkspaceModule:Component.Indicator
+                                    id="document-changes-reload"
+                                    icon="fas fa-sync"
+                                />
                             </div>
                         </div>
                     </div>

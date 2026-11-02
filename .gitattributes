@@ -5,7 +5,6 @@ main.css binary
 /.yarn export-ignore
 /.github export-ignore
 /Resources/Private/JavaScript export-ignore
-/Tests export-ignore
 /cypress
 
 /.eslintignore export-ignore

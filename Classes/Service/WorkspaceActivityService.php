@@ -46,7 +46,7 @@ class WorkspaceActivityService
     #[Flow\Inject]
     protected WorkspaceRepository $workspaceRepository;
 
-    public function nodePublished(NodeInterface $node, Workspace $targetWorkspace = null): void
+    public function nodePublished(NodeInterface $node, ?Workspace $targetWorkspace = null): void
     {
         if (!$targetWorkspace) {
             return;

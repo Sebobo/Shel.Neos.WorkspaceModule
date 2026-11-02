@@ -561,7 +561,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      * @param Workspace|null $selectedWorkspace
      * @throws \Exception|PropertyException|SecurityException
      */
-    public function publishOrDiscardNodesAction(array $nodes, $action, Workspace $selectedWorkspace = null): void
+    public function publishOrDiscardNodesAction(array $nodes, $action, ?Workspace $selectedWorkspace = null): void
     {
         $this->validateWorkspaceAccess($selectedWorkspace);
 
@@ -1030,7 +1030,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         return $this->persistenceManager->getIdentifierByObject($user);
     }
 
-    protected function validateWorkspaceAccess(Workspace $workspace = null): void
+    protected function validateWorkspaceAccess(?Workspace $workspace = null): void
     {
         if ($workspace && !$this->userCanAccessWorkspace($workspace)) {
             $this->translator->translateById(

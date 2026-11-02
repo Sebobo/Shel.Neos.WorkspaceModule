@@ -12,7 +12,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: 'Neos workspace module lint and build'
+    name: 'JS code style and build'
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -34,7 +34,7 @@ jobs:
 
   codestyle:
     runs-on: ubuntu-latest
-    name: 'Neos workspace module static analysis'
+    name: 'PHP static analysis'
 
     strategy:
       fail-fast: false
@@ -69,7 +69,7 @@ jobs:
       FLOW_FOLDER: ../flow-base-distribution
 
     runs-on: ubuntu-latest
-    name: 'Neos workspace module functional tests'
+    name: 'PHP functional tests'
 
     strategy:
       fail-fast: false
@@ -115,18 +115,28 @@ jobs:
       - name: Run Functional tests
         run: |
           cd ${FLOW_FOLDER}
-          bin/phpunit --colors -c Build/BuildEssentials/PhpUnit/FunctionalTests.xml Packages/Application/${{ env.PACKAGE_FOLDER }}/Tests/Functional/
+          ls -la Packages
+          ls -la Packages/Plugins
+          ls -la Packages/Plugins/${{ env.PACKAGE_FOLDER }}
+          bin/phpunit --colors -c Build/BuildEssentials/PhpUnit/FunctionalTests.xml Packages/Plugins/${{ env.PACKAGE_FOLDER }}/Tests/Functional/
 
   test-integration:
     runs-on: ubuntu-latest
-    name: 'Neos workspace module integration tests'
+    name: 'JS integration tests'
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
           build: yarn
           start: yarn dev
+          # The action hands the file of the configuration to cypress. Without this it uses
+          # "cypress.json", which cypress does not read any more since its version 10.
+          config-file: cypress.config.ts
+          # The tests need the dev server, which serves the fixtures of the module. The action
+          # pings the url itself and gives up after two tries - the npm package "wait-on"
+          # waits until the server answers.
+          wait-on: "npx --yes wait-on --timeout 120 http://localhost:4000"
           test: yarn test:integration

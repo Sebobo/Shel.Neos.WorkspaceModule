@@ -456,6 +456,20 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
     /**
      * @inheritDoc
      */
+    protected function initializeAction(): void
+    {
+        parent::initializeAction();
+        // The services hold the changes of the workspace and the nodes of the base
+        // workspace in a cache, so that they are not asked for them again and again. The
+        // cache belongs to the request: the changes of a request that is over are not the
+        // changes of the next one.
+        $this->workspaceChangesService->clearCache();
+        $this->nodeTreeService->clearCache();
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected function initializeUpdateAction(): void
     {
         parent::initializeUpdateAction();
@@ -867,17 +881,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      */
     private function discardChanges(array $changes): void
     {
-        $nodes = [];
-        foreach ($changes as $change) {
-            $nodes[] = $change;
-        }
-        usort(
-            $nodes,
-            static fn (NodeInterface $left, NodeInterface $right): int => substr_count($right->getPath(), '/') <=> substr_count($left->getPath(), '/')
-        );
-        foreach ($nodes as $node) {
-            $this->workspacePublishingService->discardNodeWithItsChildren($node);
-        }
+        $this->workspacePublishingService->discardNodesWithTheirChildren($changes);
     }
 
     /**

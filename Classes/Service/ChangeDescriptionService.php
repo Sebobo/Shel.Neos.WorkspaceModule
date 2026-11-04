@@ -36,6 +36,11 @@ use Shel\Neos\WorkspaceModule\ViewModel\ContentChanges\TextContentChange;
 #[Flow\Scope('singleton')]
 final class ChangeDescriptionService
 {
+    /**
+     * The prefix of a property that holds the link to another node as a string.
+     */
+    private const NODE_REFERENCE_PREFIX = 'node://';
+
     public function __construct(
         private readonly ContentContextFactory $contextFactory,
         private readonly NodeLabelService $nodeLabelService,
@@ -125,6 +130,27 @@ final class ChangeDescriptionService
             }
 
             $originalPropertyValue = $originalNode?->getProperty($propertyName);
+
+            if ($this->isNodeReference($changedPropertyValue) || $this->isNodeReference($originalPropertyValue)) {
+                $originalReference = $this->describeNodeReference($originalPropertyValue, $originalNode ?? $changedNode);
+                $changedReference = $this->describeNodeReference($changedPropertyValue, $changedNode);
+
+                if ($changedReference !== $originalReference) {
+                    $contentChanges[$propertyName] = new ContentChangeItem(
+                        properties: new ContentChangeProperties(
+                            type: 'text',
+                            propertyLabel: $this->nodeLabelService->propertyLabel($propertyName, $changedNode),
+                        ),
+                        changes: new TextContentChange(
+                            diff: $this->diffOf($originalReference, $changedReference),
+                            originalIsNull: $originalReference === '',
+                            changedIsNull: $changedReference === '',
+                        ),
+                    );
+                }
+
+                continue;
+            }
 
             if ($changedPropertyValue === $originalPropertyValue) {
                 continue;
@@ -221,6 +247,94 @@ final class ChangeDescriptionService
         }
 
         return ContentChangeItems::fromArray($contentChanges);
+    }
+
+    /**
+     * Whether a value points to another node.
+     *
+     * A property of the type "reference" holds the node it points to, a property of the type
+     * "references" holds a list of them. A property that holds the link to a node as a string
+     * - the canonical link of a page for example - holds it with the prefix "node://".
+     */
+    private function isNodeReference(mixed $value): bool
+    {
+        if ($value instanceof NodeInterface) {
+            return true;
+        }
+        if (is_array($value)) {
+            foreach ($value as $entry) {
+                if ($entry instanceof NodeInterface) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return is_string($value) && str_starts_with($value, self::NODE_REFERENCE_PREFIX);
+    }
+
+    /**
+     * The description of a value that points to another node.
+     *
+     * The identifier of a node does not tell which node it is - the label does. The node is
+     * looked up in the workspace of the node the value belongs to, so that the label is the
+     * one of the version that is looked at.
+     */
+    private function describeNodeReference(mixed $value, NodeInterface $node): string
+    {
+        if (is_array($value)) {
+            $descriptions = [];
+            foreach ($value as $entry) {
+                $descriptions[] = $this->describeNodeReference($entry, $node);
+            }
+
+            return implode(', ', array_filter($descriptions));
+        }
+
+        $referencedNode = $this->resolveReferencedNode($value, $node);
+        if (!$referencedNode instanceof NodeInterface) {
+            // The node is gone - the identifier is all that is left of it.
+            return is_string($value) ? $value : '';
+        }
+
+        return $referencedNode->getLabel() . ' (' . $referencedNode->getIdentifier() . ')';
+    }
+
+    /**
+     * The node a value points to, if it points to one.
+     */
+    private function resolveReferencedNode(mixed $value, NodeInterface $node): ?NodeInterface
+    {
+        if ($value instanceof NodeInterface) {
+            return $value;
+        }
+        if (!is_string($value) || !str_starts_with($value, self::NODE_REFERENCE_PREFIX)) {
+            return null;
+        }
+
+        $identifier = substr($value, strlen(self::NODE_REFERENCE_PREFIX));
+
+        return $node->getContext()->getNodeByIdentifier($identifier);
+    }
+
+    /**
+     * The difference between two texts.
+     *
+     * @return list<list<array<string, mixed>>>
+     */
+    private function diffOf(string $original, string $changed): array
+    {
+        $diff = new Diff(
+            explode("\n", $original),
+            explode("\n", $changed),
+            ['context' => 1]
+        );
+
+        /** @var list<list<array<string, mixed>>> $diffArray */
+        $diffArray = $this->markEmptyDiffSides($diff->render(new HtmlArrayRenderer()));
+
+        return $diffArray;
     }
 
     /**

@@ -1,0 +1,306 @@
+/*
+ * The changes of the document that is open: the header with the document, the change with
+ * its diff and the badges that show the kind of the change.
+ */
+.neos-module-management-workspaces {
+    /*
+     * The document the changes belong to, named above them: the breadcrumb of the documents
+     * it sits below, then its own label and icon.
+     */
+    .neos-content-change-document-header {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-Half);
+        padding: var(--review-padding) var(--spacing-Full);
+        border-bottom: var(--review-border);
+        color: var(--textOnGray);
+        font-weight: bold;
+    }
+
+    /* the document itself is the last step of the breadcrumb */
+    .neos-content-change-document-crumb-current {
+        color: var(--textOnGray);
+        font-weight: bold;
+
+        .neos-content-change-document-label {
+            margin-left: 1ch;
+        }
+    }
+
+    /* the variant of the document stands next to its name */
+    .neos-content-change-document-dimension {
+        margin-left: 1ch;
+        color: var(--review-text-muted);
+        font-weight: normal;
+        font-size: var(--fontSize-Small);
+        text-transform: uppercase;
+        letter-spacing: var(--review-letter-spacing);
+    }
+
+    .neos-content-change-document-breadcrumb {
+        color: var(--review-text-muted);
+        font-weight: normal;
+        line-height: 1.6;
+    }
+
+    .neos-content-change-document-crumb + .neos-content-change-document-crumb::before {
+        content: ' / ';
+        color: var(--review-text-faint);
+    }
+
+    /*
+     * A change and its diff.
+     *
+     * The change is a row of three columns: the change itself with its diff, the date of
+     * the change and the buttons that publish or discard it. The buttons are a column of
+     * their own and not a row below the date, so that a change with a long diff does not
+     * become taller than it has to be.
+     */
+    .neos-content-change {
+        display: flex;
+        align-items: flex-start;
+        border: var(--review-border);
+        border-left: var(--review-legend-width) solid var(--colors-Warn);
+        margin-bottom: var(--spacing-Full);
+        background: var(--grayDark);
+
+        /*
+         * The changes are indented by the containers they sit in, so that it can be seen
+         * that a text belongs to a column of a multi column element. The whole block is
+         * indented, not only its header.
+         */
+        margin-left: calc(var(--depth, 0) * var(--spacing-Full));
+    }
+
+    .neos-content-change-main {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .neos-content-change-header {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--spacing-Half);
+        padding: var(--review-padding) var(--spacing-Full);
+        font-weight: bold;
+        color: var(--textOnGray);
+
+        > .neos-checkbox {
+            margin: 0 var(--spacing-Quarter) 0 0;
+        }
+    }
+
+    /* the icon of the node type stands in the line of the label, like it does in the list */
+    .neos-content-change-label {
+        color: var(--textOnGray);
+        line-height: var(--review-line-height);
+
+        i {
+            margin-right: 1ch;
+        }
+    }
+
+    .neos-content-change-date {
+        flex: 0 0 auto;
+        padding: var(--review-padding) var(--spacing-Half);
+        color: var(--review-text-faint);
+        font-size: var(--fontSize-Small);
+        white-space: nowrap;
+    }
+
+    .neos-content-change-node-type {
+        color: var(--review-text-faint);
+        font-size: var(--fontSize-Small);
+        margin-left: var(--spacing-Half);
+        padding-left: var(--spacing-Half);
+        border-left: var(--review-border);
+    }
+
+    .neos-content-change-actions {
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-Half);
+        padding: var(--review-padding) var(--spacing-Full) var(--review-padding) var(--spacing-Half);
+
+        button {
+            width: 46px;
+            margin: 0;
+        }
+
+        /*
+         * The buttons of a single change are gray, like the ones of the core module, and take
+         * the colour of their action on hover: a review holds a lot of them, and a wall of
+         * blue and red drowns the diffs.
+         */
+        .neos-button {
+            background-color: var(--grayMedium);
+
+            &.neos-button-primary:not([disabled]):hover,
+            &.neos-button-primary:not([disabled]):active {
+                background-color: var(--blue);
+            }
+
+            &.neos-button-danger:not([disabled]):hover,
+            &.neos-button-danger:not([disabled]):active {
+                background-color: var(--colors-Error);
+            }
+        }
+    }
+
+    /*
+     * The containers a change sits in, named above the diff.
+     */
+    .workspace-review-change-context {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--spacing-Quarter);
+        margin: -var(--spacing-Quarter) var(--spacing-Full) var(--spacing-Half) var(--spacing-GoldenUnit);
+        padding-left: var(--spacing-Half);
+        border-left: var(--review-border);
+        color: var(--review-text-faint);
+        font-size: var(--fontSize-Small);
+    }
+
+    .workspace-review-change-ancestor {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--spacing-Quarter);
+    }
+
+    .workspace-review-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--spacing-Quarter);
+        margin-right: var(--spacing-Quarter);
+        padding: 2px var(--spacing-Half);
+        font-size: var(--fontSize-Small);
+        /* the core gives every label a shadow, which reads as a blur on a light background */
+        text-shadow: none;
+    }
+
+    .workspace-review-badge-created {
+        background: var(--colors-Success);
+    }
+
+    .workspace-review-badge-deleted {
+        background: var(--colors-Error);
+    }
+
+    .workspace-review-badge-hidden {
+        background: var(--review-text-muted);
+        color: var(--grayDarker);
+        text-shadow: none;
+    }
+
+    .workspace-review-badge-moved {
+        background: var(--blue);
+    }
+
+    .workspace-review-badge-changed {
+        background: var(--colors-Warn);
+    }
+
+    .neos-content-diff .neos-content-diff-property {
+        padding: var(--review-padding) var(--spacing-Full) 6px;
+        color: var(--textOnGray);
+        font-size: 13px;
+    }
+
+    .neos-content-diff .diff-property-content-left {
+        border-right: var(--review-border);
+
+        div {
+            color: var(--review-text-muted);
+            text-decoration: line-through;
+        }
+    }
+
+    .neos-content-diff .diff-property-content-right div {
+        color: var(--textOnGray);
+    }
+
+    /*
+     * The marker for a value that is not there: a property that was never set and a
+     * property that was set to an empty value. Without it an empty cell is hard to tell
+     * apart from a value that was removed.
+     */
+    .neos-content-diff .neos-content-diff-no-value {
+        color: var(--review-text-muted);
+        font-style: italic;
+    }
+}
+
+/*
+ * The rules that have to win against the ones of the core repeat its selector in full.
+ */
+.neos.neos-module.neos-module-management-workspaces {
+    /*
+     * A change without anything to show (a node whose row differs only in metadata) states
+     * its reason instead of rendering an empty diff table.
+     */
+    .neos-content-diff .neos-content-diff-empty {
+        padding: var(--review-padding) var(--spacing-Full);
+        /* the core does not wrap the cells of the module, and the note is a cell */
+        white-space: normal;
+        font-style: italic;
+        color: var(--review-text-faint);
+    }
+
+    /*
+     * The preview, the quicklink to the content module and the button that loads the changes
+     * again sit at the top right of the changes - the preview is the one that is pushed to
+     * the right, so that the three of them stand next to each other.
+     *
+     * They stand at the top of the header and not in the middle of it: the name of the
+     * document can take two lines, and the buttons belong to the first one.
+     *
+     * The core gives every link of a module the colour of the text, and its selector
+     * (.neos.neos-module a) wins against the rule of the module, so the rules of the
+     * quicklink repeat the selector of the core in full.
+     */
+    .neos-content-change-document-header > .workspace-review-preview {
+        margin-left: auto;
+    }
+
+    .neos-content-change-document-header > .workspace-review-open {
+        align-self: flex-start;
+        margin-left: 0;
+        color: var(--review-text-muted);
+        /* a button centres its icon, a link does not - the quicklink has to do it by itself,
+           or the two icons do not stand on the same line */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            color: var(--textOnGray);
+        }
+    }
+
+    /*
+     * The values of a changed property are wrapped.
+     *
+     * The core gives every cell of the workspace module "white-space: nowrap", and the
+     * table of the diff is as wide as its content otherwise - a long value reaches beyond the
+     * viewport. The rules repeat the selector of the core in full, so that they win.
+     */
+    .neos-content-diff,
+    .neos-content-diff table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    .neos-content-diff .diff-property-content-left,
+    .neos-content-diff .diff-property-content-right {
+        width: 50%;
+        vertical-align: top;
+        padding: 6px var(--spacing-Full);
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        line-height: var(--review-line-height);
+    }
+}

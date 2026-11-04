@@ -129,6 +129,7 @@ final class WorkspaceChangesService
             kind: $description->kind,
             isNew: $description->isNew,
             isDeleted: $description->isDeleted,
+            isAccessible: $description->isAccessible,
             level: $level,
             parent: $nearestListedAncestor,
             parentIsInList: $parentIsInList,

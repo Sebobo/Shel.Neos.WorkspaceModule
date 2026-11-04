@@ -34,6 +34,7 @@ final readonly class DocumentItem
         public string $kind,
         public bool $isNew,
         public bool $isDeleted,
+        public bool $isAccessible,
         public int $level,
         public ?string $parent,
         public bool $parentIsInList,

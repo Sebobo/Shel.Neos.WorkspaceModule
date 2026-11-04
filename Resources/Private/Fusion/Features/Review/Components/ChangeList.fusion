@@ -100,7 +100,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
                     data-preview-url={private.previewUrl}
                     data-preview-base-url={private.previewBaseUrl}
                     data-preview-title={props.document.label}
-                    disabled={props.document.isDeleted ? 'disabled' : null}
+                    disabled={props.document.isAccessible ? null : 'disabled'}
                 >
                     <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-eye"/>
                 </button>

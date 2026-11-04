@@ -129,7 +129,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.Review) < prototype(Neos.Fusion:Co
                     workspaceLabel={private.i18n.id('review.publishAll').translate()}
                     workspaceModal="workspace-review-publish-all-modal"
                     canPublish={props.canPublishToBaseWorkspace}
-                    disabled={props.canPublishToBaseWorkspace ? null : 'disabled'}
+                    disabled={props.canPublishToBaseWorkspace ? false : true}
                 />
                 <Shel.Neos.WorkspaceModule:Component.ActionCombo
                     id="discardComboButton"

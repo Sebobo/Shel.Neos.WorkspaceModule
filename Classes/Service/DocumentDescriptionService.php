@@ -50,6 +50,7 @@ final class DocumentDescriptionService
             kind: $kind,
             isNew: $kind === 'created',
             isDeleted: $kind === 'deleted',
+            isAccessible: $this->isAccessible($document),
             level: 0,
             parent: null,
             parentIsInList: false,
@@ -80,6 +81,18 @@ final class DocumentDescriptionService
         }
 
         return 'edited';
+    }
+
+    /**
+     * Whether the document can be seen on the website.
+     *
+     * A document that was deleted does not exist any more, and a document that is hidden is
+     * not rendered by the frontend - the preview of it would show the page that says that
+     * the page was not found.
+     */
+    private function isAccessible(NodeInterface $document): bool
+    {
+        return !$document->isRemoved() && $document->isVisible();
     }
 
     /**

@@ -89,6 +89,45 @@ class DocumentDescriptionServiceTest extends WorkspaceTestCase
     }
 
     #[Test]
+    public function aDocumentThatIsVisibleIsAccessible(): void
+    {
+        $home = $this->nodeInTestWorkspace($this->sitePath('/home'));
+        self::assertInstanceOf(NodeInterface::class, $home);
+
+        $document = $this->documentDescriptionService->describeDocument($home);
+
+        self::assertTrue($document->isAccessible);
+    }
+
+    #[Test]
+    public function aHiddenDocumentIsNotAccessible(): void
+    {
+        $home = $this->nodeInTestWorkspace($this->sitePath('/home'));
+        self::assertInstanceOf(NodeInterface::class, $home);
+        // A hidden document is not rendered by the frontend - the preview of it would show
+        // the page that says that the page was not found.
+        $home->setHidden(true);
+        $this->persistenceManager->persistAll();
+
+        $document = $this->documentDescriptionService->describeDocument($home);
+
+        self::assertFalse($document->isAccessible);
+    }
+
+    #[Test]
+    public function aDeletedDocumentIsNotAccessible(): void
+    {
+        $aboutUs = $this->nodeInTestWorkspace($this->sitePath('/about-us'));
+        self::assertInstanceOf(NodeInterface::class, $aboutUs);
+        $aboutUs->remove();
+        $this->persistenceManager->persistAll();
+
+        $document = $this->documentDescriptionService->describeDocument($aboutUs);
+
+        self::assertFalse($document->isAccessible);
+    }
+
+    #[Test]
     public function theChangesOfADocumentAreCountedByTheirKind(): void
     {
         $home = $this->nodeInTestWorkspace($this->sitePath('/home'));

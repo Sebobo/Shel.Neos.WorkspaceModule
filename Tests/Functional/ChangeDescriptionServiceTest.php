@@ -90,6 +90,65 @@ class ChangeDescriptionServiceTest extends WorkspaceTestCase
     }
 
     #[Test]
+    public function aChangedReferenceIsNamedWithTheLabelOfTheNode(): void
+    {
+        $related = $this->nodeInTestWorkspace($this->sitePath('/home/related'));
+        self::assertInstanceOf(NodeInterface::class, $related);
+        $home = $this->nodeInTestWorkspace($this->sitePath('/home'));
+        self::assertInstanceOf(NodeInterface::class, $home);
+        // The reference points to the home page now, before it pointed to the about us page.
+        $related->setProperty('reference', $home->getIdentifier());
+        $this->persistenceManager->persistAll();
+
+        $change = $this->changeDescriptionService->describeChange($related);
+
+        $contentChanges = $change->contentChanges->items;
+        self::assertArrayHasKey('reference', $contentChanges);
+        $textChange = $contentChanges['reference']->changes;
+        self::assertInstanceOf(TextContentChange::class, $textChange);
+        // The identifier alone does not tell which node it is - the label does.
+        $diff = $this->textOfTheDiff($textChange->diff);
+        self::assertStringContainsString('About us', $diff);
+        self::assertStringContainsString('Home', $diff);
+        self::assertStringContainsString($home->getIdentifier(), $diff);
+    }
+
+    #[Test]
+    public function aChangedLinkToANodeIsNamedWithTheLabelOfTheNode(): void
+    {
+        $related = $this->nodeInTestWorkspace($this->sitePath('/home/related'));
+        self::assertInstanceOf(NodeInterface::class, $related);
+        $home = $this->nodeInTestWorkspace($this->sitePath('/home'));
+        self::assertInstanceOf(NodeInterface::class, $home);
+        // The link points to the home page now, before it pointed to the about us page.
+        $related->setProperty('link', 'node://' . $home->getIdentifier());
+        $this->persistenceManager->persistAll();
+
+        $change = $this->changeDescriptionService->describeChange($related);
+
+        $contentChanges = $change->contentChanges->items;
+        self::assertArrayHasKey('link', $contentChanges);
+        $textChange = $contentChanges['link']->changes;
+        self::assertInstanceOf(TextContentChange::class, $textChange);
+        $diff = $this->textOfTheDiff($textChange->diff);
+        self::assertStringContainsString('About us', $diff);
+        self::assertStringContainsString('Home', $diff);
+    }
+
+    #[Test]
+    public function aReferenceThatDidNotChangeIsNotInTheDifference(): void
+    {
+        $related = $this->nodeInTestWorkspace($this->sitePath('/home/related'));
+        self::assertInstanceOf(NodeInterface::class, $related);
+        $related->setProperty('title', 'A new title');
+        $this->persistenceManager->persistAll();
+
+        $change = $this->changeDescriptionService->describeChange($related);
+
+        self::assertArrayNotHasKey('reference', $change->contentChanges->items);
+    }
+
+    #[Test]
     public function aPropertyThatDidNotChangeIsNotInTheDifference(): void
     {
         $home = $this->nodeInTestWorkspace($this->sitePath('/home'));
@@ -128,6 +187,31 @@ class ChangeDescriptionServiceTest extends WorkspaceTestCase
         self::assertInstanceOf(NodeInterface::class, $home);
         $text = $home->getNode('main')->getNode('text');
         self::assertInstanceOf(NodeInterface::class, $text);
+
+        return $text;
+    }
+
+    /**
+     * The text of a difference, without the marks that show what changed.
+     *
+     * The marks are in the middle of the text: a word that did not change is not marked,
+     * and it is not part of the marked words either. The text of the difference is what the
+     * reviewer sees.
+     *
+     * @param list<list<array<string, mixed>>> $diff
+     */
+    private function textOfTheDiff(array $diff): string
+    {
+        $text = '';
+        foreach ($diff as $group) {
+            foreach ($group as $block) {
+                foreach (['base', 'changed'] as $side) {
+                    foreach ($block[$side]['lines'] ?? [] as $line) {
+                        $text .= strip_tags((string)$line) . "\n";
+                    }
+                }
+            }
+        }
 
         return $text;
     }

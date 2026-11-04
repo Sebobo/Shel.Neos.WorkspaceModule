@@ -121,4 +121,51 @@ class WorkspacePublishingServiceTest extends WorkspaceTestCase
         $text = $discarded->getNode('main')->getNode('text');
         self::assertInstanceOf(NodeInterface::class, $text);
     }
+
+    #[Test]
+    public function publishingARemovedDocumentRemovesItFromTheBaseWorkspace(): void
+    {
+        $aboutUs = $this->nodeInTestWorkspace($this->sitePath('/about-us'));
+        self::assertInstanceOf(NodeInterface::class, $aboutUs);
+        $aboutUs->remove();
+        $this->persistenceManager->persistAll();
+
+        $this->workspacePublishingService->publishNodesWithTheirAncestors([$aboutUs]);
+        $this->persistenceManager->persistAll();
+        $this->nodeDataRepository->flushNodeRegistry();
+        $this->contextFactory->reset();
+
+        // The document is not in the published workspace any more - a removed document is not
+        // rendered by the frontend, and the review shows it as a deleted document.
+        self::assertNull($this->nodeInLiveWorkspace($this->sitePath('/about-us')));
+
+        // The document is still in the workspace under review - it is only gone in the
+        // published one.
+        $removed = $this->nodeInTestWorkspace($this->sitePath('/about-us'));
+        self::assertNull($removed);
+    }
+
+    #[Test]
+    public function discardingARemovedDocumentBringsItBack(): void
+    {
+        $aboutUs = $this->nodeInTestWorkspace($this->sitePath('/about-us'));
+        self::assertInstanceOf(NodeInterface::class, $aboutUs);
+        $aboutUs->remove();
+        $this->persistenceManager->persistAll();
+
+        $this->workspacePublishingService->discardNodeWithItsChildren($aboutUs);
+        $this->persistenceManager->persistAll();
+        $this->nodeDataRepository->flushNodeRegistry();
+        $this->contextFactory->reset();
+
+        // The document is back - the change that removed it is gone.
+        $restored = $this->nodeInTestWorkspace($this->sitePath('/about-us'));
+        self::assertInstanceOf(NodeInterface::class, $restored);
+        self::assertSame('About us', $restored->getProperty('title'));
+
+        // And it is untouched in the published workspace.
+        $published = $this->nodeInLiveWorkspace($this->sitePath('/about-us'));
+        self::assertInstanceOf(NodeInterface::class, $published);
+        self::assertSame('About us', $published->getProperty('title'));
+    }
 }

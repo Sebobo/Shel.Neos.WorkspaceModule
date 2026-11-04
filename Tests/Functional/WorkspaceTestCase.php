@@ -71,6 +71,18 @@ abstract class WorkspaceTestCase extends FunctionalTestCase
 
         $this->persistenceManager->persistAll();
 
+        $this->setUpContent();
+    }
+
+    /**
+     * The content the tests work with.
+     *
+     * The hook exists for the tests that talk to the module over http: the content can only
+     * be created when a user is authenticated, because the content repository asks the
+     * privileges of the user before it writes.
+     */
+    protected function setUpContent(): void
+    {
         $this->createContentInLiveWorkspace();
     }
 
@@ -110,6 +122,10 @@ abstract class WorkspaceTestCase extends FunctionalTestCase
 
     /**
      * The site with two documents: "Home" and "About us", each of them with a text.
+     *
+     * Below the home page are three documents that share it as their parent - the home page
+     * itself has no change of its own, so the documents below it are named by their
+     * breadcrumb.
      */
     protected function createContentInLiveWorkspace(): void
     {
@@ -127,10 +143,21 @@ abstract class WorkspaceTestCase extends FunctionalTestCase
         $aboutUs->setProperty('title', 'About us');
         $this->createTextIn($aboutUs, 'The text of the about us page.');
 
-        // A document below the home page, so that the documents are nested.
-        $team = $home->createNode('team', $this->nodeTypeManager->getNodeType('Acme.Demo:Page'));
-        $team->setProperty('title', 'Team');
-        $this->createTextIn($team, 'The text of the team page.');
+        // Three documents below the home page, so that the documents are nested.
+        foreach (['team' => 'Team', 'services' => 'Services', 'contact' => 'Contact'] as $nodeName => $title) {
+            $document = $home->createNode($nodeName, $this->nodeTypeManager->getNodeType('Acme.Demo:Page'));
+            $document->setProperty('title', $title);
+            $this->createTextIn($document, 'The text of the ' . $title . ' page.');
+        }
+
+        // A document that points to another one.
+        $related = $home->createNode(
+            'related',
+            $this->nodeTypeManager->getNodeType('Shel.Neos.WorkspaceModule:Testing:PageWithReference')
+        );
+        $related->setProperty('title', 'Related');
+        $related->setProperty('reference', $aboutUs->getIdentifier());
+        $related->setProperty('link', 'node://' . $aboutUs->getIdentifier());
 
         $this->persistenceManager->persistAll();
     }

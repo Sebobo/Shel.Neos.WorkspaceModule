@@ -1,0 +1,13 @@
+# The node types of the tests. They are only available in the "Testing" context.
+#
+# The super type is the document of the core: it exists in every version of Neos, so that
+# the tests run against the distribution of the CI as well.
+#
+'Shel.Neos.WorkspaceModule:Testing:PageWithReference':
+  superTypes:
+    'Neos.Neos:Document': true
+  properties:
+    reference:
+      type: reference
+    link:
+      type: string

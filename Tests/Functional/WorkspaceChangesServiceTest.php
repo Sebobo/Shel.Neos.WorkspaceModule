@@ -32,6 +32,7 @@ class WorkspaceChangesServiceTest extends WorkspaceTestCase
     #[Test]
     public function aWorkspaceWithoutChangesHasNoDocuments(): void
     {
+        $this->workspaceChangesService->clearCache();
         $documents = $this->workspaceChangesService->getDocumentsWithChanges($this->testWorkspace());
 
         self::assertSame([], $documents);
@@ -157,9 +158,12 @@ class WorkspaceChangesServiceTest extends WorkspaceTestCase
     #[Test]
     public function theDocumentsAreNestedLikeTheyAreInTheContentTree(): void
     {
-        $team = $this->nodeInTestWorkspace($this->sitePath('/home/team'));
-        self::assertInstanceOf(NodeInterface::class, $team);
-        $team->setProperty('title', 'The new team');
+        // The three documents below the home page are changed, the home page itself is not.
+        foreach (['team' => 'The new team', 'services' => 'The new services', 'contact' => 'The new contact'] as $nodeName => $title) {
+            $document = $this->nodeInTestWorkspace($this->sitePath('/home/' . $nodeName));
+            self::assertInstanceOf(NodeInterface::class, $document);
+            $document->setProperty('title', $title);
+        }
         $this->persistenceManager->persistAll();
         $this->workspaceChangesService->clearCache();
 
@@ -167,14 +171,15 @@ class WorkspaceChangesServiceTest extends WorkspaceTestCase
         $site = array_values($documents)[0];
         $documentsOfSite = $site['documents'];
 
-        self::assertCount(1, $documentsOfSite);
-        $document = $documentsOfSite[0];
-        // The document sits below the home page, which is not in the list of the documents
-        // with changes - so the home page is named above it.
-        self::assertSame('The new team', $document->label);
-        self::assertSame(0, $document->level);
-        self::assertFalse($document->parentIsInList);
-        self::assertSame(['Home'], $document->breadcrumb);
+        self::assertCount(3, $documentsOfSite);
+        foreach ($documentsOfSite as $document) {
+            // The documents sit below the home page, which is not in the list of the documents
+            // with changes - so the home page is named above them.
+            self::assertStringStartsWith('The new ', $document->label);
+            self::assertSame(0, $document->level);
+            self::assertFalse($document->parentIsInList);
+            self::assertSame(['Home'], $document->breadcrumb);
+        }
     }
 
     #[Test]

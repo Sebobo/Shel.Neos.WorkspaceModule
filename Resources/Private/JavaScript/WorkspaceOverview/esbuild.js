@@ -10,7 +10,7 @@ const options = {
     // The Neos backend loads the module as a regular script, so no ESM output
     format: 'iife',
     entryPoints: { main: 'index.tsx' },
-    outdir: '../../Public/Assets',
+    outdir: '../../../Public/Assets',
     sourcemap: true,
     // React is only used for its types, the runtime is provided by preact/compat
     // which is roughly 120kb smaller than react-dom

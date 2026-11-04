@@ -784,9 +784,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@workspace-module/app@npm:*, @workspace-module/app@workspace:Resources/Private/JavaScript":
+"@workspace-module/app@npm:*, @workspace-module/app@workspace:Resources/Private/JavaScript/WorkspaceOverview":
   version: 0.0.0-use.local
-  resolution: "@workspace-module/app@workspace:Resources/Private/JavaScript"
+  resolution: "@workspace-module/app@workspace:Resources/Private/JavaScript/WorkspaceOverview"
   dependencies:
     "@types/react": "npm:^18.3.3"
     esbuild: "npm:^0.28.2"

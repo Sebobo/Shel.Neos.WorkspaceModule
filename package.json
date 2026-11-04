@@ -15,7 +15,7 @@
     "test:integration": "yarn cypress run"
   },
   "workspaces": [
-    "Resources/Private/JavaScript",
+    "Resources/Private/JavaScript/WorkspaceOverview",
     "Tests/dev-server"
   ],
   "dependencies": {

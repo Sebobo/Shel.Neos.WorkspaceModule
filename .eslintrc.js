@@ -29,4 +29,15 @@ module.exports = {
         'prettier/prettier': ['error'],
         'react-hooks/rules-of-hooks': 'error',
     },
+    overrides: [
+        {
+            // The review is plain JavaScript that runs in the backend. It uses the globals of
+            // htmx and of the Neos backend, both of them are loaded with the module.
+            files: ['Resources/Private/JavaScript/Review/**/*.js'],
+            globals: {
+                htmx: 'readonly',
+                NeosCMS: 'readonly',
+            },
+        },
+    ],
 };

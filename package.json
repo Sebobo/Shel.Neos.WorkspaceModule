@@ -7,8 +7,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "yarn workspace @workspace-module/app build",
-    "watch": "yarn workspace @workspace-module/app watch",
+    "build": "yarn workspaces foreach -A --exclude shel-neos-workspace-module run build",
+    "watch": "yarn workspaces foreach -A --parallel --exclude shel-neos-workspace-module run watch",
     "lint": "ESLINT_USE_FLAT_CONFIG=false yarn eslint Resources/Private/JavaScript",
     "typecheck": "yarn tsc --noEmit",
     "dev": "yarn workspace @workspace-module/dev-server dev",
@@ -16,6 +16,7 @@
   },
   "workspaces": [
     "Resources/Private/JavaScript/WorkspaceOverview",
+    "Resources/Private/JavaScript/Review",
     "Tests/dev-server"
   ],
   "dependencies": {

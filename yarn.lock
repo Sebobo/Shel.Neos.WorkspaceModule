@@ -811,6 +811,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@workspace-module/review@workspace:Resources/Private/JavaScript/Review":
+  version: 0.0.0-use.local
+  resolution: "@workspace-module/review@workspace:Resources/Private/JavaScript/Review"
+  dependencies:
+    esbuild: "npm:^0.28.2"
+  languageName: unknown
+  linkType: soft
+
 "accepts@npm:~1.3.8":
   version: 1.3.8
   resolution: "accepts@npm:1.3.8"

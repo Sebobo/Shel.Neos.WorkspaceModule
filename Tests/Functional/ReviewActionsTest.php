@@ -82,6 +82,18 @@ class ReviewActionsTest extends WorkspaceTestCase
     }
 
     #[Test]
+    public function theReviewHasAButtonBackToTheWorkspaces(): void
+    {
+        $this->openReview();
+
+        $body = (string)$this->request('show')->getBody();
+
+        // The button stands at the top of the review and goes back to the overview.
+        self::assertStringContainsString('workspace-review-back', $body);
+        self::assertStringContainsString('moduleArguments%5B%40action%5D=index', $body);
+    }
+
+    #[Test]
     public function aSingleChangeIsPublishedToTheLiveWorkspace(): void
     {
         $this->openReview();

@@ -278,6 +278,9 @@
             <trans-unit id="review.reload">
                 <source>Reload</source>
             </trans-unit>
+            <trans-unit id="review.backToWorkspaces">
+                <source>Back to the workspaces</source>
+            </trans-unit>
             <trans-unit id="review.preview">
                 <source>Preview the document</source>
             </trans-unit>

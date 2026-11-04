@@ -361,6 +361,10 @@
                 <source>Reload</source>
                 <target>Neu laden</target>
             </trans-unit>
+            <trans-unit id="review.backToWorkspaces">
+                <source>Back to the workspaces</source>
+                <target>Zurück zu den Arbeitsbereichen</target>
+            </trans-unit>
             <trans-unit id="review.preview">
                 <source>Preview the document</source>
                 <target>Vorschau des Dokuments</target>

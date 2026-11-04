@@ -20,6 +20,10 @@ prototype(Shel.Neos.WorkspaceModule:Component.Review) < prototype(Neos.Fusion:Co
     @private {
         i18n = ${I18n.id('').source('Main').package('Shel.Neos.WorkspaceModule')}
         csrfToken = ${Security.csrfToken()}
+        # The overview of the workspaces - the button at the top of the review goes back to it.
+        indexUri = Neos.Fusion:UriBuilder {
+            action = 'index'
+        }
         treeUri = Neos.Fusion:UriBuilder {
             action = 'documentTree'
             format = 'htmx'
@@ -114,6 +118,14 @@ prototype(Shel.Neos.WorkspaceModule:Component.Review) < prototype(Neos.Fusion:Co
                 baseWorkspaceLabel={props.baseWorkspaceLabel}
             />
             <div class="neos-footer workspace-review-actions">
+                <a
+                    class="neos-button workspace-review-back"
+                    href={private.indexUri}
+                    title={private.i18n.id('review.backToWorkspaces').translate()}
+                >
+                    <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-arrow-left"/>
+                    <span>{private.i18n.id('review.backToWorkspaces').translate()}</span>
+                </a>
                 <Shel.Neos.WorkspaceModule:Component.ActionCombo
                     id="publishComboButton"
                     color="primary"

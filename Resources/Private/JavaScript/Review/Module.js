@@ -6,6 +6,7 @@ import { repositionOpenPopups, setupPopovers } from './Popups.js';
 import { closePreview, openPreview, setupPreviewScrollSync, togglePreviewScrollSync } from './Preview.js';
 import {
     applyChangesOfOpenDocument,
+    clearSelection,
     deselectDocument,
     deselectWithItsChildren,
     pruneSelection,
@@ -45,12 +46,21 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * The buttons of the review that are not changes themselves: the preview of the document
-     * and the dialog of the preview.
+     * The buttons of the review that are not changes themselves: the button that resets the
+     * selection, the preview of the document and the dialog of the preview.
      */
     document.body.addEventListener('click', (event) => {
         const target = event.target;
         if (!(target instanceof Element)) {
+            return;
+        }
+
+        const resetButton = target.closest('#resetSelectionButton');
+        if (resetButton) {
+            if (!resetButton.disabled) {
+                clearSelection();
+                updateSelection();
+            }
             return;
         }
 

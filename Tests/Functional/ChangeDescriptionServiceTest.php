@@ -13,9 +13,12 @@ declare(strict_types=1);
 namespace Shel\Neos\WorkspaceModule\Tests\Functional;
 
 use Neos\ContentRepository\Domain\Model\NodeInterface;
+use Neos\Flow\I18n\Translator;
 use PHPUnit\Framework\Attributes\Test;
 use Shel\Neos\WorkspaceModule\Service\ChangeDescriptionService;
 use Shel\Neos\WorkspaceModule\Service\NodeTreeService;
+use Shel\Neos\WorkspaceModule\Tests\Fixtures\Domain\Model\PostalAddress;
+use Shel\Neos\WorkspaceModule\Tests\Fixtures\Domain\Model\PostalAddresses;
 use Shel\Neos\WorkspaceModule\ViewModel\ContentChanges\TextContentChange;
 
 /**
@@ -179,6 +182,175 @@ class ChangeDescriptionServiceTest extends WorkspaceTestCase
         self::assertNotSame([], $change->ancestors);
         // The label of the collection is translated - the name of the node is not.
         self::assertStringContainsString('main', $change->ancestors[0]->label);
+    }
+
+    #[Test]
+    public function aChangedValueObjectIsShownWithItsValues(): void
+    {
+        $shop = $this->shopInTestWorkspace();
+        $shop->setProperty('address', PostalAddress::fromArray([
+            'streetAddress' => 'Hauptstrasse 2',
+            'postalCode' => '12345',
+            'addressLocality' => 'Berlin',
+            'addressCountry' => 'DE',
+        ]));
+        $this->persistenceManager->persistAll();
+
+        $change = $this->changeDescriptionService->describeChange($shop);
+
+        $contentChanges = $change->contentChanges->items;
+        self::assertArrayHasKey('address', $contentChanges);
+        $textChange = $contentChanges['address']->changes;
+        self::assertInstanceOf(TextContentChange::class, $textChange);
+        // The value object is shown with the values it holds - the old ones and the new one.
+        $diff = $this->textOfTheDiff($textChange->diff);
+        self::assertStringContainsString('Hauptstrasse 1', $diff);
+        self::assertStringContainsString('Hauptstrasse 2', $diff);
+        self::assertStringContainsString('Berlin', $diff);
+    }
+
+    #[Test]
+    public function aValueObjectThatDidNotChangeIsNotInTheDifference(): void
+    {
+        $shop = $this->shopInTestWorkspace();
+        $shop->setProperty('title', 'A new title');
+        $this->persistenceManager->persistAll();
+
+        $change = $this->changeDescriptionService->describeChange($shop);
+
+        self::assertArrayHasKey('title', $change->contentChanges->items);
+        // The value object is read as a new object every time - it did not change all the
+        // same.
+        self::assertArrayNotHasKey('address', $change->contentChanges->items);
+        self::assertArrayNotHasKey('addresses', $change->contentChanges->items);
+    }
+
+    #[Test]
+    public function aChangedCollectionOfValueObjectsIsShown(): void
+    {
+        $shop = $this->shopInTestWorkspace();
+        $shop->setProperty('addresses', PostalAddresses::fromArray([
+            [
+                'streetAddress' => 'Hauptstrasse 1',
+                'postalCode' => '12345',
+                'addressLocality' => 'Berlin',
+                'addressCountry' => 'DE',
+            ],
+            [
+                'streetAddress' => 'Nebenstrasse 2',
+                'postalCode' => '54321',
+                'addressLocality' => 'Hamburg',
+                'addressCountry' => 'DE',
+            ],
+        ]));
+        $this->persistenceManager->persistAll();
+
+        $change = $this->changeDescriptionService->describeChange($shop);
+
+        $contentChanges = $change->contentChanges->items;
+        self::assertArrayHasKey('addresses', $contentChanges);
+        $textChange = $contentChanges['addresses']->changes;
+        self::assertInstanceOf(TextContentChange::class, $textChange);
+        $diff = $this->textOfTheDiff($textChange->diff);
+        self::assertStringContainsString('Hamburg', $diff);
+    }
+
+    #[Test]
+    public function aChangedFlagIsShown(): void
+    {
+        $shop = $this->shopInTestWorkspace();
+        $shop->setProperty('featured', true);
+        $this->persistenceManager->persistAll();
+
+        $change = $this->changeDescriptionService->describeChange($shop);
+
+        $contentChanges = $change->contentChanges->items;
+        self::assertArrayHasKey('featured', $contentChanges);
+        $textChange = $contentChanges['featured']->changes;
+        self::assertInstanceOf(TextContentChange::class, $textChange);
+        $diff = $this->textOfTheDiff($textChange->diff);
+        self::assertStringContainsString('false', $diff);
+        self::assertStringContainsString('true', $diff);
+    }
+
+    #[Test]
+    public function theValueOfASelectBoxIsShownWithItsLabel(): void
+    {
+        $shop = $this->shopInTestWorkspace();
+        $shop->setProperty('color', 'blue');
+        $this->persistenceManager->persistAll();
+
+        $change = $this->changeDescriptionService->describeChange($shop);
+
+        $contentChanges = $change->contentChanges->items;
+        self::assertArrayHasKey('color', $contentChanges);
+        $textChange = $contentChanges['color']->changes;
+        self::assertInstanceOf(TextContentChange::class, $textChange);
+        // The label of the choice is shown, not the value that is stored.
+        $diff = $this->textOfTheDiff($textChange->diff);
+        self::assertStringContainsString($this->labelOfTheColor('red'), $diff);
+        self::assertStringContainsString($this->labelOfTheColor('blue'), $diff);
+        self::assertStringNotContainsString('red', $diff);
+        self::assertStringNotContainsString('blue', $diff);
+    }
+
+    #[Test]
+    public function aSelectBoxThatDidNotChangeIsNotInTheDifference(): void
+    {
+        $shop = $this->shopInTestWorkspace();
+        $shop->setProperty('title', 'A new title');
+        $this->persistenceManager->persistAll();
+
+        $change = $this->changeDescriptionService->describeChange($shop);
+
+        self::assertArrayNotHasKey('color', $change->contentChanges->items);
+    }
+
+    #[Test]
+    public function theLabelOfASelectBoxIsShownAsItIsWhenItIsNoTranslation(): void
+    {
+        $shop = $this->shopInTestWorkspace();
+        $shop->setProperty('size', 'large');
+        $this->persistenceManager->persistAll();
+
+        $change = $this->changeDescriptionService->describeChange($shop);
+
+        $contentChanges = $change->contentChanges->items;
+        self::assertArrayHasKey('size', $contentChanges);
+        $textChange = $contentChanges['size']->changes;
+        self::assertInstanceOf(TextContentChange::class, $textChange);
+        $diff = $this->textOfTheDiff($textChange->diff);
+        self::assertStringContainsString('Small', $diff);
+        self::assertStringContainsString('Large', $diff);
+        self::assertStringNotContainsString('small', $diff);
+    }
+
+    /**
+     * The label of a color, in the language of the tests.
+     */
+    private function labelOfTheColor(string $color): string
+    {
+        $translator = $this->getObject(Translator::class);
+
+        return (string)$translator->translateById(
+            'review.test.color.' . $color,
+            [],
+            null,
+            null,
+            'Testing',
+            'Shel.Neos.WorkspaceModule'
+        );
+    }
+
+    /**
+     * The document with the properties that are not plain text.
+     */
+    private function shopInTestWorkspace(): NodeInterface
+    {
+        $shop = $this->nodeInTestWorkspace($this->sitePath('/shop'));
+        self::assertInstanceOf(NodeInterface::class, $shop);
+
+        return $shop;
     }
 
     private function textOfHomePage(): NodeInterface

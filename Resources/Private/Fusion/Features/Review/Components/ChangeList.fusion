@@ -13,6 +13,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
         documentIdentifier = ${PropTypes.string}
         selectedWorkspaceName = ${PropTypes.string}
         selectedDimensions = ${PropTypes.string}
+        baseWorkspaceLabel = ${PropTypes.string}
         outOfBand = ${PropTypes.boolean}
         canPublishToBaseWorkspace = ${PropTypes.boolean}
     }
@@ -48,28 +49,21 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
             format = 'html'
             arguments.node = '---node---'
         }
-        # The preview of the document: the page as it is rendered in a workspace. The uri is
-        # built for the main request, for the same reason as the one of the content module.
-        previewUri = Neos.Fusion:ActionUri {
-            request = ${request.parentRequest}
-            package = 'Neos.Neos'
-            controller = 'Frontend\\Node'
-            action = 'preview'
-            format = 'html'
-            arguments.node = ${props.documentIdentifier}
-        }
-        previewUrl = ${private.previewUri}
+        # The preview of the document: the page as it is rendered in a workspace.
+        #
+        # The preview is loaded from the domain of the site the document belongs to: the
+        # frontend finds its site by the host of the request, so a preview that is loaded
+        # from the domain of another site shows the page of that other site - or no page
+        # at all.
+        previewUrl = ${props.document.previewUrl}
         # A document that was created in the workspace has no published version - there is
         # nothing to compare it with.
-        previewBaseUri = Neos.Fusion:ActionUri {
-            request = ${request.parentRequest}
-            package = 'Neos.Neos'
-            controller = 'Frontend\\Node'
-            action = 'preview'
-            format = 'html'
-            arguments.node = ${props.document.baseContextPath}
-        }
-        previewBaseUrl = ${props.document.isNew ? '' : private.previewBaseUri}
+        previewBaseUrl = ${props.document.previewBaseUrl}
+        # The session of the review handed over to that domain: the session of the backend is
+        # only valid on the host it was created on, so the preview starts with a request that
+        # looks the session up and carries its cookie back to the host of the frames. The
+        # frames of the preview are then authenticated, and the review stays where it is.
+        previewHandoverUrl = ${props.document.previewHandoverUrl}
     }
     renderer = afx`
         <div
@@ -99,6 +93,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
                     data-neos-toggle="tooltip"
                     data-preview-url={private.previewUrl}
                     data-preview-base-url={private.previewBaseUrl}
+                    data-preview-handover-url={private.previewHandoverUrl}
                     data-preview-title={props.document.label}
                     disabled={props.document.isAccessible ? null : 'disabled'}
                 >
@@ -136,6 +131,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusio
                         change={change}
                         selectedWorkspaceName={props.selectedWorkspaceName}
                         selectedDimensions={props.selectedDimensions}
+                        baseWorkspaceLabel={props.baseWorkspaceLabel}
                         canPublishToBaseWorkspace={props.canPublishToBaseWorkspace}
                     />
                 </Neos.Fusion:Loop>

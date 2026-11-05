@@ -8,6 +8,14 @@ Neos:
         workspaceDetails: Shel\Neos\WorkspaceModule\WorkspaceDetailsContext
 
     mvc:
+      # The handover of the session of the review is a route of the module, not one of the
+      # backend module routes of Neos.Neos: it is reached on the domain of a site, without a
+      # user. It is registered before the routes of Neos.Neos, so that the backend module
+      # route does not claim the path first.
+      routes:
+        'Shel.Neos.WorkspaceModule':
+          position: 'before Neos.Neos'
+
       flashMessages:
         containers:
           'Shel.Neos.WorkspaceModule:httpHeaderFlashMessages':
@@ -15,3 +23,15 @@ Neos:
             requestPatterns:
               'htmx':
                 pattern: 'Shel\Neos\WorkspaceModule\Mvc\HtmxRequestPattern'
+
+    security:
+      authentication:
+        providers:
+          'Neos.Neos:Backend':
+            # The controller of the handover is reached without a user - like the token
+            # login of Neos.Neos is - and its matcher must not be asked for one.
+            requestPatterns:
+              'Shel.Neos.WorkspaceModule:PreviewSessionControllers':
+                pattern: 'ControllerObjectName'
+                patternOptions:
+                  controllerObjectNamePattern: 'Shel\Neos\WorkspaceModule\Controller\PreviewSessionController'

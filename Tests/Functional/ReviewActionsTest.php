@@ -5,8 +5,11 @@ namespace Shel\Neos\WorkspaceModule\Tests\Functional;
 use GuzzleHttp\Psr7\Uri;
 use Neos\ContentRepository\Domain\Model\NodeInterface;
 use Neos\ContentRepository\Domain\Repository\NodeDataRepository;
+use Neos\Flow\I18n\Translator;
 use Neos\Flow\Security\Account;
 use Neos\Flow\Security\AccountRepository;
+use Neos\Neos\Domain\Model\Domain;
+use Neos\Neos\Domain\Repository\DomainRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
@@ -91,6 +94,100 @@ class ReviewActionsTest extends WorkspaceTestCase
         // The button stands at the top of the review and goes back to the overview.
         self::assertStringContainsString('workspace-review-back', $body);
         self::assertStringContainsString('moduleArguments%5B%40action%5D=index', $body);
+    }
+
+    #[Test]
+    public function theReviewHasAButtonToResetTheSelection(): void
+    {
+        $this->openReview();
+
+        $body = (string)$this->request('show')->getBody();
+
+        // The button stands at the left of the buttons that publish and discard.
+        self::assertStringContainsString('resetSelectionButton', $body);
+        self::assertMatchesRegularExpression('/<button[^>]*workspace-review-reset[^>]*>/', $body);
+        // Without a selection there is nothing to reset.
+        self::assertMatchesRegularExpression('/<button[^>]*workspace-review-reset[^>]*disabled="disabled"/', $body);
+    }
+
+    #[Test]
+    public function theButtonThatDiscardsComesBeforeTheButtonThatPublishes(): void
+    {
+        $this->openReview();
+
+        $body = (string)$this->request('show')->getBody();
+
+        $discard = strpos($body, 'discardComboButton');
+        $publish = strpos($body, 'publishComboButton');
+        self::assertIsInt($discard);
+        self::assertIsInt($publish);
+        self::assertLessThan($publish, $discard);
+    }
+
+    #[Test]
+    public function theButtonsOfTheFooterSayWhatTheyDo(): void
+    {
+        $this->openReview();
+
+        $body = (string)$this->request('show')->getBody();
+
+        // The title of a button says what happens when it is pressed - the label says it in
+        // short. The publish button says where the changes go.
+        self::assertStringContainsString(
+            'title="' . $this->titleOfTheButton('review.publishDocumentTitle', ['live']) . '"',
+            $body
+        );
+        self::assertStringContainsString(
+            'title="' . $this->titleOfTheButton('review.discardDocumentTitle') . '"',
+            $body
+        );
+        // The menu of the buttons holds the other options, and they say what they do, too.
+        self::assertStringContainsString(
+            'title="' . $this->titleOfTheButton('review.publishAllTitle', ['test']) . '"',
+            $body
+        );
+        self::assertStringContainsString(
+            'title="' . $this->titleOfTheButton('review.discardAllTitle', ['test']) . '"',
+            $body
+        );
+    }
+
+    #[Test]
+    public function theButtonOfAChangeSaysWhereTheChangeGoes(): void
+    {
+        $this->openReview();
+        $home = $this->changeTheTitleOfTheHomePage('A new title');
+
+        $response = $this->request('documentChanges', ['document' => $home->getContextPath()]);
+        self::assertSame(200, $response->getStatusCode(), $this->answerOf($response));
+
+        self::assertStringContainsString(
+            'title="' . $this->titleOfTheButton('review.publishChange', ['live']) . '"',
+            (string)$response->getBody()
+        );
+    }
+
+    #[Test]
+    public function theTitleOfTheButtonNamesTheWorkspaceTheChangesGoTo(): void
+    {
+        $this->openReview();
+        // The workspace has a name that a human does not know it by.
+        $live = $this->liveWorkspace();
+        $live->setTitle('Published');
+        $this->persistenceManager->persistAll();
+
+        $body = (string)$this->request('show')->getBody();
+
+        // The title of the workspace is the name in the title of the button - not its
+        // technical name.
+        self::assertStringContainsString(
+            'title="' . $this->titleOfTheButton('review.publishDocumentTitle', ['Published']) . '"',
+            $body
+        );
+        self::assertStringNotContainsString(
+            'title="' . $this->titleOfTheButton('review.publishDocumentTitle', ['live']) . '"',
+            $body
+        );
     }
 
     #[Test]
@@ -360,6 +457,26 @@ class ReviewActionsTest extends WorkspaceTestCase
     }
 
     /**
+     * The title of a button, as it stands in the markup of the review.
+     *
+     * @param array<int, string> $parameters
+     */
+    private function titleOfTheButton(string $translationId, array $parameters = []): string
+    {
+        $translator = $this->getObject(Translator::class);
+        $title = (string)$translator->translateById(
+            $translationId,
+            $parameters,
+            null,
+            null,
+            'Main',
+            'Shel.Neos.WorkspaceModule'
+        );
+
+        return htmlspecialchars($title, ENT_QUOTES);
+    }
+
+    /**
      * The home page with a new title.
      */
     private function changeTheTitleOfTheHomePage(string $title): NodeInterface
@@ -556,6 +673,70 @@ class ReviewActionsTest extends WorkspaceTestCase
         }
 
         return $this->browser->sendRequest($request);
+    }
+
+    /**
+     * A request out on the route of the module, like the handover of the session - not to
+     * the backend module, with it arguments.
+     */
+    private function directRequest(string $path): ResponseInterface
+    {
+        $request = $this->getObject(ServerRequestFactoryInterface::class)
+            ->createServerRequest('GET', new Uri('http://localhost' . $path));
+        if ($this->session !== null) {
+            $request = $request->withCookieParams(['Flow_Testing_Session' => $this->session]);
+        }
+
+        return $this->browser->sendRequest($request);
+    }
+
+    /**
+     * The handover of the session of the review to the domain of a site: the preview of a
+     * document of another domain starts with it.
+     */
+    #[Test]
+    public function theSessionOfTheReviewIsHandedOverWithAToken(): void
+    {
+        $this->authenticateAs(['Neos.Neos:Editor']);
+
+        // The site of the tests is moved to another domain, so that the preview of its
+        // documents is loaded from a host that the session of the review is not valid on.
+        $domain = $this->domainRepository->findOneByHostname($this->siteHostName);
+        self::assertInstanceOf(Domain::class, $domain);
+        $domain->setHostname('other-site.test');
+        $this->domainRepository->update($domain);
+        $this->persistenceManager->persistAll();
+
+        $this->openReview();
+        $home = $this->changeTheTitleOfTheHomePage('A new title');
+        $this->refreshTheContent();
+
+        $response = $this->request('documentChanges', ['document' => $home->getContextPath()]);
+        self::assertSame(200, $response->getStatusCode(), $this->answerOf($response));
+
+        self::assertSame(
+            1,
+            preg_match('/data-preview-handover-url="([^"]+)"/', (string)$response->getBody(), $matches),
+            'the changes carry the handover of the session for the domain of another site: ' . mb_substr(
+                (string)$response->getBody(),
+                0,
+                1200
+            )
+        );
+        $handoverPath = str_replace('http://other-site.test', '', $matches[1] ?? '');
+
+        $response = $this->directRequest((string)$handoverPath);
+        self::assertSame(200, $response->getStatusCode(), $this->answerOf($response));
+        // the handover carries the cookie of the session of the review to that host
+        self::assertSame(
+            1,
+            (int)preg_match('/^Flow_Testing_Session/', $response->getHeaderLine('Set-Cookie')),
+            'the handover carries the cookie of the session of the review'
+        );
+
+        // the token of a session that was expired cannot hand it over any more
+        $response = $this->directRequest('/neos/workspace-review/preview-session?token=no-token');
+        self::assertNotSame(200, $response->getStatusCode(), 'the handover of an unknown token answered');
     }
 
     /**

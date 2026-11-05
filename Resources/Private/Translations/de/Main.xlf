@@ -318,12 +318,38 @@
                 <target>Nein</target>
             </trans-unit>
             <trans-unit id="review.publishDocument">
-                <source>Publish current document</source>
-                <target>Aktuelles Dokument veröffentlichen</target>
+                <source>Publish changes</source>
+                <target>Änderungen veröffentlichen</target>
             </trans-unit>
             <trans-unit id="review.discardDocument">
-                <source>Discard document</source>
-                <target>Dokument verwerfen</target>
+                <source>Discard changes</source>
+                <target>Änderungen verwerfen</target>
+            </trans-unit>
+            <!-- Das Menü der Schaltflächen hat Platz für die längere Formulierung. -->
+            <trans-unit id="review.publishDocumentOption">
+                <source>Publish the changes of the current document</source>
+                <target>Änderungen des aktuellen Dokuments veröffentlichen</target>
+            </trans-unit>
+            <trans-unit id="review.discardDocumentOption">
+                <source>Discard the changes of the current document</source>
+                <target>Änderungen des aktuellen Dokuments verwerfen</target>
+            </trans-unit>
+            <!-- Die Titel der Schaltflächen sagen, was beim Klick passiert. -->
+            <trans-unit id="review.publishDocumentTitle">
+                <source>Publish the changes of the current document to the workspace "{0}"</source>
+                <target>Die Änderungen des aktuellen Dokuments in den Arbeitsbereich "{0}" veröffentlichen</target>
+            </trans-unit>
+            <trans-unit id="review.discardDocumentTitle">
+                <source>Discard the changes of the current document</source>
+                <target>Die Änderungen des aktuellen Dokuments verwerfen</target>
+            </trans-unit>
+            <trans-unit id="review.publishAllTitle">
+                <source>Publish all changes of the workspace "{0}"</source>
+                <target>Alle Änderungen des Arbeitsbereichs "{0}" veröffentlichen</target>
+            </trans-unit>
+            <trans-unit id="review.discardAllTitle">
+                <source>Discard all changes of the workspace "{0}"</source>
+                <target>Alle Änderungen des Arbeitsbereichs "{0}" verwerfen</target>
             </trans-unit>
             <trans-unit id="review.documentPublished">
                 <source>The changes of the document have been published</source>
@@ -364,6 +390,10 @@
             <trans-unit id="review.backToWorkspaces">
                 <source>Back to the workspaces</source>
                 <target>Zurück zu den Arbeitsbereichen</target>
+            </trans-unit>
+            <trans-unit id="review.resetSelection">
+                <source>Reset the selection</source>
+                <target>Auswahl zurücksetzen</target>
             </trans-unit>
             <trans-unit id="review.preview">
                 <source>Preview the document</source>
@@ -488,8 +518,8 @@
             </trans-unit>
 
             <trans-unit id="review.publishChange" xml:space="preserve">
-            	<source>Publish this change</source>
-            	<target>Diese Änderung veröffentlichen</target>
+            	<source>Publish this change to the workspace "{0}"</source>
+            	<target>Diese Änderung in den Arbeitsbereich "{0}" veröffentlichen</target>
             </trans-unit>
 
             <trans-unit id="review.discardChange" xml:space="preserve">
@@ -518,6 +548,29 @@
             	<trans-unit id="review.discardSelected[1]">
             		<source>Discard <![CDATA[<strong>{0}</strong>]]> changes</source>
             		<target><![CDATA[<strong>{0}</strong>]]> Änderungen verwerfen</target>
+            	</trans-unit>
+            </group>
+
+            <!-- Die Titel der Schaltflächen sagen, was beim Klick passiert. -->
+            <group restype="x-gettext-plurals">
+            	<trans-unit id="review.publishSelectedTitle[0]">
+            		<source>Publish {0} change to the workspace "{1}"</source>
+            		<target>{0} Änderung in den Arbeitsbereich "{1}" veröffentlichen</target>
+            	</trans-unit>
+            	<trans-unit id="review.publishSelectedTitle[1]">
+            		<source>Publish {0} changes to the workspace "{1}"</source>
+            		<target>{0} Änderungen in den Arbeitsbereich "{1}" veröffentlichen</target>
+            	</trans-unit>
+            </group>
+
+            <group restype="x-gettext-plurals">
+            	<trans-unit id="review.discardSelectedTitle[0]">
+            		<source>Discard {0} change</source>
+            		<target>{0} Änderung verwerfen</target>
+            	</trans-unit>
+            	<trans-unit id="review.discardSelectedTitle[1]">
+            		<source>Discard {0} changes</source>
+            		<target>{0} Änderungen verwerfen</target>
             	</trans-unit>
             </group>
 

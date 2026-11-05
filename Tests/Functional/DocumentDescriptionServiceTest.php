@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Shel\Neos\WorkspaceModule\Tests\Functional;
 
 use Neos\ContentRepository\Domain\Model\NodeInterface;
+use Neos\Neos\Domain\Model\Domain;
 use PHPUnit\Framework\Attributes\Test;
 use Shel\Neos\WorkspaceModule\Service\DocumentDescriptionService;
 
@@ -97,6 +98,69 @@ class DocumentDescriptionServiceTest extends WorkspaceTestCase
         $document = $this->documentDescriptionService->describeDocument($home);
 
         self::assertTrue($document->isAccessible);
+    }
+
+    #[Test]
+    public function thePreviewOfADocumentIsLoadedFromTheDomainOfItsSite(): void
+    {
+        $home = $this->nodeInTestWorkspace($this->sitePath('/home'));
+        self::assertInstanceOf(NodeInterface::class, $home);
+
+        $document = $this->documentDescriptionService->describeDocument($home);
+
+        // The frontend finds its site by the host of the request, so the preview is loaded
+        // from the domain of the site the document belongs to.
+        self::assertSame(
+            'http://localhost/neos/preview?node=' . rawurlencode($home->getContextPath()),
+            $document->previewUrl
+        );
+    }
+
+    #[Test]
+    public function thePublishedVersionOfADocumentIsPreviewedOnTheDomainOfItsSiteAsWell(): void
+    {
+        $home = $this->nodeInTestWorkspace($this->sitePath('/home'));
+        self::assertInstanceOf(NodeInterface::class, $home);
+        $liveHome = $this->nodeInLiveWorkspace($this->sitePath('/home'));
+        self::assertInstanceOf(NodeInterface::class, $liveHome);
+
+        $document = $this->documentDescriptionService->describeDocument($home);
+
+        self::assertSame(
+            'http://localhost/neos/preview?node=' . rawurlencode($liveHome->getContextPath()),
+            $document->previewBaseUrl
+        );
+    }
+
+    #[Test]
+    public function theSessionOfTheReviewIsHandedOverToTheDomainOfTheSite(): void
+    {
+        // The host of the test requests is the host of the test site itself, so the
+        // handover of the session is not needed to reach the preview.
+        $home = $this->nodeInTestWorkspace($this->sitePath('/home'));
+        self::assertInstanceOf(NodeInterface::class, $home);
+
+        $document = $this->documentDescriptionService->describeDocument($home);
+
+        self::assertNull($document->previewHandoverUrl);
+    }
+
+    #[Test]
+    public function aDocumentOfASiteWithoutADomainIsNotAccessible(): void
+    {
+        $home = $this->nodeInTestWorkspace($this->sitePath('/home'));
+        self::assertInstanceOf(NodeInterface::class, $home);
+        // A site without a domain cannot be reached - the preview of a document of that site
+        // would show nothing.
+        $domain = $this->domainRepository->findOneByHostname($this->siteHostName);
+        self::assertInstanceOf(Domain::class, $domain);
+        $domain->setActive(false);
+        $this->persistenceManager->persistAll();
+
+        $document = $this->documentDescriptionService->describeDocument($home);
+
+        self::assertFalse($document->isAccessible);
+        self::assertNull($document->previewUrl);
     }
 
     #[Test]

@@ -246,10 +246,30 @@
                 <source>No</source>
             </trans-unit>
             <trans-unit id="review.publishDocument">
-                <source>Publish current document</source>
+                <source>Publish changes</source>
             </trans-unit>
             <trans-unit id="review.discardDocument">
-                <source>Discard document</source>
+                <source>Discard changes</source>
+            </trans-unit>
+            <!-- The menu of the buttons has the room for the longer wording. -->
+            <trans-unit id="review.publishDocumentOption">
+                <source>Publish the changes of the current document</source>
+            </trans-unit>
+            <trans-unit id="review.discardDocumentOption">
+                <source>Discard the changes of the current document</source>
+            </trans-unit>
+            <!-- The titles of the buttons say what happens when they are pressed. -->
+            <trans-unit id="review.publishDocumentTitle">
+                <source>Publish the changes of the current document to the workspace "{0}"</source>
+            </trans-unit>
+            <trans-unit id="review.discardDocumentTitle">
+                <source>Discard the changes of the current document</source>
+            </trans-unit>
+            <trans-unit id="review.publishAllTitle">
+                <source>Publish all changes of the workspace "{0}"</source>
+            </trans-unit>
+            <trans-unit id="review.discardAllTitle">
+                <source>Discard all changes of the workspace "{0}"</source>
             </trans-unit>
             <trans-unit id="review.documentPublished">
                 <source>The changes of the document have been published</source>
@@ -280,6 +300,9 @@
             </trans-unit>
             <trans-unit id="review.backToWorkspaces">
                 <source>Back to the workspaces</source>
+            </trans-unit>
+            <trans-unit id="review.resetSelection">
+                <source>Reset the selection</source>
             </trans-unit>
             <trans-unit id="review.preview">
                 <source>Preview the document</source>
@@ -359,7 +382,7 @@
             </trans-unit>
 
             <trans-unit id="review.publishChange">
-                <source>Publish this change</source>
+                <source>Publish this change to the workspace "{0}"</source>
             </trans-unit>
 
             <trans-unit id="review.discardChange">
@@ -383,6 +406,25 @@
                 </trans-unit>
                 <trans-unit id="review.discardSelected[1]">
                     <source>Discard <![CDATA[<strong>{0}</strong>]]> changes</source>
+                </trans-unit>
+            </group>
+
+            <!-- The titles of the buttons say what happens when they are pressed. -->
+            <group restype="x-gettext-plurals">
+                <trans-unit id="review.publishSelectedTitle[0]">
+                    <source>Publish {0} change to the workspace "{1}"</source>
+                </trans-unit>
+                <trans-unit id="review.publishSelectedTitle[1]">
+                    <source>Publish {0} changes to the workspace "{1}"</source>
+                </trans-unit>
+            </group>
+
+            <group restype="x-gettext-plurals">
+                <trans-unit id="review.discardSelectedTitle[0]">
+                    <source>Discard {0} change</source>
+                </trans-unit>
+                <trans-unit id="review.discardSelectedTitle[1]">
+                    <source>Discard {0} changes</source>
                 </trans-unit>
             </group>
 

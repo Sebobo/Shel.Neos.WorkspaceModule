@@ -91,9 +91,101 @@ final class NodeLabelService
     }
 
     /**
+     * The label of the value of a property, if the property is a select box.
+     *
+     * A select box stores the value that was chosen ("red"), while the editor shows the
+     * label of the choice ("Red"). The review shows the label, like the editor does.
+     *
+     * @return string|null the label of the value, or null if the property is no select box
+     *                     or the value is not one of its choices
+     */
+    public function selectValueLabel(string $propertyName, NodeInterface $node, mixed $value): ?string
+    {
+        $choices = $this->selectChoices($propertyName, $node);
+        if ($choices === []) {
+            return null;
+        }
+
+        if (is_array($value)) {
+            // A select box that holds more than one value.
+            $labels = [];
+            foreach ($value as $entry) {
+                $label = $this->labelOfChoice($choices, $entry);
+                if ($label !== null) {
+                    $labels[] = $label;
+                }
+            }
+
+            return $labels === [] ? null : implode(', ', $labels);
+        }
+
+        return $this->labelOfChoice($choices, $value);
+    }
+
+    /**
+     * The choices of a select box property.
+     *
+     * The choices are part of the node type: the editor takes them from there, and so does
+     * the review.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function selectChoices(string $propertyName, NodeInterface $node): array
+    {
+        $properties = $node->getNodeType()->getProperties();
+        $uiConfiguration = $properties[$propertyName]['ui'] ?? null;
+        if (!is_array($uiConfiguration)) {
+            return [];
+        }
+
+        $values = $uiConfiguration['inspector']['editorOptions']['values']
+            ?? $uiConfiguration['editorOptions']['values']
+            ?? null;
+        if (!is_array($values)) {
+            return [];
+        }
+
+        $choices = [];
+        foreach ($values as $value => $choice) {
+            if (is_array($choice)) {
+                $choices[(string)$value] = $choice;
+            }
+        }
+
+        return $choices;
+    }
+
+    /**
+     * The label of one choice of a select box.
+     *
+     * @param array<string, array<string, mixed>> $choices
+     */
+    private function labelOfChoice(array $choices, mixed $value): ?string
+    {
+        if (!is_string($value) && !is_int($value)) {
+            return null;
+        }
+
+        $choice = $choices[(string)$value] ?? null;
+        if (!is_array($choice)) {
+            return null;
+        }
+
+        $label = $choice['label'] ?? null;
+        if (!is_string($label) || trim($label) === '') {
+            return null;
+        }
+
+        return $this->translateLabel($label);
+    }
+
+    /**
      * The labels of the properties are translation ids in the extended form
      * "Package:Source:Id", which the translator only resolves when it is told which part is
      * which.
+     *
+     * A label that is no translation id - "Red" for example - is returned as it is, and so is
+     * a label whose id cannot be resolved.
      */
     public function translateLabel(string $label, string $defaultPackageKey = ''): string
     {
@@ -102,7 +194,7 @@ final class NodeLabelService
             return $this->translateById($label, $defaultPackageKey);
         }
 
-        return (string)$this->translator->translateById(
+        $translated = (string)$this->translator->translateById(
             $parts[2],
             [],
             null,
@@ -110,6 +202,8 @@ final class NodeLabelService
             str_replace('.', '/', $parts[1]),
             $parts[0]
         );
+
+        return $translated === '' ? $label : $translated;
     }
 
     /**

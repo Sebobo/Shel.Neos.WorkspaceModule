@@ -21,12 +21,17 @@ prototype(Shel.Neos.WorkspaceModule:Component.ActionCombo) < prototype(Neos.Fusi
         label = ${PropTypes.string}
         labelWithSelection = ${PropTypes.string}
         labelWithOneSelection = ${PropTypes.string}
+        title = ${PropTypes.string}
+        titleWithSelection = ${PropTypes.string}
+        titleWithOneSelection = ${PropTypes.string}
         url = ${PropTypes.string}
         urlDocument = ${PropTypes.string}
         documentIcon = ${PropTypes.string}
         documentLabel = ${PropTypes.string}
+        documentTitle = ${PropTypes.string}
         workspaceIcon = ${PropTypes.string}
         workspaceLabel = ${PropTypes.string}
+        workspaceTitle = ${PropTypes.string}
         workspaceModal = ${PropTypes.string}
         canPublish = ${PropTypes.boolean}
         disabled = ${PropTypes.boolean}
@@ -50,7 +55,12 @@ prototype(Shel.Neos.WorkspaceModule:Component.ActionCombo) < prototype(Neos.Fusi
                 data-label={props.label}
                 data-label-with-selection={props.labelWithSelection}
                 data-label-with-one-selection={props.labelWithOneSelection}
+                data-title={props.title}
+                data-title-with-selection={props.titleWithSelection}
+                data-title-with-one-selection={props.titleWithOneSelection}
                 data-can-publish={props.canPublish ? 'true' : 'false'}
+                title={props.title}
+                data-neos-toggle="tooltip"
                 disabled={props.disabled ? 'disabled' : null}
             >
                 <i class={props.icon}></i>
@@ -80,6 +90,8 @@ prototype(Shel.Neos.WorkspaceModule:Component.ActionCombo) < prototype(Neos.Fusi
                     hx-target="#document-changes"
                     hx-swap="outerHTML"
                     hx-indicator="#document-changes-reload"
+                    title={props.documentTitle}
+                    data-neos-toggle="tooltip"
                 >
                     <i class={props.documentIcon}></i>
                     <span>{props.documentLabel}</span>
@@ -88,6 +100,8 @@ prototype(Shel.Neos.WorkspaceModule:Component.ActionCombo) < prototype(Neos.Fusi
                     class="workspace-review-combo-option"
                     href={'#' + props.workspaceModal}
                     data-toggle="modal"
+                    title={props.workspaceTitle}
+                    data-neos-toggle="tooltip"
                 >
                     <i class={props.workspaceIcon}></i>
                     <span>{props.workspaceLabel}</span>

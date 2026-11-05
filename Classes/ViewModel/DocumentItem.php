@@ -41,6 +41,9 @@ final readonly class DocumentItem
         public array $breadcrumb,
         public string $baseContextPath,
         public bool $isFirst,
+        public ?string $previewUrl = null,
+        public ?string $previewBaseUrl = null,
+        public ?string $previewHandoverUrl = null,
     ) {
     }
 }

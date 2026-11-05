@@ -21,16 +21,25 @@ const updateActionCombos = (selectionCount) => {
             return;
         }
 
+        // one change and more than one change have their own wording
+        const template = hasSelection
+            ? selectionCount === 1
+                ? button.getAttribute('data-label-with-one-selection')
+                : button.getAttribute('data-label-with-selection')
+            : button.getAttribute('data-label');
+
         const label = button.querySelector('.workspace-review-combo-label');
         if (label) {
-            // one change and more than one change have their own wording
-            const template = hasSelection
-                ? selectionCount === 1
-                    ? button.getAttribute('data-label-with-one-selection')
-                    : button.getAttribute('data-label-with-selection')
-                : button.getAttribute('data-label');
             label.innerHTML = (template || '').replace('{0}', String(selectionCount));
         }
+
+        // The title of the button says what it does - the label says it in short.
+        const title = hasSelection
+            ? selectionCount === 1
+                ? button.getAttribute('data-title-with-one-selection')
+                : button.getAttribute('data-title-with-selection')
+            : button.getAttribute('data-title');
+        button.setAttribute('title', (title || '').replace('{0}', String(selectionCount)));
 
         // the option of the document is only of use when something is selected - the
         // button itself is the document then
@@ -44,6 +53,8 @@ const updateActionCombos = (selectionCount) => {
 /**
  * The buttons that publish and discard are only enabled when there is something to do:
  * a selection or a document that is open, and for publishing the permission to publish.
+ *
+ * The button that resets the selection is only enabled when there is a selection to reset.
  *
  * The changes of a document are swapped into the page, so the state is updated after
  * every answer as well.
@@ -63,5 +74,10 @@ export const updateActionButtons = () => {
     const discardButton = document.getElementById('discardComboButton');
     if (discardButton) {
         discardButton.disabled = !hasDocument && selectionCount === 0;
+    }
+
+    const resetButton = document.getElementById('resetSelectionButton');
+    if (resetButton) {
+        resetButton.disabled = selectionCount === 0;
     }
 };

@@ -654,11 +654,22 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             'selectedWorkspace' => $workspace,
             'selectedWorkspaceName' => $workspace->getName(),
             'selectedWorkspaceLabel' => $workspace->getTitle() ?: $workspace->getName(),
-            'baseWorkspaceLabel' => $workspace->getBaseWorkspace()?->getTitle() ?: $workspace->getBaseWorkspace()?->getName(),
+            'baseWorkspaceLabel' => $this->baseWorkspaceLabel($workspace),
             'canPublishToBaseWorkspace' => $workspace->getBaseWorkspace() !== null
                 && $this->userService->currentUserCanPublishToWorkspace($workspace->getBaseWorkspace()),
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
         ]);
+    }
+
+    /**
+     * The label of the workspace the changes are published to - the base of the workspace
+     * that is reviewed.
+     */
+    private function baseWorkspaceLabel(Workspace $workspace): string
+    {
+        $baseWorkspace = $workspace->getBaseWorkspace();
+
+        return $baseWorkspace === null ? '' : ($baseWorkspace->getTitle() ?: $baseWorkspace->getName());
     }
 
     /**
@@ -708,6 +719,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             'selectedDocument' => $document,
             'changes' => $changes,
             'document' => $documentItem,
+            'baseWorkspaceLabel' => $this->baseWorkspaceLabel($workspace),
             'canPublishToBaseWorkspace' => $this->canPublishToBaseWorkspace($workspace),
         ]);
     }
@@ -972,6 +984,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             'selectedDocument' => $document?->getContextPath() ?? '',
             'changes' => $changes,
             'document' => $documentItem,
+            'baseWorkspaceLabel' => $this->baseWorkspaceLabel($workspace),
             'canPublishToBaseWorkspace' => $this->canPublishToBaseWorkspace($workspace),
         ]);
     }

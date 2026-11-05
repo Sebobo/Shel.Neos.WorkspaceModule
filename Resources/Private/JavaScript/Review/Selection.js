@@ -100,6 +100,15 @@ export const deselectDocument = (contextPath) => {
         });
     });
 };
+
+/**
+ * Takes everything out of the selection.
+ */
+export const clearSelection = () => {
+    selection.documents.clear();
+    selection.changes.clear();
+};
+
 /**
  * The checkboxes of the changes that are open.
  *

@@ -13,6 +13,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.ReviewAnswer) < prototype(Neos.Fus
         selectedDocument = ${PropTypes.string}
         selectedWorkspaceName = ${PropTypes.string}
         selectedDimensions = ${PropTypes.string}
+        baseWorkspaceLabel = ${PropTypes.string}
         canPublishToBaseWorkspace = ${PropTypes.boolean}
         document = ${PropTypes.any}
     }
@@ -24,6 +25,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.ReviewAnswer) < prototype(Neos.Fus
     selectedDocument = ${selectedDocument}
     selectedWorkspaceName = ${selectedWorkspaceName}
     selectedDimensions = ${selectedDimensions}
+    baseWorkspaceLabel = ${baseWorkspaceLabel}
     canPublishToBaseWorkspace = ${canPublishToBaseWorkspace}
     document = ${document}
 
@@ -41,6 +43,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.ReviewAnswer) < prototype(Neos.Fus
             documentIdentifier={props.selectedDocument}
             selectedWorkspaceName={props.selectedWorkspaceName}
             selectedDimensions={props.selectedDimensions}
+            baseWorkspaceLabel={props.baseWorkspaceLabel}
             canPublishToBaseWorkspace={props.canPublishToBaseWorkspace}
         />
     `

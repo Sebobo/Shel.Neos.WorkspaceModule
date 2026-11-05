@@ -126,6 +126,36 @@ prototype(Shel.Neos.WorkspaceModule:Component.Review) < prototype(Neos.Fusion:Co
                     <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-arrow-left"/>
                     <span>{private.i18n.id('review.backToWorkspaces').translate()}</span>
                 </a>
+                <Shel.Neos.WorkspaceModule:Component.Button
+                    customClass="workspace-review-reset"
+                    icon="fas fa-times-circle"
+                    title={private.i18n.id('review.resetSelection').translate()}
+                    disabled={true}
+                    attributes={{
+                        'id': 'resetSelectionButton',
+                        'data-neos-toggle': 'tooltip'
+                    }}
+                />
+                <Shel.Neos.WorkspaceModule:Component.ActionCombo
+                    id="discardComboButton"
+                    color="danger"
+                    icon="fas fa-trash icon-white"
+                    label={private.i18n.id('review.discardDocument').translate()}
+                    labelWithSelection={private.i18n.id('review.discardSelected').quantity(2).arguments(['{0}']).translate()}
+                    labelWithOneSelection={private.i18n.id('review.discardSelected').quantity(1).arguments(['{0}']).translate()}
+                    title={private.i18n.id('review.discardDocumentTitle').translate()}
+                    titleWithSelection={private.i18n.id('review.discardSelectedTitle').quantity(2).arguments(['{0}']).translate()}
+                    titleWithOneSelection={private.i18n.id('review.discardSelectedTitle').quantity(1).arguments(['{0}']).translate()}
+                    url={private.discardSelectedUri}
+                    urlDocument={private.discardDocumentUri}
+                    documentIcon="fas fa-file icon-white"
+                    documentLabel={private.i18n.id('review.discardDocumentOption').translate()}
+                    documentTitle={private.i18n.id('review.discardDocumentTitle').translate()}
+                    workspaceIcon="fas fa-trash icon-white"
+                    workspaceLabel={private.i18n.id('review.discardAll').translate()}
+                    workspaceTitle={private.i18n.id('review.discardAllTitle').arguments([props.selectedWorkspaceLabel]).translate()}
+                    workspaceModal="workspace-review-discard-all-modal"
+                />
                 <Shel.Neos.WorkspaceModule:Component.ActionCombo
                     id="publishComboButton"
                     color="primary"
@@ -133,30 +163,20 @@ prototype(Shel.Neos.WorkspaceModule:Component.Review) < prototype(Neos.Fusion:Co
                     label={private.i18n.id('review.publishDocument').translate()}
                     labelWithSelection={private.i18n.id('review.publishSelected').quantity(2).arguments(['{0}']).translate()}
                     labelWithOneSelection={private.i18n.id('review.publishSelected').quantity(1).arguments(['{0}']).translate()}
+                    title={private.i18n.id('review.publishDocumentTitle').arguments([props.baseWorkspaceLabel]).translate()}
+                    titleWithSelection={private.i18n.id('review.publishSelectedTitle').quantity(2).arguments(['{0}', props.baseWorkspaceLabel]).translate()}
+                    titleWithOneSelection={private.i18n.id('review.publishSelectedTitle').quantity(1).arguments(['{0}', props.baseWorkspaceLabel]).translate()}
                     url={private.publishSelectedUri}
                     urlDocument={private.publishDocumentUri}
                     documentIcon="fas fa-file icon-white"
-                    documentLabel={private.i18n.id('review.publishDocument').translate()}
+                    documentLabel={private.i18n.id('review.publishDocumentOption').translate()}
+                    documentTitle={private.i18n.id('review.publishDocumentTitle').arguments([props.baseWorkspaceLabel]).translate()}
                     workspaceIcon="fas fa-check-double icon-white"
                     workspaceLabel={private.i18n.id('review.publishAll').translate()}
+                    workspaceTitle={private.i18n.id('review.publishAllTitle').arguments([props.selectedWorkspaceLabel]).translate()}
                     workspaceModal="workspace-review-publish-all-modal"
                     canPublish={props.canPublishToBaseWorkspace}
                     disabled={props.canPublishToBaseWorkspace ? false : true}
-                />
-                <Shel.Neos.WorkspaceModule:Component.ActionCombo
-                    id="discardComboButton"
-                    color="danger"
-                    icon="fas fa-times icon-white"
-                    label={private.i18n.id('review.discardDocument').translate()}
-                    labelWithSelection={private.i18n.id('review.discardSelected').quantity(2).arguments(['{0}']).translate()}
-                    labelWithOneSelection={private.i18n.id('review.discardSelected').quantity(1).arguments(['{0}']).translate()}
-                    url={private.discardSelectedUri}
-                    urlDocument={private.discardDocumentUri}
-                    documentIcon="fas fa-file icon-white"
-                    documentLabel={private.i18n.id('review.discardDocument').translate()}
-                    workspaceIcon="fas fa-times icon-white"
-                    workspaceLabel={private.i18n.id('review.discardAll').translate()}
-                    workspaceModal="workspace-review-discard-all-modal"
                 />
             </div>
 
@@ -219,7 +239,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.Review) < prototype(Neos.Fusion:Co
                                 hx-swap="outerHTML"
                                 hx-indicator="#document-changes-reload"
                             >
-                                <i class="fas fa-times icon-white"></i> {private.i18n.id('review.confirm').translate()}
+                                <i class="fas fa-trash icon-white"></i> {private.i18n.id('review.confirm').translate()}
                             </button>
                         </div>
                     </div>

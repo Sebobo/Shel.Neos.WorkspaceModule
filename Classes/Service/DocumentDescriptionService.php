@@ -28,6 +28,7 @@ final class DocumentDescriptionService
         private readonly NodeLabelService $nodeLabelService,
         private readonly ContentDimensionService $contentDimensionService,
         private readonly NodeTreeService $nodeTreeService,
+        private readonly PreviewUriService $previewUriService,
     ) {
     }
 
@@ -40,6 +41,8 @@ final class DocumentDescriptionService
     public function describeDocument(NodeInterface $document, array $changes = []): DocumentItem
     {
         $kind = $this->kindOfDocument($document, $changes);
+        $baseContextPath = $this->nodeTreeService->contextPathInBaseWorkspace($document);
+        $previewUrl = $this->previewUriService->uriFor($document, $document->getContextPath());
 
         return new DocumentItem(
             contextPath: $document->getContextPath(),
@@ -50,13 +53,20 @@ final class DocumentDescriptionService
             kind: $kind,
             isNew: $kind === 'created',
             isDeleted: $kind === 'deleted',
-            isAccessible: $this->isAccessible($document),
+            isAccessible: $this->isAccessible($document, $previewUrl),
             level: 0,
             parent: null,
             parentIsInList: false,
             breadcrumb: $this->breadcrumb($document),
-            baseContextPath: $this->nodeTreeService->contextPathInBaseWorkspace($document),
+            baseContextPath: $baseContextPath,
             isFirst: false,
+            previewUrl: $previewUrl,
+            // A document that was created in the workspace has no published version - there
+            // is nothing to compare it with.
+            previewBaseUrl: $kind === 'created'
+                ? null
+                : $this->previewUriService->uriFor($document, $baseContextPath),
+            previewHandoverUrl: $this->previewUriService->handoverUrlFor($document),
         );
     }
 
@@ -89,10 +99,17 @@ final class DocumentDescriptionService
      * A document that was deleted does not exist any more, and a document that is hidden is
      * not rendered by the frontend - the preview of it would show the page that says that
      * the page was not found.
+     *
+     * A site without a domain cannot be reached at all, and the preview of a document of
+     * such a site would show nothing.
+     *
+     * @param string|null $previewUrl the URI of the preview of the document
      */
-    private function isAccessible(NodeInterface $document): bool
+    private function isAccessible(NodeInterface $document, ?string $previewUrl): bool
     {
-        return !$document->isRemoved() && $document->isVisible();
+        return !$document->isRemoved()
+            && $document->isVisible()
+            && $previewUrl !== null;
     }
 
     /**

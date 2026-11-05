@@ -40,7 +40,29 @@
         }
     }
 
+    /*
+     * A label that is too long does not push the other buttons of the footer out of the
+     * footer - the title of the button says the whole thing.
+     */
+    .workspace-review-combo-label {
+        display: inline-block;
+        max-width: 30ch;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: bottom;
+    }
+
     .workspace-review-combo-toggle {
+        width: 32px;
+        margin: 0;
+        padding: 0;
+    }
+
+    /*
+     * The button that resets the selection carries an icon and nothing else - it is as wide
+     * as the button that opens the menu of a combo.
+     */
+    .workspace-review-reset {
         width: 32px;
         margin: 0;
         padding: 0;

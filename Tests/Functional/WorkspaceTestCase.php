@@ -21,8 +21,12 @@ use Neos\ContentRepository\Domain\Service\ContextFactoryInterface;
 use Neos\ContentRepository\Domain\Service\NodeTypeManager;
 use Neos\Flow\Configuration\ConfigurationManager;
 use Neos\Flow\Tests\FunctionalTestCase;
+use Neos\Neos\Domain\Model\Domain;
 use Neos\Neos\Domain\Model\Site;
+use Neos\Neos\Domain\Repository\DomainRepository;
 use Neos\Neos\Domain\Repository\SiteRepository;
+use Shel\Neos\WorkspaceModule\Tests\Fixtures\Domain\Model\PostalAddress;
+use Shel\Neos\WorkspaceModule\Tests\Fixtures\Domain\Model\PostalAddresses;
 
 /**
  * The base of the tests of the review.
@@ -39,6 +43,7 @@ abstract class WorkspaceTestCase extends FunctionalTestCase
     protected NodeTypeManager $nodeTypeManager;
     protected WorkspaceRepository $workspaceRepository;
     protected SiteRepository $siteRepository;
+    protected DomainRepository $domainRepository;
 
     protected Workspace $liveWorkspace;
     protected Workspace $testWorkspace;
@@ -49,6 +54,13 @@ abstract class WorkspaceTestCase extends FunctionalTestCase
      */
     protected string $siteNodeName = 'example';
 
+    /**
+     * The host the site of the tests is reached on - the host of the request of the tests,
+     * because the preview of a document is only offered for the site the review is opened
+     * on.
+     */
+    protected string $siteHostName = 'localhost';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -57,6 +69,7 @@ abstract class WorkspaceTestCase extends FunctionalTestCase
         $this->nodeTypeManager = $this->getObject(NodeTypeManager::class);
         $this->workspaceRepository = $this->getObject(WorkspaceRepository::class);
         $this->siteRepository = $this->getObject(SiteRepository::class);
+        $this->domainRepository = $this->getObject(DomainRepository::class);
         $this->siteNodeName = $this->defaultSiteNodeName();
 
         $this->liveWorkspace = new Workspace('live');
@@ -68,6 +81,15 @@ abstract class WorkspaceTestCase extends FunctionalTestCase
         $site->setState(Site::STATE_ONLINE);
         $site->setSiteResourcesPackageKey('Neos.Fusion');
         $this->siteRepository->add($site);
+
+        // The site is reached on a domain - the preview of a document is loaded from the
+        // domain of the site the document belongs to.
+        $domain = new Domain();
+        $domain->setHostname($this->siteHostName);
+        $domain->setSite($site);
+        $domain->setActive(true);
+        $this->domainRepository->add($domain);
+        $site->setPrimaryDomain($domain);
 
         $this->persistenceManager->persistAll();
 
@@ -158,6 +180,30 @@ abstract class WorkspaceTestCase extends FunctionalTestCase
         $related->setProperty('title', 'Related');
         $related->setProperty('reference', $aboutUs->getIdentifier());
         $related->setProperty('link', 'node://' . $aboutUs->getIdentifier());
+
+        // A document with the kinds of properties that are not plain text.
+        $shop = $siteNode->createNode(
+            'shop',
+            $this->nodeTypeManager->getNodeType('Shel.Neos.WorkspaceModule:Testing:PageWithValues')
+        );
+        $shop->setProperty('title', 'Shop');
+        $shop->setProperty('address', PostalAddress::fromArray([
+            'streetAddress' => 'Hauptstrasse 1',
+            'postalCode' => '12345',
+            'addressLocality' => 'Berlin',
+            'addressCountry' => 'DE',
+        ]));
+        $shop->setProperty('addresses', PostalAddresses::fromArray([
+            [
+                'streetAddress' => 'Hauptstrasse 1',
+                'postalCode' => '12345',
+                'addressLocality' => 'Berlin',
+                'addressCountry' => 'DE',
+            ],
+        ]));
+        $shop->setProperty('featured', false);
+        $shop->setProperty('color', 'red');
+        $shop->setProperty('size', 'small');
 
         $this->persistenceManager->persistAll();
     }

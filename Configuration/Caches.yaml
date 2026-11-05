@@ -1,0 +1,13 @@
+# The tokens that hand the session of the review over to the domain of a site.
+#
+# The preview of a document is loaded from the domain of its site, and the session of the
+# backend is only valid on the host it was created on. The review gets a one-time token per
+# preview - the request to the domain of the site starts with it, the controller looks the
+# session up with it and gives that host the cookie of the session.
+#
+# The tokens live for a few minutes, so that the preview can be opened again.
+'Shel_Neos_WorkspaceModule_SessionHandover':
+  frontend: Neos\Cache\Frontend\StringFrontend
+  backend: Neos\Cache\Backend\SimpleFileBackend
+  backendOptions:
+    defaultLifetime: 300

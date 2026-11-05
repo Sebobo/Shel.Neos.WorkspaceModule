@@ -18,6 +18,7 @@ use Neos\Diff\Diff;
 use Neos\Diff\Renderer\Html\HtmlArrayRenderer;
 use Neos\Flow\Annotations as Flow;
 use Neos\Media\Domain\Model\AssetInterface;
+use Neos\Media\Domain\Model\ImageInterface;
 use Neos\Neos\Domain\Service\ContentContextFactory;
 use Shel\Neos\WorkspaceModule\ViewModel\AncestorItem;
 use Shel\Neos\WorkspaceModule\ViewModel\ChangeItem;
@@ -45,6 +46,7 @@ final class ChangeDescriptionService
         private readonly ContentContextFactory $contextFactory,
         private readonly NodeLabelService $nodeLabelService,
         private readonly NodeTreeService $nodeTreeService,
+        private readonly ValueDescriptionService $valueDescriptionService,
     ) {
     }
 
@@ -116,8 +118,6 @@ final class ChangeDescriptionService
         $originalNode = $this->getOriginalNode($changedNode);
         $changeNodePropertiesDefaults = $changedNode->getNodeType()->getDefaultValuesForProperties();
 
-        $renderer = new HtmlArrayRenderer();
-
         foreach ($changedNode->getProperties() as $propertyName => $changedPropertyValue) {
             if (
                 ($originalNode === null && empty($changedPropertyValue))
@@ -129,105 +129,9 @@ final class ChangeDescriptionService
                 continue;
             }
 
-            $originalPropertyValue = $originalNode?->getProperty($propertyName);
-
-            if ($this->isNodeReference($changedPropertyValue) || $this->isNodeReference($originalPropertyValue)) {
-                $originalReference = $this->describeNodeReference($originalPropertyValue, $originalNode ?? $changedNode);
-                $changedReference = $this->describeNodeReference($changedPropertyValue, $changedNode);
-
-                if ($changedReference !== $originalReference) {
-                    $contentChanges[$propertyName] = new ContentChangeItem(
-                        properties: new ContentChangeProperties(
-                            type: 'text',
-                            propertyLabel: $this->nodeLabelService->propertyLabel($propertyName, $changedNode),
-                        ),
-                        changes: new TextContentChange(
-                            diff: $this->diffOf($originalReference, $changedReference),
-                            originalIsNull: $originalReference === '',
-                            changedIsNull: $changedReference === '',
-                        ),
-                    );
-                }
-
-                continue;
-            }
-
-            if ($changedPropertyValue === $originalPropertyValue) {
-                continue;
-            }
-
-            if (!is_object($originalPropertyValue) && !is_object($changedPropertyValue)) {
-                $originalSlimmedDownContent = $this->renderSlimmedDownContent($originalPropertyValue);
-                $changedSlimmedDownContent = $this->renderSlimmedDownContent($changedPropertyValue);
-
-                $diff = new Diff(
-                    explode("\n", $originalSlimmedDownContent),
-                    explode("\n", $changedSlimmedDownContent),
-                    ['context' => 1]
-                );
-                /** @var list<list<array<string, mixed>>> $diffArray */
-                $diffArray = $this->markEmptyDiffSides($diff->render($renderer));
-
-                if (count($diffArray) > 0) {
-                    $contentChanges[$propertyName] = new ContentChangeItem(
-                        properties: new ContentChangeProperties(
-                            type: 'text',
-                            propertyLabel: $this->nodeLabelService->propertyLabel($propertyName, $changedNode),
-                        ),
-                        changes: new TextContentChange(
-                            diff: $diffArray,
-                            originalIsNull: $originalPropertyValue === null,
-                            changedIsNull: $changedPropertyValue === null,
-                        ),
-                    );
-                }
-            } elseif (
-                ($originalPropertyValue instanceof \Neos\Media\Domain\Model\ImageInterface || $originalPropertyValue === null)
-                && ($changedPropertyValue instanceof \Neos\Media\Domain\Model\ImageInterface || $changedPropertyValue === null)
-            ) {
-                $contentChanges[$propertyName] = new ContentChangeItem(
-                    properties: new ContentChangeProperties(
-                        type: 'image',
-                        propertyLabel: $this->nodeLabelService->propertyLabel($propertyName, $changedNode),
-                    ),
-                    changes: new ImageContentChange(
-                        original: $originalPropertyValue,
-                        changed: $changedPropertyValue,
-                    ),
-                );
-            } elseif (
-                $originalPropertyValue instanceof AssetInterface
-                || $changedPropertyValue instanceof AssetInterface
-            ) {
-                $contentChanges[$propertyName] = new ContentChangeItem(
-                    properties: new ContentChangeProperties(
-                        type: 'asset',
-                        propertyLabel: $this->nodeLabelService->propertyLabel($propertyName, $changedNode),
-                    ),
-                    changes: new AssetContentChange(
-                        original: $originalPropertyValue,
-                        changed: $changedPropertyValue,
-                    ),
-                );
-            } elseif ($originalPropertyValue instanceof \DateTime || $changedPropertyValue instanceof \DateTime) {
-                $changed = false;
-                if (!$changedPropertyValue instanceof \DateTime || !$originalPropertyValue instanceof \DateTime) {
-                    $changed = true;
-                } elseif ($changedPropertyValue->getTimestamp() !== $originalPropertyValue->getTimestamp()) {
-                    $changed = true;
-                }
-                if ($changed) {
-                    $contentChanges[$propertyName] = new ContentChangeItem(
-                        properties: new ContentChangeProperties(
-                            type: 'datetime',
-                            propertyLabel: $this->nodeLabelService->propertyLabel($propertyName, $changedNode),
-                        ),
-                        changes: new DateTimeContentChange(
-                            original: $originalPropertyValue,
-                            changed: $changedPropertyValue,
-                        ),
-                    );
-                }
+            $change = $this->describePropertyChange($changedNode, $originalNode, $propertyName, $changedPropertyValue);
+            if ($change !== null) {
+                $contentChanges[$propertyName] = $change;
             }
         }
 
@@ -247,6 +151,213 @@ final class ChangeDescriptionService
         }
 
         return ContentChangeItems::fromArray($contentChanges);
+    }
+
+    /**
+     * The difference of one property of a node, if it changed.
+     */
+    private function describePropertyChange(
+        NodeInterface $changedNode,
+        ?NodeInterface $originalNode,
+        string $propertyName,
+        mixed $changedPropertyValue
+    ): ?ContentChangeItem {
+        $originalPropertyValue = $originalNode?->getProperty($propertyName);
+
+        // A reference to another node is described by the label of the node it points to,
+        // so it is compared before the values are compared.
+        if ($this->isNodeReference($changedPropertyValue) || $this->isNodeReference($originalPropertyValue)) {
+            return $this->describeReferenceChange($changedNode, $originalNode, $propertyName, $originalPropertyValue, $changedPropertyValue);
+        }
+
+        if ($this->isSameValue($originalPropertyValue, $changedPropertyValue)) {
+            return null;
+        }
+
+        if ($this->isImage($originalPropertyValue, $changedPropertyValue)) {
+            return new ContentChangeItem(
+                properties: new ContentChangeProperties(
+                    type: 'image',
+                    propertyLabel: $this->nodeLabelService->propertyLabel($propertyName, $changedNode),
+                ),
+                changes: new ImageContentChange(
+                    original: $originalPropertyValue,
+                    changed: $changedPropertyValue,
+                ),
+            );
+        }
+
+        if ($this->isAsset($originalPropertyValue, $changedPropertyValue)) {
+            return new ContentChangeItem(
+                properties: new ContentChangeProperties(
+                    type: 'asset',
+                    propertyLabel: $this->nodeLabelService->propertyLabel($propertyName, $changedNode),
+                ),
+                changes: new AssetContentChange(
+                    original: $originalPropertyValue,
+                    changed: $changedPropertyValue,
+                ),
+            );
+        }
+
+        if ($originalPropertyValue instanceof \DateTimeInterface && $changedPropertyValue instanceof \DateTimeInterface) {
+            return new ContentChangeItem(
+                properties: new ContentChangeProperties(
+                    type: 'datetime',
+                    propertyLabel: $this->nodeLabelService->propertyLabel($propertyName, $changedNode),
+                ),
+                changes: new DateTimeContentChange(
+                    original: $originalPropertyValue,
+                    changed: $changedPropertyValue,
+                ),
+            );
+        }
+
+        return $this->describeTextChange($changedNode, $propertyName, $originalPropertyValue, $changedPropertyValue);
+    }
+
+    /**
+     * The difference of a property that points to another node.
+     */
+    private function describeReferenceChange(
+        NodeInterface $changedNode,
+        ?NodeInterface $originalNode,
+        string $propertyName,
+        mixed $originalPropertyValue,
+        mixed $changedPropertyValue
+    ): ?ContentChangeItem {
+        $originalReference = $this->describeNodeReference($originalPropertyValue, $originalNode ?? $changedNode);
+        $changedReference = $this->describeNodeReference($changedPropertyValue, $changedNode);
+
+        if ($originalReference === $changedReference) {
+            return null;
+        }
+
+        return new ContentChangeItem(
+            properties: new ContentChangeProperties(
+                type: 'text',
+                propertyLabel: $this->nodeLabelService->propertyLabel($propertyName, $changedNode),
+            ),
+            changes: new TextContentChange(
+                diff: $this->diffOf($originalReference, $changedReference),
+                originalIsNull: $originalReference === '',
+                changedIsNull: $changedReference === '',
+            ),
+        );
+    }
+
+    /**
+     * The difference of a property that is shown as text.
+     *
+     * This is the kind of property most of them are: text, numbers, flags, but also the
+     * value objects - objects that hold a value of the domain, like the postal address of
+     * a node.
+     */
+    private function describeTextChange(
+        NodeInterface $changedNode,
+        string $propertyName,
+        mixed $originalPropertyValue,
+        mixed $changedPropertyValue
+    ): ?ContentChangeItem {
+        $originalDescription = $this->describeValue($changedNode, $propertyName, $originalPropertyValue);
+        $changedDescription = $this->describeValue($changedNode, $propertyName, $changedPropertyValue);
+
+        if ($originalDescription === $changedDescription) {
+            return null;
+        }
+
+        $diff = new Diff(
+            explode("\n", $originalDescription),
+            explode("\n", $changedDescription),
+            ['context' => 1]
+        );
+        /** @var list<list<array<string, mixed>>> $diffArray */
+        $diffArray = $this->markEmptyDiffSides($diff->render(new HtmlArrayRenderer()));
+
+        if (count($diffArray) === 0) {
+            return null;
+        }
+
+        return new ContentChangeItem(
+            properties: new ContentChangeProperties(
+                type: 'text',
+                propertyLabel: $this->nodeLabelService->propertyLabel($propertyName, $changedNode),
+            ),
+            changes: new TextContentChange(
+                diff: $diffArray,
+                originalIsNull: $originalPropertyValue === null,
+                changedIsNull: $changedPropertyValue === null,
+            ),
+        );
+    }
+
+    /**
+     * The description of a value, as the review shows it.
+     *
+     * The value of a select box is shown with the label of the choice, like the editor
+     * shows it.
+     */
+    private function describeValue(NodeInterface $node, string $propertyName, mixed $value): string
+    {
+        $label = $this->nodeLabelService->selectValueLabel($propertyName, $node, $value);
+        if ($label !== null) {
+            return $label;
+        }
+
+        return $this->valueDescriptionService->describe($value);
+    }
+
+    /**
+     * Whether two values of a property are the same.
+     *
+     * The values are compared by what they mean and not by their identity: a value object
+     * is read from the content repository as a new object every time, so two instances of
+     * the same value are not the same value.
+     */
+    private function isSameValue(mixed $originalPropertyValue, mixed $changedPropertyValue): bool
+    {
+        if ($originalPropertyValue === null || $changedPropertyValue === null) {
+            return $originalPropertyValue === $changedPropertyValue;
+        }
+        if (is_object($originalPropertyValue) && is_object($changedPropertyValue)) {
+            if ($originalPropertyValue instanceof \DateTimeInterface && $changedPropertyValue instanceof \DateTimeInterface) {
+                return $originalPropertyValue->getTimestamp() === $changedPropertyValue->getTimestamp();
+            }
+            if ($originalPropertyValue instanceof AssetInterface || $changedPropertyValue instanceof AssetInterface) {
+                // The media objects are shared by the persistence manager: the same image is
+                // the same object.
+                return $originalPropertyValue === $changedPropertyValue;
+            }
+
+            return $this->valueDescriptionService->describe($originalPropertyValue)
+                === $this->valueDescriptionService->describe($changedPropertyValue);
+        }
+        if (is_array($originalPropertyValue) && is_array($changedPropertyValue)) {
+            return $this->valueDescriptionService->describe($originalPropertyValue)
+                === $this->valueDescriptionService->describe($changedPropertyValue);
+        }
+
+        return $originalPropertyValue === $changedPropertyValue;
+    }
+
+    /**
+     * Whether the values of a property are an image - or nothing, so that the image can be
+     * removed.
+     */
+    private function isImage(mixed $originalPropertyValue, mixed $changedPropertyValue): bool
+    {
+        return ($originalPropertyValue === null || $originalPropertyValue instanceof ImageInterface)
+            && ($changedPropertyValue === null || $changedPropertyValue instanceof ImageInterface);
+    }
+
+    /**
+     * Whether the values of a property are an asset - or nothing, so that the asset can be
+     * removed.
+     */
+    private function isAsset(mixed $originalPropertyValue, mixed $changedPropertyValue): bool
+    {
+        return ($originalPropertyValue === null || $originalPropertyValue instanceof AssetInterface)
+            && ($changedPropertyValue === null || $changedPropertyValue instanceof AssetInterface);
     }
 
     /**
@@ -460,23 +571,4 @@ final class ChangeDescriptionService
             default => throw new \InvalidArgumentException('Not a date node state: ' . $stateName),
         };
     }
-
-    /**
-     * @param mixed $propertyValue
-     */
-    private function renderSlimmedDownContent($propertyValue): string
-    {
-        $content = '';
-        if (is_string($propertyValue)) {
-            $contentSnippet = (string)preg_replace('/<br[^>]*>/', "\n", $propertyValue);
-            $contentSnippet = (string)preg_replace('/<[^>]*>/', ' ', $contentSnippet);
-            $contentSnippet = str_replace('&nbsp;', ' ', $contentSnippet);
-            $content = trim((string)preg_replace('/ {2,}/', ' ', $contentSnippet));
-        } elseif (is_int($propertyValue) || is_float($propertyValue)) {
-            $content = (string)$propertyValue;
-        }
-
-        return $content;
-    }
-
 }

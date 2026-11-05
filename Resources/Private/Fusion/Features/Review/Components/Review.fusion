@@ -15,10 +15,16 @@ prototype(Shel.Neos.WorkspaceModule:Component.Review) < prototype(Neos.Fusion:Co
         flashMessages = ${PropTypes.arrayOf(PropTypes.any)}
         contentDimensions = ${PropTypes.arrayOf(PropTypes.any)}
         selectedDimensions = ${PropTypes.string}
+        lastActivity = ${PropTypes.any}
     }
 
     @private {
         i18n = ${I18n.id('').source('Main').package('Shel.Neos.WorkspaceModule')}
+        # The label of the date a change was made: relative for a date of the last week,
+        # the formatted date for an older one.
+        lastActivityLabel = ${props.lastActivity != null ? props.lastActivity.relativeLabel || Date.formatCldrDateTime(props.lastActivity.dateTime, 'short') : ''}
+        lastActivityAuthor = ${props.lastActivity != null ? props.lastActivity.author : null}
+
         csrfToken = ${Security.csrfToken()}
         # The overview of the workspaces - the button at the top of the review goes back to it.
         indexUri = Neos.Fusion:UriBuilder {
@@ -83,6 +89,14 @@ prototype(Shel.Neos.WorkspaceModule:Component.Review) < prototype(Neos.Fusion:Co
                     <legend>
                         {private.i18n.id('review.unpublishedChanges').arguments([props.selectedWorkspaceLabel]).translate()}
                     </legend>
+                    <div
+                        @if.hasLastActivity={props.lastActivity != null}
+                        class="workspace-review-activity"
+                        title={private.i18n.id(props.lastActivity.author ? 'review.lastChangeTitle' : 'review.lastChangeTitleWithoutAuthor').arguments([Date.formatCldrDateTime(props.lastActivity.dateTime, 'long'), private.lastActivityAuthor]).translate()}
+                        data-neos-toggle="tooltip"
+                    >
+                        {private.i18n.id(props.lastActivity.author ? 'review.lastChangeBy' : 'review.lastChange').arguments([private.lastActivityLabel, private.lastActivityAuthor]).translate()}
+                    </div>
                     <div class="workspace-review">
                         <div class="workspace-review-sidebar">
                             <Shel.Neos.WorkspaceModule:Component.DimensionSwitcher

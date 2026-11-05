@@ -51,6 +51,7 @@ final class WorkspaceChangesService
         private readonly NodeTreeService $nodeTreeService,
         private readonly ChangeDescriptionService $changeDescriptionService,
         private readonly DocumentDescriptionService $documentDescriptionService,
+        private readonly RelativeDateService $relativeDateService,
     ) {
     }
 
@@ -189,6 +190,7 @@ final class WorkspaceChangesService
                 nodeTypeLabel: $change->nodeTypeLabel,
                 type: $change->type,
                 lastModificationDateTime: $change->lastModificationDateTime,
+                relativeDateTimeLabel: $this->relativeDateService->label($change->lastModificationDateTime),
                 contentChanges: $change->contentChanges,
                 requiredParents: $requiredParent instanceof NodeInterface
                     ? [$requiredParent->getContextPath()]

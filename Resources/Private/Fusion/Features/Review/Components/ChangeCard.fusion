@@ -100,8 +100,12 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeCard) < prototype(Neos.Fusio
                     </tr>
                 </table>
             </div>
-            <div class="neos-content-change-date">
-                {Date.formatCldrDateTime(props.change.lastModificationDateTime, 'short')}
+            <div
+                class="neos-content-change-date"
+                title={Date.formatCldrDateTime(props.change.lastModificationDateTime, "long")}
+                data-neos-toggle="tooltip"
+            >
+                {props.change.relativeDateTimeLabel || Date.formatCldrDateTime(props.change.lastModificationDateTime, 'short')}
             </div>
             <div class="neos-content-change-actions">
                 <Shel.Neos.WorkspaceModule:Component.Button

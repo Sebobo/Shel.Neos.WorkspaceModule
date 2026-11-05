@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { useWorkspaces } from '../provider/WorkspaceProvider';
-import { formatDate } from '../helper/format';
+import { dateLabel } from '../helper/format';
 import { ArrowIcon, Badge, Icon, IconStack } from './presentationals';
 import { useIntl } from '../provider/IntlProvider';
 
@@ -155,9 +155,18 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
             </TextColumn>
             <TextColumn title={workspace.description}>{workspace.description || '–'}</TextColumn>
             <Column>{workspace.creator?.label || '–'}</Column>
-            <Column>
-                {workspace.lastChangedBy ? workspace.lastChangedBy?.label + ' ' : ''}
-                {workspace.lastChangedDate ? formatDate(workspace.lastChangedDate) : '–'}
+            <Column
+                title={translate('table.column.lastChange.title', '', [
+                    new Date(workspace.activity?.dateTime ?? workspace.lastChangedDate ?? '').toLocaleString(),
+                    workspace.activity?.author ?? workspace.lastChangedBy?.label ?? '',
+                ])}
+            >
+                {workspace.activity?.dateTime || workspace.lastChangedDate
+                    ? dateLabel(workspace.activity?.dateTime ?? workspace.lastChangedDate ?? '', translate)
+                    : '–'}
+                {workspace.activity?.author || workspace.lastChangedBy?.label
+                    ? ' ' + (workspace.activity?.author ?? workspace.lastChangedBy?.label)
+                    : ''}
             </Column>
             <Column>
                 {workspace.changesCounts === null ? (

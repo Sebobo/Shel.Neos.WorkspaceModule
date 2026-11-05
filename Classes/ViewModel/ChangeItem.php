@@ -33,6 +33,7 @@ final readonly class ChangeItem
         public string $nodeTypeLabel,
         public string $type,
         public ?\DateTimeInterface $lastModificationDateTime,
+        public ?string $relativeDateTimeLabel,
         public ContentChangeItems $contentChanges,
         public array $requiredParents,
         public array $ancestors,

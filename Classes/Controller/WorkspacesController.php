@@ -34,6 +34,7 @@ use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
 use Shel\Neos\WorkspaceModule\Service\ContentDimensionService;
 use Shel\Neos\WorkspaceModule\Service\DocumentDescriptionService;
 use Shel\Neos\WorkspaceModule\Service\NodeTreeService;
+use Shel\Neos\WorkspaceModule\Service\WorkspaceActivityService;
 use Shel\Neos\WorkspaceModule\Service\WorkspaceChangesService;
 use Shel\Neos\WorkspaceModule\Service\WorkspacePublishingService;
 use Shel\Neos\WorkspaceModule\Domain\Repository\WorkspaceDetailsRepository;
@@ -77,6 +78,9 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
 
     #[Flow\Inject]
     protected NodeTreeService $nodeTreeService;
+
+    #[Flow\Inject]
+    protected WorkspaceActivityService $workspaceActivityService;
 
     public function indexAction(): void
     {
@@ -131,7 +135,42 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             $userWorkspace->getName() => $this->computeChangesCount($userWorkspace),
         ]);
 
-        $this->view->assign('value', ['changesByWorkspace' => $changesByWorkspace]);
+        // The last change of a workspace, for the column of the last change: the newest of
+        // the content changes, with the one who made it - the workspaces the review knows
+        // nothing about are without a change.
+        $activityByWorkspace = array_reduce($workspaces, function ($carry, Workspace $workspace) {
+            if (!$this->userCanAccessWorkspace($workspace) || !$this->workspaceHasAccessToDetails($workspace)) {
+                return $carry;
+            }
+            $activity = $this->workspaceActivityService->lastChangeOf($workspace);
+            if ($activity) {
+                $carry[$workspace->getName()] = $activity;
+            }
+            return $carry;
+        }, [
+            $userWorkspace->getName() =>
+                $userWorkspace->getBaseWorkspace() !== null
+                    ? $this->workspaceActivityService->lastChangeOf($userWorkspace)
+                    : null,
+        ]);
+
+        $this->view->assign('value', [
+            'changesByWorkspace' => $changesByWorkspace,
+            'activityByWorkspace' => $activityByWorkspace,
+        ]);
+    }
+
+    /**
+     * Whether the workspace's details exist and are reachable by the current user.
+     */
+    private function workspaceHasAccessToDetails(?Workspace $workspace): bool
+    {
+        if ($workspace === null) {
+            return false;
+        }
+        $workspaceDetails = $this->workspaceDetailsRepository->findOneByWorkspace($workspace);
+
+        return $workspaceDetails !== null;
     }
 
     /**
@@ -655,6 +694,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             'selectedWorkspaceName' => $workspace->getName(),
             'selectedWorkspaceLabel' => $workspace->getTitle() ?: $workspace->getName(),
             'baseWorkspaceLabel' => $this->baseWorkspaceLabel($workspace),
+            'lastActivity' => $this->workspaceActivityService->lastChangeOf($workspace),
             'canPublishToBaseWorkspace' => $workspace->getBaseWorkspace() !== null
                 && $this->userService->currentUserCanPublishToWorkspace($workspace->getBaseWorkspace()),
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),

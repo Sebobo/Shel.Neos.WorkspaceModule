@@ -12,6 +12,7 @@ Shel.Neos.WorkspaceModule.WorkspacesController.show = Neos.Fusion:Component {
     contentDimensions = ${contentDimensions}
     selectedDimensions = ${selectedDimensions}
     flashMessages = ${flashMessages}
+    lastActivity = ${lastActivity}
 
     renderer = Shel.Neos.WorkspaceModule:Component.Review {
         selectedWorkspaceName = ${props.selectedWorkspaceName}
@@ -21,5 +22,6 @@ Shel.Neos.WorkspaceModule.WorkspacesController.show = Neos.Fusion:Component {
         contentDimensions = ${props.contentDimensions}
         selectedDimensions = ${props.selectedDimensions}
         flashMessages = ${props.flashMessages}
+        lastActivity = ${props.lastActivity}
     }
 }

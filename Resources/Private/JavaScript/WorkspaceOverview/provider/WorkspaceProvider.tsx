@@ -104,11 +104,18 @@ export const WorkspaceProvider = ({
             .then((response) => response.json())
             .then((data) => {
                 const { changesByWorkspace }: { changesByWorkspace: Record<WorkspaceName, ChangesCounts> } = data;
+                const { activityByWorkspace }: { activityByWorkspace?: Record<WorkspaceName, WorkspaceActivity> } =
+                    data;
                 const updatedWorkspaces = Object.keys(workspaces).reduce<WorkspaceList>(
                     (carry: WorkspaceList, workspaceName) => {
                         const changesCounts = changesByWorkspace[workspaceName];
-                        if (changesCounts) {
-                            carry[workspaceName] = { ...workspaces[workspaceName], changesCounts };
+                        const activity = activityByWorkspace?.[workspaceName];
+                        if (changesCounts || activity) {
+                            carry[workspaceName] = {
+                                ...workspaces[workspaceName],
+                                changesCounts: changesCounts || workspaces[workspaceName].changesCounts,
+                                activity: activity || workspaces[workspaceName].activity,
+                            };
                         } else {
                             carry[workspaceName] = workspaces[workspaceName];
                         }

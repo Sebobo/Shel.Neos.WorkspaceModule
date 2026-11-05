@@ -62,6 +62,13 @@ type ChangesCounts = {
     total: number;
 };
 
+// The last change of a workspace: when content was changed and by whom, from the log of
+// content events - the author is unknown when the log is switched off.
+type WorkspaceActivity = {
+    dateTime: string;
+    author: string | null;
+};
+
 type WorkspaceEndpoints = {
     deleteWorkspace: ActionUri; // Delete a workspace
     pruneWorkspace: ActionUri; // Prune a workspace
@@ -84,6 +91,7 @@ interface Workspace {
     lastChangedDate: string | null;
     lastChangedTimestamp: number | null;
     lastChangedBy: User | null;
+    activity: WorkspaceActivity | null;
     baseWorkspace: BaseWorkspace | null;
     nodeCount: number;
     changesCounts: ChangesCounts | null;

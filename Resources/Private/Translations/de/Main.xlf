@@ -48,6 +48,10 @@
                 <source>None</source>
                 <target>Keine</target>
             </trans-unit>
+            <trans-unit id="table.column.lastChange.title">
+                <source>Last change on {0} by {1}</source>
+                <target>Letzte Änderung am {0} von {1}</target>
+            </trans-unit>
             <trans-unit id="table.column.action.show">
                 <source>Review</source>
                 <target>Überprüfen</target>
@@ -485,6 +489,61 @@
             <trans-unit id="review.unpublishedChanges" xml:space="preserve">
             	<source>Unpublished changes in the workspace "{0}"</source>
             	<target>Unveröffentlichte Änderungen im Arbeitsbereich "{0}"</target>
+            </trans-unit>
+
+            <trans-unit id="review.lastChange" xml:space="preserve">
+            	<source>Last change {0}</source>
+            	<target>Letzte Änderung {0}</target>
+            </trans-unit>
+
+            <trans-unit id="review.lastChangeBy" xml:space="preserve">
+            	<source>Last change {0} by {1}</source>
+            	<target>Letzte Änderung {0} von {1}</target>
+            </trans-unit>
+
+            <trans-unit id="review.lastChangeTitle" xml:space="preserve">
+            	<source>Last change on {0} by {1}</source>
+            	<target>Letzte Änderung am {0} von {1}</target>
+            </trans-unit>
+
+            <trans-unit id="review.lastChangeTitleWithoutAuthor" xml:space="preserve">
+            	<source>Last change on {0}</source>
+            	<target>Letzte Änderung am {0}</target>
+            </trans-unit>
+
+            <trans-unit id="relative.justNow" xml:space="preserve">
+            	<source>just now</source>
+            	<target>gerade eben</target>
+            </trans-unit>
+
+            <trans-unit id="relative.minute" xml:space="preserve">
+            	<source>a minute ago</source>
+            	<target>vor einer Minute</target>
+            </trans-unit>
+
+            <trans-unit id="relative.minutes" xml:space="preserve">
+            	<source>{0} minutes ago</source>
+            	<target>vor {0} Minuten</target>
+            </trans-unit>
+
+            <trans-unit id="relative.hour" xml:space="preserve">
+            	<source>an hour ago</source>
+            	<target>vor einer Stunde</target>
+            </trans-unit>
+
+            <trans-unit id="relative.hours" xml:space="preserve">
+            	<source>{0} hours ago</source>
+            	<target>vor {0} Stunden</target>
+            </trans-unit>
+
+            <trans-unit id="relative.yesterday" xml:space="preserve">
+            	<source>yesterday</source>
+            	<target>gestern</target>
+            </trans-unit>
+
+            <trans-unit id="relative.days" xml:space="preserve">
+            	<source>{0} days ago</source>
+            	<target>vor {0} Tagen</target>
             </trans-unit>
 
             <trans-unit id="review.changeType.created" xml:space="preserve">

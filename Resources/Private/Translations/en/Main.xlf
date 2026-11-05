@@ -37,6 +37,9 @@
             <trans-unit id="table.column.changes.empty">
                 <source>None</source>
             </trans-unit>
+            <trans-unit id="table.column.lastChange.title">
+                <source>Last change on {0} by {1}</source>
+            </trans-unit>
             <trans-unit id="table.column.action.show">
                 <source>Review</source>
             </trans-unit>
@@ -333,6 +336,50 @@
             </trans-unit>
             <trans-unit id="review.unpublishedChanges">
                 <source>Unpublished changes in the workspace "{0}"</source>
+            </trans-unit>
+
+            <trans-unit id="review.lastChange">
+                <source>Last change {0}</source>
+            </trans-unit>
+
+            <trans-unit id="review.lastChangeBy">
+                <source>Last change {0} by {1}</source>
+            </trans-unit>
+
+            <trans-unit id="review.lastChangeTitle">
+                <source>Last change on {0} by {1}</source>
+            </trans-unit>
+
+            <trans-unit id="review.lastChangeTitleWithoutAuthor">
+                <source>Last change on {0}</source>
+            </trans-unit>
+
+            <trans-unit id="relative.justNow">
+                <source>just now</source>
+            </trans-unit>
+
+            <trans-unit id="relative.minute">
+                <source>a minute ago</source>
+            </trans-unit>
+
+            <trans-unit id="relative.minutes">
+                <source>{0} minutes ago</source>
+            </trans-unit>
+
+            <trans-unit id="relative.hour">
+                <source>an hour ago</source>
+            </trans-unit>
+
+            <trans-unit id="relative.hours">
+                <source>{0} hours ago</source>
+            </trans-unit>
+
+            <trans-unit id="relative.yesterday">
+                <source>yesterday</source>
+            </trans-unit>
+
+            <trans-unit id="relative.days">
+                <source>{0} days ago</source>
             </trans-unit>
 
             <trans-unit id="review.noDocuments">

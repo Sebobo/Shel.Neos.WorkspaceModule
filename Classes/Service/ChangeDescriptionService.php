@@ -47,6 +47,7 @@ final class ChangeDescriptionService
         private readonly NodeLabelService $nodeLabelService,
         private readonly NodeTreeService $nodeTreeService,
         private readonly ValueDescriptionService $valueDescriptionService,
+        private readonly RelativeDateService $relativeDateService,
     ) {
     }
 
@@ -78,6 +79,9 @@ final class ChangeDescriptionService
             type: $type,
             lastModificationDateTime: $node instanceof Node
                 ? $node->getLastModificationDateTime()
+                : null,
+            relativeDateTimeLabel: $node instanceof Node
+                ? $this->relativeDateService->label($node->getLastModificationDateTime())
                 : null,
             contentChanges: $this->renderContentChanges($node),
             requiredParents: [],

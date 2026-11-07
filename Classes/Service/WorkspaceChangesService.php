@@ -414,6 +414,26 @@ final class WorkspaceChangesService
                 // The node belongs to another variant of its document.
                 continue;
             }
+
+            // Filter by primary dimension value: compare the node's own dimension values
+            // with the selected preset's first (primary) value for each dimension. This prevents
+            // fallback matches - a German preset that falls back to English will not show English nodes.
+            if ($dimensionValues !== []) {
+                $nodeDimensions = $node->getDimensions();
+                foreach ($nodeDimensions as $dimName => $dimValues) {
+                    if (!isset($dimensionValues[$dimName])) {
+                        continue;
+                    }
+                    // Selected preset's primary value (first in the list, possibly a fallback chain)
+                    $selectedPrimary = reset($dimensionValues[$dimName]);
+                    // Node's own primary dimension value
+                    $nodeValue = $dimValues[0] ?? null;
+                    if ($selectedPrimary !== '' && $nodeValue !== $selectedPrimary) {
+                        // Node's dimension doesn't match the selected preset's primary value.
+                        continue 2;
+                    }
+                }
+            }
             $pathParts = explode('/', $node->getPath());
             if (count($pathParts) <= 2) {
                 continue;

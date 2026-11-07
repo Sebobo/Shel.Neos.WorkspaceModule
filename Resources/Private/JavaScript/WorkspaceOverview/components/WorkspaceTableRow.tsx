@@ -154,7 +154,7 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                 </span>
             </TextColumn>
             <TextColumn title={workspace.description}>{workspace.description || '–'}</TextColumn>
-            <Column>{workspace.creator?.label || '–'}</Column>
+            <Column>{workspace.creator?.label || translate('actor.unknown', 'n/a')}</Column>
             <Column
                 title={translate('table.column.lastChange.title', '', [
                     new Date(workspace.activity?.dateTime ?? workspace.lastChangedDate ?? '').toLocaleString(),
@@ -162,11 +162,9 @@ const WorkspaceTableRow: React.FC<WorkspaceTableRowProps> = ({ workspaceName, le
                 ])}
             >
                 {workspace.activity?.dateTime || workspace.lastChangedDate
-                    ? dateLabel(workspace.activity?.dateTime ?? workspace.lastChangedDate ?? '', translate)
-                    : '–'}
-                {workspace.activity?.author || workspace.lastChangedBy?.label
-                    ? ' ' + (workspace.activity?.author ?? workspace.lastChangedBy?.label)
+                    ? dateLabel(workspace.activity?.dateTime ?? workspace.lastChangedDate ?? '', translate) + ' – '
                     : ''}
+                {workspace.activity?.author ?? workspace.lastChangedBy?.label ?? translate('actor.unknown', 'n/a')}
             </Column>
             <Column>
                 {workspace.changesCounts === null ? (

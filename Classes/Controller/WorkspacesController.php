@@ -383,7 +383,7 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
     }
 
     /**
-     * Create action from Neos WorkspacesController but creates a new WorkspaceDetails object after workspace creation
+     * Create action from Neos WorkspacesController
      *
      * @param string $title Human friendly title of the workspace, for example "Christmas Campaign"
      * @param Workspace $baseWorkspace Workspace the new workspace should be based on
@@ -429,12 +429,6 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
 
             $this->workspaceRepository->add($workspace);
 
-            // Create a new WorkspaceDetails object
-            $workspaceDetails = new WorkspaceDetails(
-                $workspace,
-                $this->securityContext->getAccount()->getAccountIdentifier()
-            );
-            $this->workspaceDetailsRepository->add($workspaceDetails);
 
             // Persist the workspace and related data or the generated workspace info will be incomplete
             $this->persistenceManager->persistAll();

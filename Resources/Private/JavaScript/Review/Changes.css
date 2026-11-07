@@ -79,7 +79,7 @@
 
     .neos-content-change-header {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         gap: var(--spacing-Half);
         padding: var(--review-padding) var(--spacing-Full);
         font-weight: bold;

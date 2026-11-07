@@ -1,0 +1,119 @@
+interface NeosI18n {
+    translate: (
+        id: string,
+        fallback: string,
+        packageKey: string,
+        source: string,
+        args: Record<string, unknown> | string[],
+    ) => string;
+    initialized: boolean;
+}
+
+type FlashMessage = {
+    title: string;
+    message: string;
+    severity: 'error' | 'info' | 'ok' | 'warning';
+};
+
+type TranslateFunction = (
+    id: string,
+    fallback?: string,
+    parameters?: Record<string, string | number> | any[],
+) => string;
+
+interface NeosNotification {
+    notice: (title: string) => void;
+    ok: (title: string) => void;
+    error: (title: string, message?: string) => void;
+    warning: (title: string, message?: string) => void;
+    info: (title: string) => void;
+}
+
+type AppWindow = Window &
+    typeof globalThis & {
+        NeosCMS: {
+            I18n: NeosI18n;
+            Notification: NeosNotification;
+        };
+    };
+
+type WorkspaceValidation = {
+    titlePattern: string;
+};
+
+type ActionUri = string;
+
+type UserID = string;
+type UserLabel = string;
+type UserName = string;
+type User = {
+    id: UserID;
+    name: UserName;
+    label: UserLabel;
+};
+
+type WorkspaceName = string;
+type WorkspaceTitle = string;
+
+type ChangesCounts = {
+    new: number;
+    changed: number;
+    removed: number;
+    total: number;
+};
+
+// The last change of a workspace: when content was changed and by whom, from the log of
+// content events - the author is unknown when the log is switched off.
+type WorkspaceActivity = {
+    dateTime: string;
+    author: string | null;
+};
+
+type WorkspaceEndpoints = {
+    deleteWorkspace: ActionUri; // Delete a workspace
+    pruneWorkspace: ActionUri; // Prune a workspace
+    updateWorkspace: ActionUri; // Show edit dialog
+    createWorkspace: ActionUri; // Create new workspace
+    showWorkspace: ActionUri; // Show changes in workspace
+    getChanges: ActionUri; // Load number of changes for all workspaces
+};
+
+type BaseWorkspace = {
+    name: WorkspaceName;
+    title: WorkspaceTitle;
+};
+interface Workspace {
+    name: WorkspaceName;
+    title: WorkspaceTitle;
+    description: string | null;
+    owner: User | null;
+    creator: User | null;
+    lastChangedDate: string | null;
+    lastChangedTimestamp: number | null;
+    lastChangedBy: User | null;
+    activity: WorkspaceActivity | null;
+    baseWorkspace: BaseWorkspace | null;
+    nodeCount: number;
+    changesCounts: ChangesCounts | null;
+    isPersonal: boolean;
+    isInternal: boolean;
+    isStale: boolean;
+    canPublish: boolean;
+    canManage: boolean;
+    dependentWorkspacesCount: number;
+    acl: User[];
+}
+
+type WorkspaceList = Record<WorkspaceName, Workspace>;
+type BaseWorkspaceOptions = Record<WorkspaceName, WorkspaceTitle>;
+type UserList = Record<UserID, UserLabel>;
+
+type WorkspaceModuleConfiguration = {
+    username: UserID;
+    userWorkspace: WorkspaceName;
+    csrfToken: string;
+    endpoints: WorkspaceEndpoints;
+    userCanManageInternalWorkspaces: boolean;
+    userCanCreateWorkspaces: boolean;
+    validation: WorkspaceValidation;
+};

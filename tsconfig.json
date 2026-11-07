@@ -7,7 +7,7 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "jsx": "react",
-    "typeRoots": ["./Resources/Private/JavaScript/typings"]
+    "typeRoots": ["./Resources/Private/JavaScript/WorkspaceOverview/typings"]
   },
   "include": [
     "Resources/Private/JavaScript/**/*"

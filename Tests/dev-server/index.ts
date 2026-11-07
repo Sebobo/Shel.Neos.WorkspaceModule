@@ -1,6 +1,6 @@
 import { loadFixtures } from './fixtures';
 
-import '../../Resources/Private/JavaScript/index.tsx';
+import '../../Resources/Private/JavaScript/WorkspaceOverview/index.tsx';
 
 (() => {
     console.info('Started Workspace Module dev server script');

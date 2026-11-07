@@ -6,10 +6,13 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  PACKAGE_FOLDER: Shel.Neos.WorkspaceModule
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: 'Neos workspace module lint and build'
+    name: 'JS code style and build'
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -29,16 +32,111 @@ jobs:
       - name: Build sources
         run: yarn build
 
+  codestyle:
+    runs-on: ubuntu-latest
+    name: 'PHP static analysis'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: ['8.4']
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.composer/cache
+          key: dependencies-composer-${{ hashFiles('composer.json') }}
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress
+
+      # The version of phpstan that is installed with the package - the action would bring
+      # its own version, which can be another one than the one the code is checked with.
+      - name: PHPStan
+        run: vendor/bin/phpstan analyse --configuration=phpstan.ci.neon --no-progress --memory-limit=1G
+
+  functional-tests:
+    env:
+      FLOW_CONTEXT: Testing
+      FLOW_FOLDER: ../flow-base-distribution
+
+    runs-on: ubuntu-latest
+    name: 'PHP functional tests'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: ['8.4']
+        flow-versions: ['8.4']
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set package branch name
+        run: echo "PACKAGE_TARGET_VERSION=${GITHUB_BASE_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
+        working-directory: .
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, xml, json, zlib, iconv, intl, pdo_sqlite, mysql
+          ini-values: opcache.fast_shutdown=0
+
+      - name: Cache dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.composer/cache
+          key: dependencies-composer-${{ hashFiles('composer.json') }}
+
+      - name: Prepare Flow distribution
+        run: |
+          git clone https://github.com/neos/flow-base-distribution.git -b ${{ matrix.flow-versions }} ${FLOW_FOLDER}
+          cd ${FLOW_FOLDER}
+          composer require --no-update --no-interaction phpunit/phpunit:"^11.0"
+
+          git -C ../${{ env.PACKAGE_FOLDER }} checkout -b build
+          composer config repositories.package '{ "type": "path", "url": "../${{ env.PACKAGE_FOLDER }}", "options": { "symlink": false } }'
+          composer require --no-update --no-interaction shel/neos-workspace-module:"dev-build as dev-${PACKAGE_TARGET_VERSION}"
+
+      - name: Composer Install
+        run: |
+          cd ${FLOW_FOLDER}
+          composer install --no-interaction --no-progress
+
+      - name: Run Functional tests
+        run: |
+          cd ${FLOW_FOLDER}
+          ls -la Packages
+          ls -la Packages/Plugins
+          ls -la Packages/Plugins/${{ env.PACKAGE_FOLDER }}
+          bin/phpunit --colors -c Build/BuildEssentials/PhpUnit/FunctionalTests.xml Packages/Plugins/${{ env.PACKAGE_FOLDER }}/Tests/Functional/
+
   test-integration:
     runs-on: ubuntu-latest
-    name: 'Neos workspace module integration tests'
+    name: 'JS integration tests'
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
           build: yarn
           start: yarn dev
+          # The action hands the file of the configuration to cypress. Without this it uses
+          # "cypress.json", which cypress does not read any more since its version 10.
+          config-file: cypress.config.ts
+          # The tests need the dev server, which serves the fixtures of the module. The action
+          # pings the url itself and gives up after two tries - the npm package "wait-on"
+          # waits until the server answers.
+          wait-on: "npx --yes wait-on --timeout 120 http://localhost:4000"
           test: yarn test:integration

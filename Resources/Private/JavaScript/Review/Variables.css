@@ -1,0 +1,35 @@
+/*
+ * The variables of the review.
+ *
+ * The core of Neos brings variables for the colours, the spacing and the fonts of the
+ * backend - they are used wherever they fit, so that the look of the review follows the look
+ * of the core.
+ *
+ * The variables below are the ones the core does not have: the greys of the review are
+ * brighter than the ones of the core, so that the texts of the second and the third level can
+ * be read on the dark background of the panels.
+ */
+.neos-module-management-workspaces {
+    /* the grey of the texts that stand next to the important ones */
+    --review-text-muted: #b8b8b8;
+    /* the grey of the texts that stand next to the muted ones */
+    --review-text-faint: #909090;
+    /* the blue of a checkbox that stands between "nothing" and "everything" */
+    --review-checkbox-partial: #1c5a70;
+    /* the border of the panels and of their rows */
+    --review-border: 1px solid var(--grayLight);
+    /* the bar at the left of a row that shows the kind of the change */
+    --review-legend-width: 2px;
+    --review-kind-bar-width: 3px;
+    /* the padding of the panels, of their rows and of their cells */
+    --review-padding: 12px;
+    --review-padding-row: 10px var(--review-padding);
+    /* the spacing of the letters in the titles of the panels */
+    --review-letter-spacing: 0.05em;
+    /* the height of a line of the texts of the review */
+    --review-line-height: 20px;
+    /* the size of the buttons that load a part of the review again */
+    --review-button-size: 24px;
+    /* the shadow of the popups of the review */
+    --review-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}

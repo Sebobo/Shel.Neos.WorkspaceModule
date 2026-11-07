@@ -1,0 +1,74 @@
+##
+# The preview of a document: the page as it is rendered in a workspace.
+#
+# The dialog shows the published version of the document on the left and the version of the
+# reviewed workspace on the right. A document that was created in the workspace has no
+# published version - the dialog shows the one of the workspace then.
+#
+# The frames are filled by the script of the module when the dialog is opened, because the
+# document that is open changes while the review goes on.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.PreviewDialog) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = false
+        workspaceLabel = ${PropTypes.string}
+        baseWorkspaceLabel = ${PropTypes.string}
+    }
+
+    @private {
+        i18n = ${I18n.id('').source('Main').package('Shel.Neos.WorkspaceModule')}
+    }
+
+    renderer = afx`
+        <dialog
+            class="workspace-review-preview-dialog"
+            id="workspace-review-preview-dialog"
+            aria-label={private.i18n.id('review.preview').translate()}
+        >
+            <div class="workspace-review-preview-toolbar">
+                <span class="workspace-review-preview-title" data-role="preview-title"></span>
+                <label class="neos-checkbox workspace-review-preview-sync">
+                    <input
+                        type="checkbox"
+                        data-role="preview-sync"
+                        checked="checked"
+                    />
+                    <span></span>
+                    {private.i18n.id('review.syncScroll').translate()}
+                </label>
+                <button
+                    type="button"
+                    class="workspace-review-preview-close"
+                    data-role="preview-close"
+                    title={private.i18n.id('review.close').translate()}
+                >
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="workspace-review-preview-body">
+                <div class="workspace-review-preview-pane" data-pane="base">
+                    <div class="workspace-review-preview-pane-header" data-role="preview-base-header">
+                        {props.baseWorkspaceLabel}
+                    </div>
+                    <iframe
+                        class="workspace-review-preview-frame"
+                        data-role="preview-base-frame"
+                        title={props.baseWorkspaceLabel}
+                        referrerpolicy="same-origin"
+                    ></iframe>
+                </div>
+                <div class="workspace-review-preview-pane" data-pane="current">
+                    <div class="workspace-review-preview-pane-header" data-role="preview-current-header">
+                        {props.workspaceLabel}
+                    </div>
+                    <iframe
+                        class="workspace-review-preview-frame"
+                        data-role="preview-current-frame"
+                        title={props.workspaceLabel}
+                        referrerpolicy="same-origin"
+                    ></iframe>
+                </div>
+            </div>
+        </dialog>
+    `
+}

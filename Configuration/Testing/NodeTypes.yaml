@@ -1,0 +1,52 @@
+# The node types of the tests. They are only available in the "Testing" context.
+#
+# The super type is the document of the core: it exists in every version of Neos, so that
+# the tests run against the distribution of the CI as well.
+#
+'Shel.Neos.WorkspaceModule:Testing:PageWithReference':
+  superTypes:
+    'Neos.Neos:Document': true
+  properties:
+    reference:
+      type: reference
+    link:
+      type: string
+
+# A document with the kinds of properties that are not plain text: a value object, a
+# collection of value objects, a flag and a select box.
+'Shel.Neos.WorkspaceModule:Testing:PageWithValues':
+  superTypes:
+    'Neos.Neos:Document': true
+  properties:
+    address:
+      type: 'Shel\Neos\WorkspaceModule\Tests\Fixtures\Domain\Model\PostalAddress'
+    addresses:
+      type: 'Shel\Neos\WorkspaceModule\Tests\Fixtures\Domain\Model\PostalAddresses'
+    featured:
+      type: boolean
+    color:
+      type: string
+      ui:
+        label: 'Color'
+        inspector:
+          editor: 'Neos.Neos/Inspector/Editors/SelectBoxEditor'
+          editorOptions:
+            values:
+              red:
+                label: 'Shel.Neos.WorkspaceModule:Testing:review.test.color.red'
+              green:
+                label: 'Shel.Neos.WorkspaceModule:Testing:review.test.color.green'
+              blue:
+                label: 'Shel.Neos.WorkspaceModule:Testing:review.test.color.blue'
+    size:
+      type: string
+      ui:
+        label: 'Size'
+        inspector:
+          editor: 'Neos.Neos/Inspector/Editors/SelectBoxEditor'
+          editorOptions:
+            values:
+              small:
+                label: 'Small'
+              large:
+                label: 'Large'

@@ -1,0 +1,134 @@
+/*
+ * The base of the review: the scrollbars of the module, the rules that override the ones of
+ * the core and the buttons that both panels of the review use.
+ */
+.neos-module-management-workspaces {
+    /*
+     * The scrollbars of the module look like the ones of Neos: the core styles them for the
+     * frontend, the backend keeps the scrollbar of the browser.
+     */
+    ::-webkit-scrollbar {
+        width: var(--spacing-Half);
+        height: var(--spacing-Half);
+    }
+
+    ::-webkit-scrollbar-track {
+        background-color: var(--grayLight);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: var(--grayDark);
+        border: var(--review-border);
+    }
+
+    ::-webkit-scrollbar-corner {
+        background-color: var(--grayLight);
+    }
+
+    .workspace-review-sidebar,
+    .workspace-review-content {
+        position: relative;
+    }
+}
+
+/*
+ * The change rows carry a legend colour from the core on their left edge, and the core draws
+ * that border eight pixels wide. The border of a change is two pixels wide here, and the
+ * "hidden" legend is grey instead of white - white is invisible on the light background of a
+ * change row. The selectors repeat the ones of the core in full, so that they win no matter
+ * which of the two stylesheets is loaded last.
+ */
+.neos.neos-module.neos-module-management-workspaces {
+    .neos-content-change.legend-edited {
+        border-left: var(--review-legend-width) solid var(--colors-Warn);
+    }
+
+    .neos-content-change.legend-created {
+        border-left: var(--review-legend-width) solid var(--colors-Success);
+    }
+
+    .neos-content-change.legend-deleted {
+        border-left: var(--review-legend-width) solid var(--colors-Error);
+    }
+
+    .neos-content-change.legend-moved {
+        border-left: var(--review-legend-width) solid var(--blue);
+    }
+
+    .neos-content-change.legend-hidden {
+        border-left: var(--review-legend-width) solid var(--review-text-muted);
+    }
+}
+
+/*
+ * The indicator that shows while a part of the review is loaded. The button that loads it
+ * again is the indicator itself - it spins while the request is running.
+ */
+.neos-module-management-workspaces {
+    .htmx-indicator {
+        opacity: 0;
+        transition: opacity var(--transition-Fast) ease-in;
+        pointer-events: none;
+    }
+
+    .htmx-request .htmx-indicator,
+    .htmx-request.htmx-indicator {
+        opacity: 1;
+    }
+
+    /*
+     * The button that loads a part of the review again, the same icon the neos.ui uses for
+     * it. While the part is loading, the icon spins and turns blue - the button is the
+     * indicator.
+     */
+    .workspace-review-reload {
+        flex: 0 0 auto;
+        width: var(--review-button-size);
+        height: var(--review-button-size);
+        margin: 0;
+        padding: 0;
+        color: var(--review-text-muted);
+        background: none;
+        border: 0;
+        cursor: pointer;
+
+        /* a button that cannot be used - the preview of a document that is deleted */
+        &:disabled {
+            color: var(--textSubtle);
+            cursor: not-allowed;
+        }
+
+        &:hover {
+            color: var(--textOnGray);
+        }
+
+        i {
+            font-size: var(--fontSize-Base);
+        }
+    }
+
+    .workspace-review-reload.htmx-request i,
+    .htmx-request .workspace-review-reload i {
+        color: var(--blue);
+        animation: workspaceReviewSpin 0.9s linear infinite;
+    }
+
+    /*
+     * The icon that stands in for the reload button while the part of the review it belongs
+     * to is still loading.
+     */
+    .workspace-review-reload-placeholder {
+        position: absolute;
+        top: 10px;
+        right: var(--review-padding);
+    }
+}
+
+@keyframes workspaceReviewSpin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

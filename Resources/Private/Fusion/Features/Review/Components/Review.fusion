@@ -1,0 +1,265 @@
+##
+# The review of a workspace: the documents with changes on the left, the changes of the selected
+# document on the right.
+#
+# Every part is loaded asynchronously. Each of the two panels has its own indicator, so that it
+# is visible which of them is loading.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.Review) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = false
+        selectedWorkspaceName = ${PropTypes.string}
+        selectedWorkspaceLabel = ${PropTypes.string}
+        baseWorkspaceLabel = ${PropTypes.string}
+        canPublishToBaseWorkspace = ${PropTypes.boolean}
+        flashMessages = ${PropTypes.arrayOf(PropTypes.any)}
+        contentDimensions = ${PropTypes.arrayOf(PropTypes.any)}
+        selectedDimensions = ${PropTypes.string}
+        lastActivity = ${PropTypes.any}
+    }
+
+    @private {
+        i18n = ${I18n.id('').source('Main').package('Shel.Neos.WorkspaceModule')}
+        # The label of the date a change was made: relative for a date of the last week,
+        # the formatted date for an older one.
+        lastActivityLabel = ${props.lastActivity != null ? props.lastActivity.relativeLabel || Date.formatCldrDateTime(props.lastActivity.dateTime, 'short') : ''}
+        lastActivityAuthor = ${props.lastActivity != null ? props.lastActivity.author : null}
+
+        csrfToken = ${Security.csrfToken()}
+        # The overview of the workspaces - the button at the top of the review goes back to it.
+        indexUri = Neos.Fusion:UriBuilder {
+            action = 'index'
+        }
+        treeUri = Neos.Fusion:UriBuilder {
+            action = 'documentTree'
+            format = 'htmx'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = ${props.selectedDimensions}
+        }
+        publishAllUri = Neos.Fusion:UriBuilder {
+            action = 'publishAll'
+            format = 'htmx'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = ${props.selectedDimensions}
+        }
+        discardAllUri = Neos.Fusion:UriBuilder {
+            action = 'discardAll'
+            format = 'htmx'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = ${props.selectedDimensions}
+        }
+        # The selection can span several documents, and the document that is open travels with
+        # the request - it is in the hidden fields of the review, because the url of a button
+        # cannot change: htmx reads it once, when the page is loaded.
+        publishSelectedUri = Neos.Fusion:UriBuilder {
+            action = 'publishSelected'
+            format = 'htmx'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = ${props.selectedDimensions}
+        }
+        discardSelectedUri = Neos.Fusion:UriBuilder {
+            action = 'discardSelected'
+            format = 'htmx'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = ${props.selectedDimensions}
+        }
+        publishDocumentUri = Neos.Fusion:UriBuilder {
+            action = 'publishDocument'
+            format = 'htmx'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = ${props.selectedDimensions}
+        }
+        discardDocumentUri = Neos.Fusion:UriBuilder {
+            action = 'discardDocument'
+            format = 'htmx'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = ${props.selectedDimensions}
+        }
+    }
+
+    renderer = afx`
+        <Shel.Neos.WorkspaceModule:Component.HtmxConfig/>
+        <Shel.Neos.WorkspaceModule:Component.FlashMessages flashMessages={props.flashMessages}/>
+        <section
+            id="workspace-module-content"
+            hx-headers={Json.stringify({'X-Flow-Csrftoken': private.csrfToken})}
+        >
+            <main class="neos-content neos-container-fluid">
+                <div class="neos-row-fluid">
+                    <legend>
+                        {private.i18n.id('review.unpublishedChanges').arguments([props.selectedWorkspaceLabel]).translate()}
+                    </legend>
+                    <div
+                        @if.hasLastActivity={props.lastActivity != null}
+                        class="workspace-review-activity"
+                        title={private.i18n.id(props.lastActivity.author ? 'review.lastChangeTitle' : 'review.lastChangeTitleWithoutAuthor').arguments([Date.formatCldrDateTime(props.lastActivity.dateTime, 'long'), private.lastActivityAuthor]).translate()}
+                        data-neos-toggle="tooltip"
+                    >
+                        {private.i18n.id(props.lastActivity.author ? 'review.lastChangeBy' : 'review.lastChange').arguments([private.lastActivityLabel, private.lastActivityAuthor]).translate()}
+                    </div>
+                    <div class="workspace-review">
+                        <div class="workspace-review-sidebar">
+                            <Shel.Neos.WorkspaceModule:Component.DimensionSwitcher
+                                contentDimensions={props.contentDimensions}
+                                selectedWorkspaceName={props.selectedWorkspaceName}
+                            />
+                            <div
+                                id="document-tree"
+                                hx-get={private.treeUri}
+                                hx-trigger="load"
+                                hx-swap="outerHTML"
+                            >
+                                <Shel.Neos.WorkspaceModule:Component.Indicator
+                                    id="document-tree-reload"
+                                    icon="fas fa-sync"
+                                />
+                            </div>
+                        </div>
+                        <div class="workspace-review-content">
+                            <div id="document-changes">
+                                <Shel.Neos.WorkspaceModule:Component.Indicator
+                                    id="document-changes-reload"
+                                    icon="fas fa-sync"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <div id="reviewSelection" class="workspace-review-selection"></div>
+            <Shel.Neos.WorkspaceModule:Component.PreviewDialog
+                workspaceLabel={props.selectedWorkspaceLabel}
+                baseWorkspaceLabel={props.baseWorkspaceLabel}
+            />
+            <div class="neos-footer workspace-review-actions">
+                <a
+                    class="neos-button workspace-review-back"
+                    href={private.indexUri}
+                    title={private.i18n.id('review.backToWorkspaces').translate()}
+                >
+                    <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-arrow-left"/>
+                    <span>{private.i18n.id('review.backToWorkspaces').translate()}</span>
+                </a>
+                <Shel.Neos.WorkspaceModule:Component.Button
+                    customClass="workspace-review-reset"
+                    icon="fas fa-times-circle"
+                    title={private.i18n.id('review.resetSelection').translate()}
+                    disabled={true}
+                    attributes={{
+                        'id': 'resetSelectionButton',
+                        'data-neos-toggle': 'tooltip'
+                    }}
+                />
+                <Shel.Neos.WorkspaceModule:Component.ActionCombo
+                    id="discardComboButton"
+                    color="danger"
+                    icon="fas fa-trash icon-white"
+                    label={private.i18n.id('review.discardDocument').translate()}
+                    labelWithSelection={private.i18n.id('review.discardSelected').quantity(2).arguments(['{0}']).translate()}
+                    labelWithOneSelection={private.i18n.id('review.discardSelected').quantity(1).arguments(['{0}']).translate()}
+                    title={private.i18n.id('review.discardDocumentTitle').translate()}
+                    titleWithSelection={private.i18n.id('review.discardSelectedTitle').quantity(2).arguments(['{0}']).translate()}
+                    titleWithOneSelection={private.i18n.id('review.discardSelectedTitle').quantity(1).arguments(['{0}']).translate()}
+                    url={private.discardSelectedUri}
+                    urlDocument={private.discardDocumentUri}
+                    documentIcon="fas fa-file icon-white"
+                    documentLabel={private.i18n.id('review.discardDocumentOption').translate()}
+                    documentTitle={private.i18n.id('review.discardDocumentTitle').translate()}
+                    workspaceIcon="fas fa-trash icon-white"
+                    workspaceLabel={private.i18n.id('review.discardAll').translate()}
+                    workspaceTitle={private.i18n.id('review.discardAllTitle').arguments([props.selectedWorkspaceLabel]).translate()}
+                    workspaceModal="workspace-review-discard-all-modal"
+                />
+                <Shel.Neos.WorkspaceModule:Component.ActionCombo
+                    id="publishComboButton"
+                    color="primary"
+                    icon="fas fa-check icon-white"
+                    label={private.i18n.id('review.publishDocument').translate()}
+                    labelWithSelection={private.i18n.id('review.publishSelected').quantity(2).arguments(['{0}']).translate()}
+                    labelWithOneSelection={private.i18n.id('review.publishSelected').quantity(1).arguments(['{0}']).translate()}
+                    title={private.i18n.id('review.publishDocumentTitle').arguments([props.baseWorkspaceLabel]).translate()}
+                    titleWithSelection={private.i18n.id('review.publishSelectedTitle').quantity(2).arguments(['{0}', props.baseWorkspaceLabel]).translate()}
+                    titleWithOneSelection={private.i18n.id('review.publishSelectedTitle').quantity(1).arguments(['{0}', props.baseWorkspaceLabel]).translate()}
+                    url={private.publishSelectedUri}
+                    urlDocument={private.publishDocumentUri}
+                    documentIcon="fas fa-file icon-white"
+                    documentLabel={private.i18n.id('review.publishDocumentOption').translate()}
+                    documentTitle={private.i18n.id('review.publishDocumentTitle').arguments([props.baseWorkspaceLabel]).translate()}
+                    workspaceIcon="fas fa-check-double icon-white"
+                    workspaceLabel={private.i18n.id('review.publishAll').translate()}
+                    workspaceTitle={private.i18n.id('review.publishAllTitle').arguments([props.selectedWorkspaceLabel]).translate()}
+                    workspaceModal="workspace-review-publish-all-modal"
+                    canPublish={props.canPublishToBaseWorkspace}
+                    disabled={props.canPublishToBaseWorkspace ? false : true}
+                />
+            </div>
+
+            <div class="neos-hide" id="workspace-review-publish-all-modal">
+                <div class="neos-modal-centered">
+                    <div class="neos-modal-content">
+                        <div class="neos-modal-header">
+                            <button type="button" class="neos-close neos-button" data-dismiss="modal"></button>
+                            <div class="neos-header">{private.i18n.id('review.publishAll.confirmTitle').translate()}</div>
+                            <div>
+                                <div class="neos-subheader">
+                                    <p>{private.i18n.id('review.publishAll.confirmText').arguments([props.selectedWorkspaceLabel]).translate()}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="neos-modal-footer">
+                            <button type="button" class="neos-button" data-dismiss="modal">
+                                {private.i18n.id('review.cancel').translate()}
+                            </button>
+                            <button
+                                type="button"
+                                class="neos-button neos-button-primary"
+                                data-dismiss="modal"
+                                hx-post={private.publishAllUri}
+                                hx-target="#document-changes"
+                                hx-swap="outerHTML"
+                                hx-indicator="#document-changes-reload"
+                                disabled={props.canPublishToBaseWorkspace ? null : 'disabled'}
+                            >
+                                <i class="fas fa-check icon-white"></i> {private.i18n.id('review.confirm').translate()}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="neos-modal-backdrop neos-in"></div>
+            </div>
+
+            <div class="neos-hide" id="workspace-review-discard-all-modal">
+                <div class="neos-modal-centered">
+                    <div class="neos-modal-content">
+                        <div class="neos-modal-header">
+                            <button type="button" class="neos-close neos-button" data-dismiss="modal"></button>
+                            <div class="neos-header">{private.i18n.id('review.discardAll.confirmTitle').translate()}</div>
+                            <div>
+                                <div class="neos-subheader">
+                                    <p>{private.i18n.id('review.discardAll.confirmText').arguments([props.selectedWorkspaceLabel]).translate()}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="neos-modal-footer">
+                            <button type="button" class="neos-button" data-dismiss="modal">
+                                {private.i18n.id('review.cancel').translate()}
+                            </button>
+                            <button
+                                type="button"
+                                class="neos-button neos-button-danger"
+                                data-dismiss="modal"
+                                hx-post={private.discardAllUri}
+                                hx-target="#document-changes"
+                                hx-swap="outerHTML"
+                                hx-indicator="#document-changes-reload"
+                            >
+                                <i class="fas fa-trash icon-white"></i> {private.i18n.id('review.confirm').translate()}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="neos-modal-backdrop neos-in"></div>
+            </div>
+        </section>
+    `
+}

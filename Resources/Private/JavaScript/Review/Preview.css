@@ -1,0 +1,123 @@
+/*
+ * The preview of a document: a dialog that takes nearly the whole window, with the published
+ * version of the document on the left and the version of the workspace on the right.
+ */
+.neos-module-management-workspaces {
+    .workspace-review-preview-dialog {
+        width: 96vw;
+        max-width: 96vw;
+        height: 92vh;
+        max-height: 92vh;
+        padding: 0;
+        border: var(--review-border);
+        background: var(--grayDark);
+        color: var(--textOnGray);
+
+        &::backdrop {
+            background: rgba(0, 0, 0, 0.6);
+        }
+    }
+
+    .workspace-review-preview-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--review-padding);
+        padding: 10px var(--spacing-Full);
+        border-bottom: var(--review-border);
+    }
+
+    .workspace-review-preview-title {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        font-weight: bold;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /*
+     * The switch that keeps the two previews in step while scrolling.
+     */
+    .workspace-review-preview-sync {
+        display: flex;
+        align-items: center;
+        flex: 0 0 auto;
+        gap: 6px;
+        margin: 0;
+        padding: 0;
+        color: var(--review-text-muted);
+        font-size: var(--fontSize-Small);
+        white-space: nowrap;
+
+        input[type='checkbox'] {
+            margin: 0;
+        }
+
+        &:hover {
+            color: var(--textOnGray);
+        }
+    }
+
+    /*
+     * The button that closes the preview: a square, like the one of the dialogs of the core.
+     */
+    .workspace-review-preview-close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        width: var(--spacing-GoldenUnit);
+        height: var(--spacing-GoldenUnit);
+        margin: 0;
+        padding: 0;
+        color: var(--textOnGray);
+        font-size: 18px;
+        line-height: 1;
+        background: none;
+        border: 0;
+        box-sizing: border-box;
+        cursor: pointer;
+
+        &:hover {
+            color: var(--textOnGray);
+            background: var(--blue);
+        }
+    }
+
+    .workspace-review-preview-body {
+        display: flex;
+        gap: 1px;
+        height: calc(100% - 49px);
+        background: var(--grayLight);
+    }
+
+    .workspace-review-preview-pane {
+        display: flex;
+        flex: 1 1 50%;
+        flex-direction: column;
+        min-width: 0;
+        background: var(--grayDark);
+
+        &[hidden] {
+            display: none;
+        }
+    }
+
+    /* the workspace the frame below shows the document of */
+    .workspace-review-preview-pane-header {
+        padding: var(--spacing-Half) var(--review-padding);
+        border-bottom: var(--review-border);
+        color: var(--review-text-muted);
+        font-size: var(--fontSize-Small);
+        letter-spacing: var(--review-letter-spacing);
+        text-transform: uppercase;
+    }
+
+    .workspace-review-preview-frame {
+        flex: 1 1 auto;
+        width: 100%;
+        border: 0;
+        background: var(--textOnGray);
+    }
+}

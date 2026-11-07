@@ -1,0 +1,16 @@
+##
+# The handover of the session of the review to the domain of a site.
+#
+# The preview of a document of the review is loaded from the domain of the site the document
+# belongs to, and the session of the backend is only valid on the host it was created on.
+# The handover starts with a token that names the session of the review, and hands the cookie
+# of it to that domain. It is reached without a user, like the token login of Neos is.
+-
+  name: 'Shel.Neos.WorkspaceModule:PreviewSession'
+  uriPattern: 'neos/workspace-review/preview-session'
+  defaults:
+    '@package': 'Shel.Neos.WorkspaceModule'
+    '@controller': 'PreviewSession'
+    '@action': 'startSession'
+    '@format': 'html'
+  httpMethods: ['GET']

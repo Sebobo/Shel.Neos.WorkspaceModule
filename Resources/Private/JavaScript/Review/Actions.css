@@ -1,0 +1,152 @@
+/*
+ * The actions of the review: the way back to the overview of the workspaces and the buttons
+ * that publish or discard the changes.
+ */
+.neos-module-management-workspaces {
+    /*
+     * The actions of the review: a button with the action that fits the state, and a second
+     * one next to it that opens the other options.
+     */
+    .workspace-review-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-Half);
+        align-items: center;
+        /* all the buttons of the review sit on the right */
+        justify-content: flex-end;
+
+        button {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+    }
+
+    /*
+     * The combo button: the button with the action and the button that opens the menu next
+     * to it, like the publish button of the neos.ui in the top bar.
+     */
+    .workspace-review-combo {
+        position: relative;
+        display: inline-flex;
+        vertical-align: top;
+    }
+
+    .workspace-review-combo-main {
+        border-right: none;
+
+        /* the icon and the label of a button are one gap apart */
+        > i {
+            margin-right: 1ch;
+        }
+    }
+
+    /*
+     * A label that is too long does not push the other buttons of the footer out of the
+     * footer - the title of the button says the whole thing.
+     */
+    .workspace-review-combo-label {
+        display: inline-block;
+        max-width: 30ch;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: bottom;
+    }
+
+    .workspace-review-combo-toggle {
+        width: 32px;
+        margin: 0;
+        padding: 0;
+    }
+
+    /*
+     * The button that resets the selection carries an icon and nothing else - it is as wide
+     * as the button that opens the menu of a combo.
+     */
+    .workspace-review-reset {
+        width: 32px;
+        margin: 0;
+        padding: 0;
+    }
+
+    /*
+     * The menu is a popup of the browser: it sits in the layer above the page, so that it is
+     * not cut off by the footer, and only one of them can be open at a time.
+     *
+     * The place of the menu is set by the script of the module, which knows where the button
+     * is.
+     */
+    .workspace-review-combo-menu {
+        position: fixed;
+        inset: auto;
+        margin: 0;
+        padding: 0;
+        min-width: 280px;
+        /* the footer of the core has no font size of its own, so that the buttons sit next to
+           each other without a gap - the menu needs one */
+        font-size: var(--fontSize-Base);
+        color: var(--textOnGray);
+        background: var(--grayDark);
+        border: var(--review-border);
+        box-shadow: var(--review-shadow);
+        /* a browser without the popup feature of the browser keeps the menu closed */
+        display: none;
+
+        &:popover-open {
+            display: block;
+        }
+    }
+
+    .workspace-review-combo-option {
+        display: block;
+        padding: var(--review-padding-row);
+        color: var(--textOnGray);
+        text-decoration: none;
+        white-space: nowrap;
+
+        /* the option of the document is hidden while nothing is selected */
+        &[hidden] {
+            display: none;
+        }
+
+        i {
+            margin-right: 1ch;
+            width: 14px;
+            text-align: center;
+        }
+    }
+}
+
+/*
+ * The rules that have to win against the ones of the core repeat its selector in full.
+ */
+.neos.neos-module.neos-module-management-workspaces {
+    /*
+     * The button that goes back to the overview of the workspaces stands at the left of the
+     * footer, the way the other modules of the backend put the way back in their footer.
+     *
+     * The selector is the long one of the module, because the core gives every button of the
+     * footer a margin on its right - and the button that stands at the left needs the room
+     * of the footer for itself.
+     */
+    .neos-footer .workspace-review-back {
+        margin-right: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--spacing-Half);
+        /* the core centres the text of a button - the label of the back button stands at its
+           left, and it does not break into two lines */
+        text-align: left;
+        white-space: nowrap;
+        text-decoration: none;
+    }
+
+    /*
+     * The hovered option gets a dark background instead of the bright blue of the core:
+     * white on blue is hard to read.
+     */
+    .workspace-review-combo-option:hover {
+        background: var(--grayLight);
+        color: var(--textOnGray);
+        text-decoration: none;
+    }
+}

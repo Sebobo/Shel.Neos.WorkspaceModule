@@ -1,0 +1,13 @@
+/*
+ * The styles of the review of the workspace module.
+ *
+ * The file is split into the parts of the review - the build puts them together into the one
+ * stylesheet that the backend loads. The order of the imports is the order of the parts on
+ * the page: the base, the list of the documents, the changes, the actions and the preview.
+ */
+@import './Variables.css';
+@import './Base.css';
+@import './Tree.css';
+@import './Changes.css';
+@import './Actions.css';
+@import './Preview.css';

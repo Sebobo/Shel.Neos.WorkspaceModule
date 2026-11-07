@@ -7,8 +7,6 @@ namespace Shel\Neos\WorkspaceModule\Domain\Repository;
 /**
  * This file is part of the Shel.Neos.WorkspaceModule package.
  *
- * (c) 2022 Sebastian Helzle
- *
  * This package is Open Source Software. For the full copyright and license
  * information, please view the LICENSE file which was distributed with this
  * source code.
@@ -24,21 +22,17 @@ use Neos\Neos\Domain\Model\User;
 use Shel\Neos\WorkspaceModule\Domain\Model\WorkspaceDetails;
 
 /**
- * @method WorkspaceDetails findOneByWorkspace(Workspace $workspace)
+ * @method WorkspaceDetails|null findOneByWorkspace(Workspace $workspace)
  * @method QueryResultInterface<WorkspaceDetails> findAll()
- *
- * @Flow\Scope("singleton")
  */
+#[Flow\Scope('singleton')]
 class WorkspaceDetailsRepository extends Repository
 {
-    /**
-     * @Flow\Inject
-     * @var EntityManagerInterface
-     */
-    protected $entityManager;
+    #[Flow\Inject]
+    protected EntityManagerInterface $entityManager;
 
     /**
-     * @return string[] The names of all workspaces shared with the given user
+     * @return list<string> The names of all workspaces shared with the given user
      */
     public function findAllowedWorkspaceNamesForUser(User $user): array
     {
@@ -55,6 +49,9 @@ class WorkspaceDetailsRepository extends Repository
         ';
         $query = $this->entityManager->createNativeQuery($queryString, $rsm);
         $query->setParameter(1, $user);
-        return $query->getSingleColumnResult();
+
+        $workspaceNames = $query->getSingleColumnResult();
+
+        return array_values(array_map(static fn (mixed $workspaceName): string => (string)$workspaceName, $workspaceNames));
     }
 }

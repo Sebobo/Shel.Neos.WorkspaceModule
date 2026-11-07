@@ -1,0 +1,13 @@
+{
+    "name": "@workspace-module/review",
+    "version": "1.0.0",
+    "license": "GNU GPLv3",
+    "private": true,
+    "scripts": {
+        "watch": "node esbuild.js --watch",
+        "build": "node esbuild.js"
+    },
+    "devDependencies": {
+        "esbuild": "^0.28.2"
+    }
+}

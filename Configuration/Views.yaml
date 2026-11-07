@@ -1,12 +1,30 @@
+# The workspace module uses the templates of Neos.Neos for the html actions and replaces them
+# one by one: the partial roots are searched in the given order, so the module's own directory
+# comes first and the core's partials remain the fallback for everything not overridden.
 - requestFilter: 'isPackage("Shel.Neos.WorkspaceModule") && isController("Workspaces") && isFormat("html")'
   options:
     templateRootPathPattern: 'resource://Neos.Neos/Private/Templates/Module/Management'
     layoutRootPathPattern: 'resource://Neos.Neos/Private/Layouts'
     partialRootPathPattern: 'resource://Neos.Neos/Private/Partials'
+    partialRootPaths:
+      '10': 'resource://Shel.Neos.WorkspaceModule/Private/Partials'
+      '20': 'resource://Neos.Neos/Private/Partials'
 
 - requestFilter: 'isPackage("Shel.Neos.WorkspaceModule") && isController("Workspaces") && isFormat("html") && isAction("index")'
   viewObjectName: 'Neos\Fusion\View\FusionView'
   options:
     fusionPathPatterns:
       - 'resource://Neos.Fusion/Private/Fusion'
+      - 'resource://Shel.Neos.WorkspaceModule/Private/Fusion'
+
+# The review of a workspace is rendered with fusion: the list of documents and the changes of the
+# selected document are loaded asynchronously and are views of their own. They are requested with
+# the format "htmx", because the backend returns the content of a module raw for every format
+# but html - the fragment is swapped into the page instead of being wrapped in the backend layout.
+- requestFilter: 'isPackage("Shel.Neos.WorkspaceModule") && isController("Workspaces") && (isFormat("html") || isFormat("htmx")) && (isAction("show") || isAction("documentTree") || isAction("documentChanges") || isAction("publishChange") || isAction("discardChange") || isAction("publishSelected") || isAction("discardSelected") || isAction("publishAll") || isAction("discardAll") || isAction("publishDocument") || isAction("discardDocument"))'
+  viewObjectName: 'Neos\Fusion\View\FusionView'
+  options:
+    fusionPathPatterns:
+      - 'resource://Neos.Fusion/Private/Fusion'
+      - 'resource://Neos.Neos/Private/Fusion'
       - 'resource://Shel.Neos.WorkspaceModule/Private/Fusion'

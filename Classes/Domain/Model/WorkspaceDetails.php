@@ -1,18 +1,16 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Shel\Neos\WorkspaceModule\Domain\Model;
-
-/**
+/*
  * This file is part of the Shel.Neos.WorkspaceModule package.
- *
- * (c) 2022 Sebastian Helzle
  *
  * This package is Open Source Software. For the full copyright and license
  * information, please view the LICENSE file which was distributed with this
  * source code.
  */
+
+declare(strict_types=1);
+
+namespace Shel\Neos\WorkspaceModule\Domain\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -53,17 +51,26 @@ class WorkspaceDetails
     protected $creator;
 
     /**
+     * The users the workspace is shared with.
+     *
+     * The property holds a collection of the doctrine. The flow reads the type of the
+     * property at runtime, and a union with a generic is not understood there - so the type
+     * of the collection is the one of the doctrine here.
+     *
      * @ORM\ManyToMany
-     * @var ArrayCollection<User>
+     * @var ArrayCollection<User>|null
      */
-    protected $acl = [];
+    protected $acl = null;
 
+    /**
+     * @param ArrayCollection<User>|null $acl
+     */
     public function __construct(
         Workspace $workspace,
-        string $creator = null,
-        \DateTime $lastChangedDate = null,
-        string $lastChangedBy = null,
-        ArrayCollection $acl = null
+        ?string $creator = null,
+        ?\DateTime $lastChangedDate = null,
+        ?string $lastChangedBy = null,
+        ?ArrayCollection $acl = null
     ) {
         $this->workspace = $workspace;
         $this->creator = $creator;
@@ -108,19 +115,18 @@ class WorkspaceDetails
     }
 
     /**
-     * @param User[] $acl
+     * @param list<User> $acl
      */
     public function setAcl(array $acl): void
     {
-        $this->acl = $acl;
+        $this->acl = new ArrayCollection($acl);
     }
 
     /**
-     * @return User[]
+     * @return list<User>
      */
     public function getAcl(): array
     {
-        return $this->acl instanceof Collection ? $this->acl->toArray() : $this->acl;
+        return $this->acl === null ? [] : array_values($this->acl->toArray());
     }
-
 }

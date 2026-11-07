@@ -48,6 +48,10 @@
                 <source>None</source>
                 <target>Keine</target>
             </trans-unit>
+            <trans-unit id="table.column.lastChange.title">
+                <source>Last change on {0} by {1}</source>
+                <target>Letzte Änderung am {0} von {1}</target>
+            </trans-unit>
             <trans-unit id="table.column.action.show">
                 <source>Review</source>
                 <target>Überprüfen</target>
@@ -87,20 +91,20 @@
                 <target>(Das ist dein Arbeitsbereich)</target>
             </trans-unit>
             <trans-unit id="badge.changes.new">
-                <source>{count} new nodes were added</source>
-                <target>{count} neue Elemente wurden hinzugefügt</target>
+                <source>{count} new content items were added</source>
+                <target>{count} neue Inhalte wurden hinzugefügt</target>
             </trans-unit>
             <trans-unit id="badge.changes.changed">
-                <source>{count} nodes were changed</source>
-                <target>{count} Elemente wurden geändert</target>
+                <source>{count} content items were changed</source>
+                <target>{count} Inhalte wurden geändert</target>
             </trans-unit>
             <trans-unit id="badge.changes.removed">
-                <source>{count} nodes were removed</source>
-                <target>{count} Elemente wurden entfernt</target>
+                <source>{count} content items were removed</source>
+                <target>{count} Inhalte wurden entfernt</target>
             </trans-unit>
             <trans-unit id="badge.changes.unknown">
-                <source>{count} nodes were changed but might be orphaned</source>
-                <target>{count} wurden geändert, aber sind vermutlich nicht mehr erreichbar</target>
+                <source>{count} content items were changed but might be orphaned</source>
+                <target>{count} Inhalte wurden geändert, aber sind vermutlich nicht mehr erreichbar</target>
             </trans-unit>
             <trans-unit id="badge.staleWorkspaceOfCurrentUser">
                 <source>This workspace is stale and owned by you, consider deleting it.</source>
@@ -246,8 +250,8 @@
                 <target>Der Arbeitsbereich "{workspaceName}" wurde entfernt, {unpublishedNodes} Änderungen wurden verworfen und {dependentWorkspaces} abhängige Arbeitsbereiche wurden neu zugeordnet.</target>
             </trans-unit>
             <trans-unit id="message.workspacePruned">
-                <source>The workspace "{workspaceName}" has been pruned, {nodeCount} changes have been discarded.</source>
-                <target>Der Arbeitsbereich "{Arbeitsbereichsname}" wurde geleert, {Knotenanzahl} Änderungen wurden verworfen.</target>
+                <source>The workspace "{workspaceName}" has been pruned, {contentCount} changes have been discarded.</source>
+                <target>Der Arbeitsbereich "{workspaceName}" wurde geleert, {contentCount} Änderungen wurden verworfen.</target>
             </trans-unit>
             <trans-unit id="message.workspaceIsPersonal">
                 <source>The workspace "{workspaceName}" is personal and cannot be deleted.</source>
@@ -279,6 +283,405 @@
                 <source>You own {0} stale workspaces. Please consider deleting them.</source>
                 <target>Sie besitzen {0} veraltete Arbeitsbereiche. Bitte erwägen Sie, sie zu löschen.</target>
             </trans-unit>
+
+            <!-- Review view: legend of a change, and the node state as a change of its own -->
+            <trans-unit id="review.nodeState.hidden">
+                <source>hidden</source>
+                <target>Ausgeblendet</target>
+            </trans-unit>
+            <trans-unit id="review.nodeState.hiddenInIndex">
+                <source>hidden in index</source>
+                <target>In der Navigation ausgeblendet</target>
+            </trans-unit>
+            <trans-unit id="review.nodeState.hiddenBeforeDateTime">
+                <source>hidden before</source>
+                <target>Ausgeblendet vor</target>
+            </trans-unit>
+            <trans-unit id="review.nodeState.hiddenAfterDateTime">
+                <source>hidden after</source>
+                <target>Ausgeblendet nach</target>
+            </trans-unit>
+            <trans-unit id="review.nodeDeleted">
+                <source>This content has been deleted.</source>
+                <target>Dieser Inhalt wurde gelöscht.</target>
+            </trans-unit>
+            <trans-unit id="review.noRenderableChanges">
+                <source>No changes that can be displayed</source>
+                <target>Keine darstellbaren Änderungen</target>
+            </trans-unit>
+            <trans-unit id="review.noChangesAtAll">
+                <source>This content has no differences to the published version, only metadata such as the modification time changed.</source>
+                <target>Dieser Inhalt hat keine Unterschiede zur veröffentlichten Version; geändert haben sich nur Metadaten wie der Änderungszeitpunkt.</target>
+            </trans-unit>
+            <trans-unit id="review.value.true">
+                <source>Yes</source>
+                <target>Ja</target>
+            </trans-unit>
+            <trans-unit id="review.value.false">
+                <source>No</source>
+                <target>Nein</target>
+            </trans-unit>
+            <trans-unit id="review.publishDocument">
+                <source>Publish changes</source>
+                <target>Änderungen veröffentlichen</target>
+            </trans-unit>
+            <trans-unit id="review.discardDocument">
+                <source>Discard changes</source>
+                <target>Änderungen verwerfen</target>
+            </trans-unit>
+            <!-- Das Menü der Schaltflächen hat Platz für die längere Formulierung. -->
+            <trans-unit id="review.publishDocumentOption">
+                <source>Publish the changes of the current document</source>
+                <target>Änderungen des aktuellen Dokuments veröffentlichen</target>
+            </trans-unit>
+            <trans-unit id="review.discardDocumentOption">
+                <source>Discard the changes of the current document</source>
+                <target>Änderungen des aktuellen Dokuments verwerfen</target>
+            </trans-unit>
+            <!-- Die Titel der Schaltflächen sagen, was beim Klick passiert. -->
+            <trans-unit id="review.publishDocumentTitle">
+                <source>Publish the changes of the current document to the workspace "{0}"</source>
+                <target>Die Änderungen des aktuellen Dokuments in den Arbeitsbereich "{0}" veröffentlichen</target>
+            </trans-unit>
+            <trans-unit id="review.discardDocumentTitle">
+                <source>Discard the changes of the current document</source>
+                <target>Die Änderungen des aktuellen Dokuments verwerfen</target>
+            </trans-unit>
+            <trans-unit id="review.publishAllTitle">
+                <source>Publish all changes of the workspace "{0}"</source>
+                <target>Alle Änderungen des Arbeitsbereichs "{0}" veröffentlichen</target>
+            </trans-unit>
+            <trans-unit id="review.discardAllTitle">
+                <source>Discard all changes of the workspace "{0}"</source>
+                <target>Alle Änderungen des Arbeitsbereichs "{0}" verwerfen</target>
+            </trans-unit>
+            <trans-unit id="review.documentPublished">
+                <source>The changes of the document have been published</source>
+                <target>Die Änderungen des Dokuments wurden veröffentlicht</target>
+            </trans-unit>
+            <trans-unit id="review.documentDiscarded">
+                <source>The changes of the document have been discarded</source>
+                <target>Die Änderungen des Dokuments wurden verworfen</target>
+            </trans-unit>
+            <trans-unit id="review.publishAll.confirmTitle">
+                <source>Publish all changes?</source>
+                <target>Alle Änderungen veröffentlichen?</target>
+            </trans-unit>
+            <trans-unit id="review.publishAll.confirmText">
+                <source>All changes of the workspace "{0}" are published into its base workspace.</source>
+                <target>Alle Änderungen des Arbeitsbereichs "{0}" werden in dessen Basis-Arbeitsbereich veröffentlicht.</target>
+            </trans-unit>
+            <trans-unit id="review.discardAll.confirmTitle">
+                <source>Discard all changes?</source>
+                <target>Alle Änderungen verwerfen?</target>
+            </trans-unit>
+            <trans-unit id="review.discardAll.confirmText">
+                <source>All changes of the workspace "{0}" are discarded. This cannot be undone.</source>
+                <target>Alle Änderungen des Arbeitsbereichs "{0}" werden verworfen. Das kann nicht rückgängig gemacht werden.</target>
+            </trans-unit>
+            <trans-unit id="review.confirm">
+                <source>Confirm</source>
+                <target>Bestätigen</target>
+            </trans-unit>
+            <trans-unit id="review.cancel">
+                <source>Cancel</source>
+                <target>Abbrechen</target>
+            </trans-unit>
+            <trans-unit id="review.reload">
+                <source>Reload</source>
+                <target>Neu laden</target>
+            </trans-unit>
+            <trans-unit id="review.backToWorkspaces">
+                <source>Back to the workspaces</source>
+                <target>Zurück zu den Arbeitsbereichen</target>
+            </trans-unit>
+            <trans-unit id="review.resetSelection">
+                <source>Reset the selection</source>
+                <target>Auswahl zurücksetzen</target>
+            </trans-unit>
+            <trans-unit id="review.preview">
+                <source>Preview the document</source>
+                <target>Vorschau des Dokuments</target>
+            </trans-unit>
+
+            <trans-unit id="review.syncScroll">
+                <source>Synchronise the scroll positions</source>
+                <target>Scrollpositionen koppeln</target>
+            </trans-unit>
+
+            <trans-unit id="review.close">
+                <source>Close</source>
+                <target>Schließen</target>
+            </trans-unit>
+
+            <trans-unit id="review.openInContentModule">
+                <source>Open the page in the content module</source>
+                <target>Seite im Inhaltsmodul öffnen</target>
+            </trans-unit>
+            <trans-unit id="review.documents">
+                <source>Documents</source>
+                <target>Dokumente</target>
+            </trans-unit>
+            <trans-unit id="review.dimension.all">
+                <source>All variants</source>
+                <target>Alle Varianten</target>
+            </trans-unit>
+            <trans-unit id="review.value.notSet">
+                <source>Not set</source>
+                <target>Nicht gesetzt</target>
+            </trans-unit>
+            <trans-unit id="review.value.empty">
+                <source>Empty</source>
+                <target>Leer</target>
+            </trans-unit>
+            <trans-unit id="review.noDocuments" xml:space="preserve">
+            	<source>No documents with changes</source>
+            	<target>Keine Dokumente mit Änderungen</target>
+            </trans-unit>
+
+            <trans-unit id="review.noChanges" xml:space="preserve">
+            	<source>This document has no changes</source>
+            	<target>Dieses Dokument hat keine Änderungen</target>
+            </trans-unit>
+
+            <!-- The number of the changes of a document, for the hint of the document. -->
+            <group restype="x-gettext-plurals">
+            	<trans-unit id="review.hintChanges[0]">
+            		<source><![CDATA[<strong>{0}</strong> change]]></source>
+            		<target><![CDATA[<strong>{0}</strong> Änderung]]></target>
+            	</trans-unit>
+            	<trans-unit id="review.hintChanges[1]">
+            		<source><![CDATA[<strong>{0}</strong> changes]]></source>
+            		<target><![CDATA[<strong>{0}</strong> Änderungen]]></target>
+            	</trans-unit>
+            </group>
+
+            <trans-unit id="review.hintNew" xml:space="preserve">
+            	<source>{0} new</source>
+            	<target>{0} neu</target>
+            </trans-unit>
+
+            <trans-unit id="review.hintChanged" xml:space="preserve">
+            	<source>{0} changed</source>
+            	<target>{0} geändert</target>
+            </trans-unit>
+
+            <trans-unit id="review.hintRemoved" xml:space="preserve">
+            	<source>{0} deleted</source>
+            	<target>{0} gelöscht</target>
+            </trans-unit>
+
+            <trans-unit id="review.selectionNone" xml:space="preserve">
+            	<source>No changes selected</source>
+            	<target>Keine Änderungen ausgewählt</target>
+            </trans-unit>
+
+            <trans-unit id="review.selectionAll" xml:space="preserve">
+            	<source>All changes selected</source>
+            	<target>Alle Änderungen ausgewählt</target>
+            </trans-unit>
+
+            <trans-unit id="review.selectionSome" xml:space="preserve">
+            	<source>{0} of {1} changes selected</source>
+            	<target>{0} von {1} Änderungen ausgewählt</target>
+            </trans-unit>
+
+            <trans-unit id="review.unpublishedChanges" xml:space="preserve">
+            	<source>Unpublished changes in the workspace "{0}"</source>
+            	<target>Unveröffentlichte Änderungen im Arbeitsbereich "{0}"</target>
+            </trans-unit>
+
+            <trans-unit id="review.lastChange" xml:space="preserve">
+            	<source>Last change {0}</source>
+            	<target>Letzte Änderung {0}</target>
+            </trans-unit>
+
+            <trans-unit id="review.lastChangeBy" xml:space="preserve">
+            	<source>Last change {0} by {1}</source>
+            	<target>Letzte Änderung {0} von {1}</target>
+            </trans-unit>
+
+            <trans-unit id="review.lastChangeTitle" xml:space="preserve">
+            	<source>Last change on {0} by {1}</source>
+            	<target>Letzte Änderung am {0} von {1}</target>
+            </trans-unit>
+
+            <trans-unit id="review.lastChangeTitleWithoutAuthor" xml:space="preserve">
+            	<source>Last change on {0}</source>
+            	<target>Letzte Änderung am {0}</target>
+            </trans-unit>
+
+            <trans-unit id="relative.justNow" xml:space="preserve">
+            	<source>just now</source>
+            	<target>gerade eben</target>
+            </trans-unit>
+
+            <trans-unit id="relative.minute" xml:space="preserve">
+            	<source>a minute ago</source>
+            	<target>vor einer Minute</target>
+            </trans-unit>
+
+            <trans-unit id="relative.minutes" xml:space="preserve">
+            	<source>{0} minutes ago</source>
+            	<target>vor {0} Minuten</target>
+            </trans-unit>
+
+            <trans-unit id="relative.hour" xml:space="preserve">
+            	<source>an hour ago</source>
+            	<target>vor einer Stunde</target>
+            </trans-unit>
+
+            <trans-unit id="relative.hours" xml:space="preserve">
+            	<source>{0} hours ago</source>
+            	<target>vor {0} Stunden</target>
+            </trans-unit>
+
+            <trans-unit id="relative.yesterday" xml:space="preserve">
+            	<source>yesterday</source>
+            	<target>gestern</target>
+            </trans-unit>
+
+            <trans-unit id="relative.days" xml:space="preserve">
+            	<source>{0} days ago</source>
+            	<target>vor {0} Tagen</target>
+            </trans-unit>
+
+            <trans-unit id="review.changeType.created" xml:space="preserve">
+            	<source>created</source>
+            	<target>erstellt</target>
+            </trans-unit>
+
+            <trans-unit id="review.changeType.changed" xml:space="preserve">
+            	<source>changed</source>
+            	<target>geändert</target>
+            </trans-unit>
+
+            <trans-unit id="review.changeType.moved" xml:space="preserve">
+            	<source>moved</source>
+            	<target>verschoben</target>
+            </trans-unit>
+
+            <trans-unit id="review.changeType.hidden" xml:space="preserve">
+            	<source>hidden</source>
+            	<target>ausgeblendet</target>
+            </trans-unit>
+
+            <trans-unit id="review.changeType.deleted" xml:space="preserve">
+            	<source>deleted</source>
+            	<target>gelöscht</target>
+            </trans-unit>
+
+            <trans-unit id="review.selectChange" xml:space="preserve">
+            	<source>Select this change</source>
+            	<target>Diese Änderung auswählen</target>
+            </trans-unit>
+
+            <trans-unit id="review.publishChange" xml:space="preserve">
+            	<source>Publish this change to the workspace "{0}"</source>
+            	<target>Diese Änderung in den Arbeitsbereich "{0}" veröffentlichen</target>
+            </trans-unit>
+
+            <trans-unit id="review.discardChange" xml:space="preserve">
+            	<source>Discard this change</source>
+            	<target>Diese Änderung verwerfen</target>
+            </trans-unit>
+
+            <!-- The number of the changes is part of the label, so the label needs a form
+                 for one change and one for more. -->
+            <group restype="x-gettext-plurals">
+            	<trans-unit id="review.publishSelected[0]">
+            		<source>Publish <![CDATA[<strong>{0}</strong>]]> change</source>
+            		<target><![CDATA[<strong>{0}</strong>]]> Änderung veröffentlichen</target>
+            	</trans-unit>
+            	<trans-unit id="review.publishSelected[1]">
+            		<source>Publish <![CDATA[<strong>{0}</strong>]]> changes</source>
+            		<target><![CDATA[<strong>{0}</strong>]]> Änderungen veröffentlichen</target>
+            	</trans-unit>
+            </group>
+
+            <group restype="x-gettext-plurals">
+            	<trans-unit id="review.discardSelected[0]">
+            		<source>Discard <![CDATA[<strong>{0}</strong>]]> change</source>
+            		<target><![CDATA[<strong>{0}</strong>]]> Änderung verwerfen</target>
+            	</trans-unit>
+            	<trans-unit id="review.discardSelected[1]">
+            		<source>Discard <![CDATA[<strong>{0}</strong>]]> changes</source>
+            		<target><![CDATA[<strong>{0}</strong>]]> Änderungen verwerfen</target>
+            	</trans-unit>
+            </group>
+
+            <!-- Die Titel der Schaltflächen sagen, was beim Klick passiert. -->
+            <group restype="x-gettext-plurals">
+            	<trans-unit id="review.publishSelectedTitle[0]">
+            		<source>Publish {0} change to the workspace "{1}"</source>
+            		<target>{0} Änderung in den Arbeitsbereich "{1}" veröffentlichen</target>
+            	</trans-unit>
+            	<trans-unit id="review.publishSelectedTitle[1]">
+            		<source>Publish {0} changes to the workspace "{1}"</source>
+            		<target>{0} Änderungen in den Arbeitsbereich "{1}" veröffentlichen</target>
+            	</trans-unit>
+            </group>
+
+            <group restype="x-gettext-plurals">
+            	<trans-unit id="review.discardSelectedTitle[0]">
+            		<source>Discard {0} change</source>
+            		<target>{0} Änderung verwerfen</target>
+            	</trans-unit>
+            	<trans-unit id="review.discardSelectedTitle[1]">
+            		<source>Discard {0} changes</source>
+            		<target>{0} Änderungen verwerfen</target>
+            	</trans-unit>
+            </group>
+
+            <trans-unit id="review.publishAll" xml:space="preserve">
+            	<source>Publish all changes in workspace</source>
+            	<target>Alle Änderungen im Arbeitsbereich veröffentlichen</target>
+            </trans-unit>
+
+            <trans-unit id="review.discardAll" xml:space="preserve">
+            	<source>Discard all changes in workspace</source>
+            	<target>Alle Änderungen im Arbeitsbereich verwerfen</target>
+            </trans-unit>
+
+            <trans-unit id="review.showOptions" xml:space="preserve">
+            	<source>Show the other options</source>
+            	<target>Weitere Optionen anzeigen</target>
+            </trans-unit>
+
+            <trans-unit id="review.changePublished" xml:space="preserve">
+            	<source>The change has been published</source>
+            	<target>Die Änderung wurde veröffentlicht</target>
+            </trans-unit>
+
+            <trans-unit id="review.changeDiscarded" xml:space="preserve">
+            	<source>The change has been discarded</source>
+            	<target>Die Änderung wurde verworfen</target>
+            </trans-unit>
+
+            <trans-unit id="review.changesPublished" xml:space="preserve">
+            	<source>The selected changes have been published</source>
+            	<target>Die ausgewählten Änderungen wurden veröffentlicht</target>
+            </trans-unit>
+
+            <trans-unit id="review.changesDiscarded" xml:space="preserve">
+            	<source>The selected changes have been discarded</source>
+            	<target>Die ausgewählten Änderungen wurden verworfen</target>
+            </trans-unit>
+
+            <trans-unit id="review.allChangesPublished" xml:space="preserve">
+            	<source>All changes of the workspace have been published</source>
+            	<target>Alle Änderungen des Arbeitsbereichs wurden veröffentlicht</target>
+            </trans-unit>
+
+            <trans-unit id="review.allChangesDiscarded" xml:space="preserve">
+            	<source>All changes of the workspace have been discarded</source>
+            	<target>Alle Änderungen des Arbeitsbereichs wurden verworfen</target>
+            </trans-unit>
+            <trans-unit id="review.noSite">
+                <source>no site</source>
+                <target>ohne Website</target>
+            </trans-unit>
+
         </body>
     </file>
 </xliff>

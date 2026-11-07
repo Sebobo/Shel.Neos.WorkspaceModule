@@ -7,6 +7,14 @@ Neos:
       globalObjects:
         workspaceDetails: Shel\Neos\WorkspaceModule\WorkspaceDetailsContext
 
+    http:
+      # The pages the preview of a document loads carry the script of its scroll sync: the
+      # middleware of the module injects it into the responses of the frontend preview.
+      middlewares:
+        'workspaceReviewPreviewScript':
+          position: 'before dispatch'
+          middleware: 'Shel\Neos\WorkspaceModule\Http\PreviewScriptMiddleware'
+
     mvc:
       # The handover of the session of the review is a route of the module, not one of the
       # backend module routes of Neos.Neos: it is reached on the domain of a site, without a

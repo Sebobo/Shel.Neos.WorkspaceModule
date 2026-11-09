@@ -16,6 +16,7 @@ use Neos\ContentRepository\Domain\Model\NodeInterface;
 use Neos\ContentRepository\Domain\Repository\NodeDataRepository;
 use Neos\ContentRepository\Domain\Service\Context;
 use Neos\Flow\Annotations as Flow;
+use Neos\Neos\Domain\Repository\SiteRepository;
 use Neos\Neos\Domain\Service\ContentContextFactory;
 use Neos\Neos\Service\PublishingService;
 
@@ -50,6 +51,7 @@ final class NodeTreeService
         private readonly ContentContextFactory $contextFactory,
         private readonly NodeDataRepository $nodeDataRepository,
         private readonly PublishingService $publishingService,
+        private readonly SiteRepository $siteRepository,
     ) {
     }
 
@@ -147,17 +149,26 @@ final class NodeTreeService
     /**
      * The site a document belongs to.
      *
-     * A document that sits directly below the sites root belongs to no site - that is what a
-     * test run that creates pages without a site leaves behind.
+     * The site of a document is the site whose root node is the third segment of its path. The
+     * root node of a site is the home page of that site, so it belongs to it as well - the node
+     * type does not tell it apart, because the type of a home page is the one of the site.
+     *
+     * A document that sits directly below the sites root without being the root of a site
+     * belongs to no site - that is what a test run that creates pages without a site leaves
+     * behind.
      */
     public function siteNodeNameOf(NodeInterface $document): string
     {
         $pathParts = explode('/', $document->getPath());
-        if (count($pathParts) <= 3) {
+        if (count($pathParts) <= 2) {
+            return '';
+        }
+        $siteNodeName = $pathParts[2];
+        if ($this->siteRepository->findOneByNodeName($siteNodeName) === null) {
             return '';
         }
 
-        return $pathParts[2];
+        return $siteNodeName;
     }
 
     /**

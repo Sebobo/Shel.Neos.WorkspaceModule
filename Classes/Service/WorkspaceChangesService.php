@@ -438,16 +438,14 @@ final class WorkspaceChangesService
             if (count($pathParts) <= 2) {
                 continue;
             }
-            $siteNodeName = $pathParts[2];
             $document = $this->findClosestDocument($node);
             if ($document === null) {
                 continue;
             }
-            // A document that sits directly below the sites root - which is what a test run
-            // that creates pages without a site leaves behind - belongs to no site at all.
-            if (count(explode('/', $document->getPath())) <= 3) {
-                $siteNodeName = '';
-            }
+            // The site of the document. The home page of a site belongs to that site, a
+            // document that belongs to no site - which is what a test run that creates pages
+            // without a site leaves behind - belongs to none.
+            $siteNodeName = $this->nodeTreeService->siteNodeNameOf($document);
             $documentKey = (string)$document->getContextPath();
             if (!isset($documents[$documentKey])) {
                 $documents[$documentKey] = [

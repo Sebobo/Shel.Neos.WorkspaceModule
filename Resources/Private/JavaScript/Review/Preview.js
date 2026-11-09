@@ -4,14 +4,6 @@
  */
 
 /**
- * The marker of the messages that are exchanged between the review and the pages in its
- * preview frames - everything else that is posted is ignored.
- *
- * @type {string}
- */
-const previewMarker = 'workspace-review-preview';
-
-/**
  * The dialog of the preview.
  *
  * @returns {HTMLElement|null}
@@ -94,22 +86,6 @@ export const closePreview = () => {
 let lastScrolledPreviewFrame = null;
 
 /**
- * The scroll position and the height a frame has reported - the page in a frame that
- * cannot be read tells the review about itself.
- *
- * @type {Map<HTMLElement, {y: number, height: number, innerHeight: number}>}
- */
-const previewFrameState = new Map();
-
-/**
- * The positions the review told a frame to scroll to - a frame that answers from its own
- * scroll of such a position is an echo, and not a scroll an editor made.
- *
- * @type {Map<HTMLElement, number>}
- */
-const appliedPreviewScrollPositions = new Map();
-
-/**
  * Whether the two previews are scrolled in step.
  *
  * The editor can switch the sync off - when the content of the page changed a lot, the
@@ -126,8 +102,8 @@ const previewScrollSyncEnabled = () => {
 /**
  * The window of a frame.
  *
- * The frames are on the host the review is opened on, so they are on its origin - but a
- * frame that cannot be read is handled like one on another host.
+ * The frames are on the host the review is opened on, so they are on its origin: the review
+ * reads the page in them and scrolls it.
  *
  * @param {HTMLElement} frame
  * @returns {Window|null}
@@ -161,9 +137,7 @@ const previewFrameCanBeRead = (frame) => {
 };
 
 /**
- * Whether a frame can be scrolled to a position. A frame the review cannot read scrolls
- * as far as it has told the review it can - such a frame talks about itself, the others
- * are read.
+ * Whether a frame can be scrolled to a position.
  *
  * @param {HTMLElement} frame
  * @param {number} position
@@ -171,9 +145,7 @@ const previewFrameCanBeRead = (frame) => {
  */
 const previewFrameCanScrollTo = (frame, position) => {
     if (!previewFrameCanBeRead(frame)) {
-        const state = previewFrameState.get(frame);
-
-        return state !== undefined && position <= state.height - state.innerHeight + 1;
+        return false;
     }
     const window = windowOfPreviewFrame(frame);
     if (!window) {
@@ -195,18 +167,7 @@ const scrollPreviewFrameTo = (frame, position) => {
     if (!window) {
         return;
     }
-    if (previewFrameCanBeRead(frame)) {
-        window.scrollTo(0, position);
-        return;
-    }
-    // the page in a frame that cannot be read scrolls when it is told to - the review is
-    // the only one that talks to it
-    appliedPreviewScrollPositions.set(frame, position);
-    try {
-        window.postMessage({ source: 'workspace-review', type: 'scroll', y: position }, '*');
-    } catch (exception) {
-        // the frame is gone with the close of the dialog
-    }
+    window.scrollTo(0, position);
 };
 
 /**
@@ -239,8 +200,8 @@ const syncPreviewFramesTo = (frame, position) => {
 /**
  * Keeps the scroll position of the two previews in step.
  *
- * A scroll of a frame is read from it; a frame whose page cannot be read tells the review
- * about its scrolls instead - they arrive as messages from the window of a frame.
+ * The frames are on the host the review is opened on, so the review reads the scroll of a
+ * frame from its window and scrolls the other frame itself.
  */
 export const setupPreviewScrollSync = () => {
     const dialog = previewDialog();
@@ -251,7 +212,7 @@ export const setupPreviewScrollSync = () => {
         frame.addEventListener('load', () => {
             const window = windowOfPreviewFrame(frame);
             if (!window || !previewFrameCanBeRead(frame)) {
-                // the page in the frame cannot be read - its scrolls arrive as messages
+                // the page in the frame cannot be read - its scrolls cannot be followed
                 return;
             }
             window.addEventListener(
@@ -262,29 +223,6 @@ export const setupPreviewScrollSync = () => {
                 { passive: true },
             );
         });
-    });
-
-    // The scrolls of the frames whose page cannot be read.
-    window.addEventListener('message', (event) => {
-        const data = event.data;
-        if (!data || data.source !== previewMarker || data.type !== 'scroll') {
-            return;
-        }
-        const frame = previewFrames().find((candidate) => candidate.contentWindow === event.source);
-        if (!frame || typeof data.y !== 'number') {
-            return;
-        }
-        const echo = appliedPreviewScrollPositions.get(frame) === data.y;
-        previewFrameState.set(frame, {
-            y: data.y,
-            height: data.height ?? 0,
-            innerHeight: data.innerHeight ?? 0,
-        });
-        if (echo) {
-            // the frame scrolled because the review told it to - no editor scrolled here
-            return;
-        }
-        syncPreviewFramesTo(frame, data.y);
     });
 };
 
@@ -298,9 +236,7 @@ export const togglePreviewScrollSync = () => {
     if (!previewScrollSyncEnabled() || !lastScrolledPreviewFrame) {
         return;
     }
-    const position = previewFrameCanBeRead(lastScrolledPreviewFrame)
-        ? windowOfPreviewFrame(lastScrolledPreviewFrame)?.scrollY
-        : previewFrameState.get(lastScrolledPreviewFrame)?.y;
+    const position = windowOfPreviewFrame(lastScrolledPreviewFrame)?.scrollY;
     if (typeof position !== 'number') {
         return;
     }

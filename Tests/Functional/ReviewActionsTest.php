@@ -8,6 +8,7 @@ use Neos\ContentRepository\Domain\Repository\NodeDataRepository;
 use Neos\Flow\I18n\Translator;
 use Neos\Flow\Security\Account;
 use Neos\Flow\Security\AccountRepository;
+use Neos\Flow\Security\Context;
 use Neos\Neos\Domain\Model\Domain;
 use Neos\Neos\Domain\Repository\DomainRepository;
 use PHPUnit\Framework\Attributes\Test;
@@ -188,6 +189,78 @@ class ReviewActionsTest extends WorkspaceTestCase
             'title="' . $this->titleOfTheButton('review.publishDocumentTitle', ['live']) . '"',
             $body
         );
+    }
+
+    /**
+     * The preview of a document is loaded from the host of the review - even when the site
+     * of the document is reached on another host.
+     */
+    #[Test]
+    public function thePreviewOfADocumentIsLoadedFromTheHostOfTheReview(): void
+    {
+        $this->authenticateAs(['Neos.Neos:Editor']);
+
+        // The site of the tests is moved to another host, so that the preview of its
+        // documents could not be loaded from the host of the site.
+        $domain = $this->domainRepository->findOneByHostname($this->siteHostName);
+        self::assertInstanceOf(Domain::class, $domain);
+        $domain->setHostname('other-site.test');
+        $this->domainRepository->update($domain);
+        $this->persistenceManager->persistAll();
+
+        $this->openReview();
+        $this->changeTheTitleOfTheHomePage('A new title');
+        $this->refreshTheContent();
+
+        $response = $this->request('documentChanges', ['document' => $this->documentInTheReview('/home')]);
+        self::assertSame(200, $response->getStatusCode(), $this->answerOf($response));
+        self::assertSame(
+            1,
+            preg_match('/data-preview-url="([^"]+)"/', (string)$response->getBody(), $matches),
+            'the changes carry the preview of the document: ' . mb_substr(
+                (string)$response->getBody(),
+                0,
+                1200
+            )
+        );
+        $previewUrl = html_entity_decode($matches[1] ?? '');
+        self::assertStringStartsWith('http://localhost/neos/workspace-review/preview?node=', $previewUrl);
+        self::assertStringNotContainsString('other-site.test', $previewUrl);
+
+        // The preview is answered on the host of the review - with the session of the review.
+        // The page itself is not rendered in the tests: the node types of the tests have no
+        // Fusion prototype, so the frontend preview of Neos fails the same way.
+        $previewPath = str_replace('http://localhost', '', $previewUrl);
+        $response = $this->directRequest((string)$previewPath);
+        self::assertNotSame(404, $response->getStatusCode(), 'the preview did not find the document');
+        self::assertSame('', $response->getHeaderLine('Location'), 'the preview asked for a login');
+
+        // The request has the user of the review: the controller of the module is not one of
+        // the controllers the patterns of the token of the backend match, so the pattern of
+        // the module has to make the token active - without it, the request has no token at
+        // all and the preview is answered with an error.
+        $providers = array_map(
+            static fn ($token) => $token->getAuthenticationProviderName(),
+            $this->getObject(Context::class)->getAuthenticationTokens()
+        );
+        self::assertContains('Neos.Neos:Backend', $providers, 'the token of the backend is not active for the preview');
+    }
+
+    /**
+     * The path of the document with the given path, as the review knows it.
+     *
+     * The path of the review carries the dimensions of the variant that is shown - the
+     * browser sends it back with the request for the changes of the document.
+     */
+    private function documentInTheReview(string $nodePath): string
+    {
+        foreach ($this->documentsOfTheReview() as $document) {
+            if (str_starts_with($document, $this->sitePath($nodePath) . '@')) {
+                return $document;
+            }
+        }
+
+        self::fail(sprintf('the review does not hold the document "%s"', $nodePath));
     }
 
     #[Test]
@@ -676,8 +749,8 @@ class ReviewActionsTest extends WorkspaceTestCase
     }
 
     /**
-     * A request out on the route of the module, like the handover of the session - not to
-     * the backend module, with it arguments.
+     * A request out on the route of the module, not to the backend module, with its
+     * arguments.
      */
     private function directRequest(string $path): ResponseInterface
     {
@@ -688,55 +761,6 @@ class ReviewActionsTest extends WorkspaceTestCase
         }
 
         return $this->browser->sendRequest($request);
-    }
-
-    /**
-     * The handover of the session of the review to the domain of a site: the preview of a
-     * document of another domain starts with it.
-     */
-    #[Test]
-    public function theSessionOfTheReviewIsHandedOverWithAToken(): void
-    {
-        $this->authenticateAs(['Neos.Neos:Editor']);
-
-        // The site of the tests is moved to another domain, so that the preview of its
-        // documents is loaded from a host that the session of the review is not valid on.
-        $domain = $this->domainRepository->findOneByHostname($this->siteHostName);
-        self::assertInstanceOf(Domain::class, $domain);
-        $domain->setHostname('other-site.test');
-        $this->domainRepository->update($domain);
-        $this->persistenceManager->persistAll();
-
-        $this->openReview();
-        $home = $this->changeTheTitleOfTheHomePage('A new title');
-        $this->refreshTheContent();
-
-        $response = $this->request('documentChanges', ['document' => $home->getContextPath()]);
-        self::assertSame(200, $response->getStatusCode(), $this->answerOf($response));
-
-        self::assertSame(
-            1,
-            preg_match('/data-preview-handover-url="([^"]+)"/', (string)$response->getBody(), $matches),
-            'the changes carry the handover of the session for the domain of another site: ' . mb_substr(
-                (string)$response->getBody(),
-                0,
-                1200
-            )
-        );
-        $handoverPath = str_replace('http://other-site.test', '', $matches[1] ?? '');
-
-        $response = $this->directRequest((string)$handoverPath);
-        self::assertSame(200, $response->getStatusCode(), $this->answerOf($response));
-        // the handover carries the cookie of the session of the review to that host
-        self::assertSame(
-            1,
-            (int)preg_match('/^Flow_Testing_Session/', $response->getHeaderLine('Set-Cookie')),
-            'the handover carries the cookie of the session of the review'
-        );
-
-        // the token of a session that was expired cannot hand it over any more
-        $response = $this->directRequest('/neos/workspace-review/preview-session?token=no-token');
-        self::assertNotSame(200, $response->getStatusCode(), 'the handover of an unknown token answered');
     }
 
     /**

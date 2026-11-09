@@ -42,7 +42,7 @@ final class DocumentDescriptionService
     {
         $kind = $this->kindOfDocument($document, $changes);
         $baseContextPath = $this->nodeTreeService->contextPathInBaseWorkspace($document);
-        $previewUrl = $this->previewUriService->uriFor($document, $document->getContextPath());
+        $previewUrl = $this->previewUriService->uriFor($document->getContextPath());
 
         return new DocumentItem(
             contextPath: $document->getContextPath(),
@@ -65,8 +65,7 @@ final class DocumentDescriptionService
             // is nothing to compare it with.
             previewBaseUrl: $kind === 'created'
                 ? null
-                : $this->previewUriService->uriFor($document, $baseContextPath),
-            previewHandoverUrl: $this->previewUriService->handoverUrlFor($document),
+                : $this->previewUriService->uriFor($baseContextPath),
         );
     }
 
@@ -99,9 +98,6 @@ final class DocumentDescriptionService
      * A document that was deleted does not exist any more, and a document that is hidden is
      * not rendered by the frontend - the preview of it would show the page that says that
      * the page was not found.
-     *
-     * A site without a domain cannot be reached at all, and the preview of a document of
-     * such a site would show nothing.
      *
      * @param string|null $previewUrl the URI of the preview of the document
      */

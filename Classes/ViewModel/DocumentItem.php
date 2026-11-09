@@ -43,7 +43,6 @@ final readonly class DocumentItem
         public bool $isFirst,
         public ?string $previewUrl = null,
         public ?string $previewBaseUrl = null,
-        public ?string $previewHandoverUrl = null,
     ) {
     }
 }

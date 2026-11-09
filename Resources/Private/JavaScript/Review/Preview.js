@@ -26,46 +26,6 @@ const previewDialog = () => document.getElementById('workspace-review-preview-di
 const previewFrames = () => Array.from(previewDialog()?.querySelectorAll('.workspace-review-preview-frame') || []);
 
 /**
- * Starts the session of the review on the host the preview is loaded from, in a hidden
- * frame.
- *
- * The session of the review is only valid on the host the review is opened on. The frames
- * of the preview are on the domain of the site the document belongs to, and their requests
- * carry no session without the handover - the pages in them are answered with the login.
- * The handover looks up the session of the review with a token and gives that host its
- * cookie; after the handover, the frames are authenticated.
- *
- * Resolves when the handover has happened, or after a few seconds if it has failed - the
- * preview can still be opened, and shows the pages of the preview to a user who has a
- * session on that host already.
- *
- * @param {string} url the url of the handover
- * @returns {Promise<void>}
- */
-const startPreviewSession = (url) =>
-    new Promise((resolve) => {
-        const frame = document.createElement('iframe');
-        let finished = false;
-
-        const finish = () => {
-            if (finished) {
-                return;
-            }
-            finished = true;
-            frame.remove();
-            resolve();
-        };
-
-        frame.hidden = true;
-        frame.style.display = 'none';
-        frame.addEventListener('load', finish);
-        frame.addEventListener('error', finish);
-        frame.setAttribute('src', url);
-        document.body.append(frame);
-        window.setTimeout(finish, 5000);
-    });
-
-/**
  * Opens the preview of the document the button belongs to: the published version on the
  * left and the version of the reviewed workspace on the right.
  *
@@ -74,18 +34,13 @@ const startPreviewSession = (url) =>
  *
  * @param {HTMLElement} button
  */
-export const openPreview = async (button) => {
+export const openPreview = (button) => {
     const dialog = previewDialog();
     if (!dialog) {
         return;
     }
     const url = button.getAttribute('data-preview-url') || '';
     const baseUrl = button.getAttribute('data-preview-base-url') || '';
-    const handoverUrl = button.getAttribute('data-preview-handover-url') || '';
-
-    if (handoverUrl) {
-        await startPreviewSession(handoverUrl);
-    }
 
     const title = dialog.querySelector('[data-role="preview-title"]');
     if (title) {
@@ -139,8 +94,8 @@ export const closePreview = () => {
 let lastScrolledPreviewFrame = null;
 
 /**
- * The scroll position and the height a frame on another host has reported - the page in
- * such a frame cannot be read, but it tells the review about itself.
+ * The scroll position and the height a frame has reported - the page in a frame that
+ * cannot be read tells the review about itself.
  *
  * @type {Map<HTMLElement, {y: number, height: number, innerHeight: number}>}
  */
@@ -171,9 +126,8 @@ const previewScrollSyncEnabled = () => {
 /**
  * The window of a frame.
  *
- * The frames are on the domain of the site the document belongs to. That is the domain
- * of the review itself only when the site is the one the review is opened on - a frame
- * on another host cannot be read.
+ * The frames are on the host the review is opened on, so they are on its origin - but a
+ * frame that cannot be read is handled like one on another host.
  *
  * @param {HTMLElement} frame
  * @returns {Window|null}
@@ -182,13 +136,13 @@ const windowOfPreviewFrame = (frame) => {
     try {
         return frame.contentWindow;
     } catch (exception) {
-        // the frame is on another host - its scroll position cannot be reached
+        // the frame cannot be reached - its scroll position is out of reach
         return null;
     }
 };
 
 /**
- * Whether the page in a frame can be read - a frame on another host cannot.
+ * Whether the page in a frame can be read.
  *
  * @param {HTMLElement} frame
  * @returns {boolean}
@@ -201,15 +155,15 @@ const previewFrameCanBeRead = (frame) => {
     try {
         return window.document.documentElement !== null;
     } catch (exception) {
-        // the frame is on another host - the browser does not let the page in it be read
+        // the browser does not let the page in the frame be read
         return false;
     }
 };
 
 /**
  * Whether a frame can be scrolled to a position. A frame the review cannot read scrolls
- * as far as it has told the review it can - the frames on another host talk about
- * themselves, the others are read.
+ * as far as it has told the review it can - such a frame talks about itself, the others
+ * are read.
  *
  * @param {HTMLElement} frame
  * @param {number} position
@@ -245,8 +199,8 @@ const scrollPreviewFrameTo = (frame, position) => {
         window.scrollTo(0, position);
         return;
     }
-    // the page in the frame scrolls when it is told to - the frames on other hosts are
-    // on the page of a site, and only the review talks to them
+    // the page in a frame that cannot be read scrolls when it is told to - the review is
+    // the only one that talks to it
     appliedPreviewScrollPositions.set(frame, position);
     try {
         window.postMessage({ source: 'workspace-review', type: 'scroll', y: position }, '*');
@@ -285,9 +239,8 @@ const syncPreviewFramesTo = (frame, position) => {
 /**
  * Keeps the scroll position of the two previews in step.
  *
- * On the host of the review a scroll of a frame is read; on another host the page in the
- * frame tells the review about its scrolls - they arrive as messages from the window of
- * a frame.
+ * A scroll of a frame is read from it; a frame whose page cannot be read tells the review
+ * about its scrolls instead - they arrive as messages from the window of a frame.
  */
 export const setupPreviewScrollSync = () => {
     const dialog = previewDialog();
@@ -298,7 +251,7 @@ export const setupPreviewScrollSync = () => {
         frame.addEventListener('load', () => {
             const window = windowOfPreviewFrame(frame);
             if (!window || !previewFrameCanBeRead(frame)) {
-                // the frame is on another host - its scrolls arrive as messages instead
+                // the page in the frame cannot be read - its scrolls arrive as messages
                 return;
             }
             window.addEventListener(
@@ -311,7 +264,7 @@ export const setupPreviewScrollSync = () => {
         });
     });
 
-    // The scrolls of the frames on another host.
+    // The scrolls of the frames whose page cannot be read.
     window.addEventListener('message', (event) => {
         const data = event.data;
         if (!data || data.source !== previewMarker || data.type !== 'scroll') {

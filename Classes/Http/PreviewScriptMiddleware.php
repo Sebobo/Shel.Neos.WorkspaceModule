@@ -23,16 +23,14 @@ use Psr\Http\Server\RequestHandlerInterface;
 /**
  * The script of the scroll sync of the preview, injected into the pages the preview loads.
  *
- * The frames of the preview show a page of a site: the frames are on the domain of the
- * site the document belongs to, and when that is not the domain the review is opened on,
- * the page in a frame cannot be reached by the review. The page in a frame tells the
- * review about its scrolls, and scrolls when the review tells it to - that script is what
- * it talks with.
+ * The frames of the preview show a page of a site, rendered on the host the review is
+ * opened on. The page in a frame tells the review about its scrolls, and scrolls when the
+ * review tells it to - that script is what it talks with.
  *
- * The middleware injects the script into the response of the frontend preview of
- * Neos.Neos, so the review does not depend on the sites carrying a script of it in their
- * backend rendering: the script is transported with the pages, whatever site they belong
- * to.
+ * The middleware injects the script into the response of the preview of the module and of
+ * the frontend preview of Neos.Neos, so the review does not depend on the sites carrying
+ * a script of it in their backend rendering: the script is transported with the pages,
+ * whatever site they belong to.
  */
 #[Flow\Scope('singleton')]
 final class PreviewScriptMiddleware implements MiddlewareInterface
@@ -73,8 +71,11 @@ final class PreviewScriptMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Whether the request is the frontend preview of a document: the route the frames of
-     * the preview are loaded with, for the variant of the review and for the published one.
+     * Whether the request is a preview of a document: the route the frames of the preview
+     * are loaded with, for the variant of the review and for the published one.
+     *
+     * Both the route of the module - the preview is rendered on the host of the review -
+     * and the frontend preview of Neos.Neos are matched.
      */
     private function isFrontendPreview(ServerRequestInterface $request): bool
     {
@@ -83,9 +84,17 @@ final class PreviewScriptMiddleware implements MiddlewareInterface
             return false;
         }
 
-        return ($routingResults['@package'] ?? '') === 'Neos.Neos'
-            && ($routingResults['@controller'] ?? '') === 'Frontend\Node'
-            && ($routingResults['@action'] ?? '') === 'preview';
+        $package = $routingResults['@package'] ?? '';
+        $controller = $routingResults['@controller'] ?? '';
+        $action = $routingResults['@action'] ?? '';
+
+        if ($package === 'Shel.Neos.WorkspaceModule') {
+            return $controller === 'Preview' && $action === 'preview';
+        }
+
+        return $package === 'Neos.Neos'
+            && $controller === 'Frontend\Node'
+            && $action === 'preview';
     }
 
     /**

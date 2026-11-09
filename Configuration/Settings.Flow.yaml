@@ -9,17 +9,17 @@ Neos:
 
     http:
       # The pages the preview of a document loads carry the script of its scroll sync: the
-      # middleware of the module injects it into the responses of the frontend preview.
+      # middleware of the module injects it into the responses of the preview.
       middlewares:
         'workspaceReviewPreviewScript':
           position: 'before dispatch'
           middleware: 'Shel\Neos\WorkspaceModule\Http\PreviewScriptMiddleware'
 
     mvc:
-      # The handover of the session of the review is a route of the module, not one of the
-      # backend module routes of Neos.Neos: it is reached on the domain of a site, without a
-      # user. It is registered before the routes of Neos.Neos, so that the backend module
-      # route does not claim the path first.
+      # The preview of a document is a route of the module, not one of the backend module
+      # routes of Neos.Neos: it is reached on the host of the review, with a user. It is
+      # registered before the routes of Neos.Neos, so that the backend module route does
+      # not claim the path first.
       routes:
         'Shel.Neos.WorkspaceModule':
           position: 'before Neos.Neos'
@@ -36,10 +36,17 @@ Neos:
       authentication:
         providers:
           'Neos.Neos:Backend':
-            # The controller of the handover is reached without a user - like the token
-            # login of Neos.Neos is - and its matcher must not be asked for one.
+            # The preview of a document is a route of the module, so its controller is not
+            # one of the controllers the patterns of Neos.Neos match. Without a pattern of its
+            # own, the token of the backend is not active for the request - and a request
+            # without an active token has no user at all.
+            #
+            # The pattern is of the same type as the ones of Neos.Neos on purpose: the
+            # patterns of a type are alternatives - a request pattern is active when at least
+            # one pattern of its type matches - so a pattern of a second type would have to
+            # match as well, and the token would never be active at all.
             requestPatterns:
-              'Shel.Neos.WorkspaceModule:PreviewSessionControllers':
+              'Shel.Neos.WorkspaceModule:PreviewController':
                 pattern: 'ControllerObjectName'
                 patternOptions:
-                  controllerObjectNamePattern: 'Shel\Neos\WorkspaceModule\Controller\PreviewSessionController'
+                  controllerObjectNamePattern: 'Shel\Neos\WorkspaceModule\Controller\PreviewController'

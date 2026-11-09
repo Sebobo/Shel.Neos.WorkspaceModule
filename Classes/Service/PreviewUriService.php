@@ -13,26 +13,31 @@ declare(strict_types=1);
 namespace Shel\Neos\WorkspaceModule\Service;
 
 use GuzzleHttp\Psr7\Uri;
-use Neos\ContentRepository\Domain\Model\NodeInterface;
 use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Core\Bootstrap;
+use Neos\Flow\Http\HttpRequestHandlerInterface;
 use Neos\Flow\Mvc\Routing\Dto\ResolveContext;
 use Neos\Flow\Mvc\Routing\Dto\RouteParameters;
 use Neos\Flow\Mvc\Routing\RouterInterface;
+use Psr\Http\Message\UriInterface;
 
 /**
  * The URI of the preview of a document.
  *
- * The preview is loaded from the domain of the site the document belongs to: the frontend
- * finds its site by the host of the request, so a preview that is loaded from the domain
- * of another site shows the page of that other site - or no page at all.
+ * The preview is rendered on the host the review is opened on, by the action of this package.
+ * The site the document belongs to is taken from the path of the document there, so the page
+ * is rendered with the layout of its own site - no matter which host the review is opened on.
+ *
+ * The preview therefore needs no second host: the frames of the preview are on the same origin
+ * as the review, the session of the backend is valid on them, and their scroll position can be
+ * read from them.
  */
 #[Flow\Scope('singleton')]
 final class PreviewUriService
 {
     public function __construct(
         private readonly RouterInterface $router,
-        private readonly SiteDomainService $siteDomainService,
-        private readonly SessionHandoverService $sessionHandoverService,
+        private readonly Bootstrap $bootstrap,
     ) {
     }
 
@@ -40,25 +45,26 @@ final class PreviewUriService
      * The URI of the preview of the document with the given context path - the path of a
      * document in a workspace.
      *
-     * Null when the site of the document has no domain it could be reached on.
+     * Null when the review is not opened over http - there is no host the preview could be
+     * loaded from then.
      */
-    public function uriFor(NodeInterface $document, string $contextPath): ?string
+    public function uriFor(string $contextPath): ?string
     {
-        $domain = $this->siteDomainService->domainOf($document);
-        if ($domain === null) {
+        $currentUri = $this->currentUri();
+        if ($currentUri === null) {
             return null;
         }
 
-        // The frontend routes are resolved for the host of the site the document belongs
-        // to - the frontend finds its site by the host of the request.
+        // The route is resolved for the host of the request, so that the preview is loaded
+        // from the host the review is opened on.
         $routeParameters = RouteParameters::createEmpty()
-            ->withParameter('requestUriHost', $domain->getHostname());
+            ->withParameter('requestUriHost', $currentUri->getHost());
 
         $resolveContext = new ResolveContext(
-            new Uri($this->siteDomainService->baseUriOf($domain)),
+            $currentUri->withPath('')->withQuery('')->withFragment(''),
             [
-                '@package' => 'Neos.Neos',
-                '@controller' => 'Frontend\\Node',
+                '@package' => 'Shel.Neos.WorkspaceModule',
+                '@controller' => 'Preview',
                 '@action' => 'preview',
                 '@format' => 'html',
                 'node' => $contextPath,
@@ -72,23 +78,17 @@ final class PreviewUriService
     }
 
     /**
-     * The url of the handover of the session of the review to the domain the preview is
-     * loaded from.
+     * The URI of the request the review is opened with.
      *
-     * The controller that hands the cookie over is reached on that domain, and the browser
-     * is only sent there when the domain is not the one the review is opened on - the
-     * session of the review is valid there already.
-     *
-     * Null when the site of the document has no domain, the handover is not needed, or the
-     * review has no session to hand over.
+     * Null when the review is not opened over http.
      */
-    public function handoverUrlFor(NodeInterface $document): ?string
+    private function currentUri(): ?UriInterface
     {
-        $domain = $this->siteDomainService->domainOf($document);
-        if ($domain === null || $this->siteDomainService->isCurrentHost($domain)) {
+        $requestHandler = $this->bootstrap->getActiveRequestHandler();
+        if (!$requestHandler instanceof HttpRequestHandlerInterface) {
             return null;
         }
 
-        return $this->sessionHandoverService->handoverUrlFor($this->siteDomainService->baseUriOf($domain));
+        return $requestHandler->getHttpRequest()->getUri();
     }
 }

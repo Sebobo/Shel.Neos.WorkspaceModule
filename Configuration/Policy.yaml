@@ -13,9 +13,9 @@ privilegeTargets:
       label: Allowed to review the changes of a workspace
       matcher: 'method(Shel\Neos\WorkspaceModule\Controller\WorkspacesController->(show|documentTree|documentChanges|publishChange|discardChange|publishSelected|discardSelected|publishAll|discardAll|publishDocument|discardDocument)Action())'
 
-    'Shel.Neos.WorkspaceModule:Backend.PreviewSession':
-      label: Allowed to hand the session of the review over to the domain of a site
-      matcher: 'method(Shel\Neos\WorkspaceModule\Controller\PreviewSessionController->startSessionAction())'
+    'Shel.Neos.WorkspaceModule:Backend.PreviewDocument':
+      label: Allowed to preview a document of a workspace
+      matcher: 'method(Shel\Neos\WorkspaceModule\Controller\PreviewController->previewAction())'
 
     'Shel.Neos.WorkspaceModule:Backend.CreateWorkspaces':
       label: Allowed to create new workspaces
@@ -34,13 +34,6 @@ privilegeTargets:
       matcher: 'method(Neos\Neos\Controller\Module\Management\WorkspacesController->(publish|discard)WorkspaceAction(workspace.name in current.workspaceDetails.sharedWorkspaces))'
 
 roles:
-  # The handover of the session is reached without a user - the token in the url takes the
-  # place of one - like the token login of Neos.Neos is.
-  'Neos.Flow:Everybody':
-    privileges:
-      - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.PreviewSession'
-        permission: GRANT
-
   'Neos.Neos:LivePublisher':
     privileges:
       - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.PublishAllToLiveWorkspace'
@@ -55,6 +48,9 @@ roles:
         permission: GRANT
 
       - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.ReviewWorkspace'
+        permission: GRANT
+
+      - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.PreviewDocument'
         permission: GRANT
 
       - privilegeTarget: 'Shel.Neos.WorkspaceModule:Backend.ManageSharedWorkspaces'

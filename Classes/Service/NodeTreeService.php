@@ -180,15 +180,17 @@ final class NodeTreeService
             return null;
         }
 
+        $dimensions = $node->getContext()->getDimensions();
+
         // The variants of a node share their identifier, so the dimensions belong to the key.
-        $cacheKey = $baseWorkspaceName . '|' . $node->getIdentifier() . '|' . json_encode($node->getDimensions());
+        $cacheKey = $baseWorkspaceName . '|' . $node->getIdentifier() . '|' . json_encode($dimensions);
         if (array_key_exists($cacheKey, $this->baseNodeCache)) {
             return $this->baseNodeCache[$cacheKey];
         }
 
         $baseContext = $this->contextFactory->create([
             'workspaceName' => $baseWorkspaceName,
-            'dimensions' => $node->getDimensions(),
+            'dimensions' => $dimensions,
         ]);
         $baseNode = $baseContext->getNodeByIdentifier($node->getIdentifier());
 

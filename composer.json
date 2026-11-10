@@ -9,7 +9,7 @@
         "workspaces"
     ],
     "require": {
-        "php": ">=8.4",
+        "php": ">=8.3",
         "neos/neos": "^8.4",
         "neos/neos-ui": "^8.4"
     },

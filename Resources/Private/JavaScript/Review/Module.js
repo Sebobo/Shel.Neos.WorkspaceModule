@@ -1,6 +1,7 @@
 import { updateActionButtons } from './Actions.js';
 import { readDocumentList } from './DocumentList.js';
 import { hideDocumentHint, repositionOpenHint, showDocumentHint } from './Hints.js';
+import { setupDocumentNavigation } from './Navigation.js';
 import { setupNotifications } from './Notifications.js';
 import { repositionOpenPopups, setupPopovers } from './Popups.js';
 import { closePreview, openPreview, setupPreviewScrollSync, togglePreviewScrollSync } from './Preview.js';
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setupNotifications();
+    setupDocumentNavigation();
 
     /**
      * Brings the selection into the page: the checkboxes of the document list, the checkboxes

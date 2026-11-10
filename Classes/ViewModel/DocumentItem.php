@@ -40,7 +40,6 @@ final readonly class DocumentItem
         public bool $parentIsInList,
         public array $breadcrumb,
         public string $baseContextPath,
-        public bool $isFirst,
         public ?string $previewUrl = null,
         public ?string $previewBaseUrl = null,
     ) {

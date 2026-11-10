@@ -3,7 +3,7 @@
 #
 # The tree is loaded on its own when the review opens and travels with every answer that
 # changes something afterwards, so that it stays in step with the changes. It is marked as the
-# document that is open, and it opens the first document itself when it is the first load.
+# document that is open.
 #
 # Every document has a checkbox of its own: it selects the document with all the documents
 # below it, so that the changes of several documents can be published at once. The checkbox
@@ -18,7 +18,6 @@ prototype(Shel.Neos.WorkspaceModule:Component.DocumentTree) < prototype(Neos.Fus
         selectedDimensions = ${PropTypes.string}
         selectedDocument = ${PropTypes.string}
         outOfBand = ${PropTypes.boolean}
-        autoLoad = ${PropTypes.boolean}
     }
 
     @private {
@@ -41,7 +40,6 @@ prototype(Shel.Neos.WorkspaceModule:Component.DocumentTree) < prototype(Neos.Fus
             format = 'htmx'
             arguments.workspace = ${props.selectedWorkspaceName}
             arguments.dimensions = ${props.selectedDimensions}
-            arguments.reload = 1
             arguments.selectedDocument = '---document---'
         }
     }
@@ -116,7 +114,6 @@ prototype(Shel.Neos.WorkspaceModule:Component.DocumentTree) < prototype(Neos.Fus
                                     hx-target="#document-changes"
                                     hx-swap="outerHTML"
                                     hx-indicator="#document-changes-reload"
-                                    hx-trigger={props.autoLoad && document.isFirst ? 'load' : null}
                                     class={document.contextPath == props.selectedDocument ? 'workspace-review-document active' : 'workspace-review-document'}
                                 >
                                     <span class="workspace-review-document-title">

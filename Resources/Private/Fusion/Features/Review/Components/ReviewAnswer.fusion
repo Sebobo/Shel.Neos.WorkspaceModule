@@ -37,10 +37,10 @@ prototype(Shel.Neos.WorkspaceModule:Component.ReviewAnswer) < prototype(Neos.Fus
             selectedDocument={props.selectedDocument}
             outOfBand={true}
         />
-        <Shel.Neos.WorkspaceModule:Component.ChangeList
+        <Shel.Neos.WorkspaceModule:Component.ChangesAnswer
             changes={props.changes}
             document={props.document}
-            documentIdentifier={props.selectedDocument}
+            selectedDocument={props.selectedDocument}
             selectedWorkspaceName={props.selectedWorkspaceName}
             selectedDimensions={props.selectedDimensions}
             baseWorkspaceLabel={props.baseWorkspaceLabel}

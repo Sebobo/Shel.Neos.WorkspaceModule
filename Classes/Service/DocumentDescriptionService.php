@@ -59,7 +59,6 @@ final class DocumentDescriptionService
             parentIsInList: false,
             breadcrumb: $this->breadcrumb($document),
             baseContextPath: $baseContextPath,
-            isFirst: false,
             previewUrl: $previewUrl,
             // A document that was created in the workspace has no published version - there
             // is nothing to compare it with.

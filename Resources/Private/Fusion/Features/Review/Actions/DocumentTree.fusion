@@ -1,21 +1,20 @@
 ##
-# The list of the documents that have changes.
+# The list of documents that have changes in the reviewed workspace, grouped by their site.
 #
 # The list is loaded on its own when the review opens and travels with every answer that
-# changes something afterwards, so that it stays in step with the changes.
+# changes something afterwards, so that it stays in step with the changes. The document that
+# is open is marked - the browser keeps it in the fragment of the url.
 #
 Shel.Neos.WorkspaceModule.WorkspacesController.documentTree = Neos.Fusion:Component {
     sites = ${sites}
     selectedWorkspaceName = ${selectedWorkspaceName}
     selectedDimensions = ${selectedDimensions}
     selectedDocument = ${selectedDocument}
-    autoLoad = ${autoLoad}
 
     renderer = Shel.Neos.WorkspaceModule:Component.DocumentTree {
         sites = ${props.sites}
         selectedWorkspaceName = ${props.selectedWorkspaceName}
         selectedDimensions = ${props.selectedDimensions}
         selectedDocument = ${props.selectedDocument}
-        autoLoad = ${props.autoLoad}
     }
 }

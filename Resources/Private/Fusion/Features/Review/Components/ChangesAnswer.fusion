@@ -1,0 +1,35 @@
+##
+# The changes of the document that is open.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.ChangesAnswer) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = false
+        changes = ${PropTypes.arrayOf(PropTypes.any)}
+        document = ${PropTypes.any}
+        documentIdentifier = ${PropTypes.string}
+        selectedWorkspaceName = ${PropTypes.string}
+        selectedDimensions = ${PropTypes.string}
+        baseWorkspaceLabel = ${PropTypes.string}
+        canPublishToBaseWorkspace = ${PropTypes.boolean}
+    }
+
+    changes = ${changes}
+    document = ${document}
+    documentIdentifier = ${selectedDocument}
+    selectedWorkspaceName = ${selectedWorkspaceName}
+    selectedDimensions = ${selectedDimensions}
+    baseWorkspaceLabel = ${baseWorkspaceLabel}
+    canPublishToBaseWorkspace = ${canPublishToBaseWorkspace}
+
+    renderer = afx`
+        <Shel.Neos.WorkspaceModule:Component.ChangeList
+            changes={props.changes}
+            document={props.document}
+            documentIdentifier={props.documentIdentifier}
+            selectedWorkspaceName={props.selectedWorkspaceName}
+            selectedDimensions={props.selectedDimensions}
+            baseWorkspaceLabel={props.baseWorkspaceLabel}
+            canPublishToBaseWorkspace={props.canPublishToBaseWorkspace}
+        />
+    `
+}

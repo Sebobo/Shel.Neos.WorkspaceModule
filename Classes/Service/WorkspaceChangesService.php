@@ -64,7 +64,6 @@ final class WorkspaceChangesService
     public function getDocumentsWithChanges(Workspace $workspace, array $dimensionValues = []): array
     {
         $sites = [];
-        $isFirstDocument = true;
         foreach ($this->groupChangesByDocument($workspace, $dimensionValues) as $siteNodeName => $siteChanges) {
             $siteKey = $siteNodeName === '' ? '__withoutSite' : $siteNodeName;
             if (!isset($sites[$siteKey])) {
@@ -79,9 +78,7 @@ final class WorkspaceChangesService
                     $documentChanges->document,
                     $documentChanges->changes,
                     $sites[$siteKey]['documents'],
-                    $isFirstDocument,
                 );
-                $isFirstDocument = false;
             }
         }
 
@@ -94,13 +91,11 @@ final class WorkspaceChangesService
      *
      * @param list<NodeInterface> $changes
      * @param list<DocumentItem> $documentsOfSite the documents of the site that are already described
-     * @param bool $isFirst whether the document is the first one of the whole list
      */
     private function describeDocumentInList(
         NodeInterface $document,
         array $changes,
         array $documentsOfSite,
-        bool $isFirst,
     ): DocumentItem {
         $description = $this->documentDescriptionService->describeDocument($document, $changes);
 
@@ -136,7 +131,6 @@ final class WorkspaceChangesService
             parentIsInList: $parentIsInList,
             breadcrumb: $description->breadcrumb,
             baseContextPath: $description->baseContextPath,
-            isFirst: $isFirst,
         );
     }
 

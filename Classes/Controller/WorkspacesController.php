@@ -710,10 +710,10 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
      * The documents of the workspace that have changes, loaded asynchronously.
      *
      * The tree is loaded on its own when the review opens and travels with every answer that
-     * changes something afterwards. When it is reloaded by hand, the document that is open
-     * stays open - only the first load opens the first document.
+     * changes something afterwards. The document that is open is kept in the fragment of the
+     * url, so that the browser finds its way back to it.
      */
-    public function documentTreeAction(Workspace $workspace, bool $reload = false, string $selectedDocument = '', string $dimensions = ''): void
+    public function documentTreeAction(Workspace $workspace, string $selectedDocument = '', string $dimensions = ''): void
     {
         $this->validateWorkspaceAccess($workspace);
         $dimensionValues = $this->assignDimensions($dimensions);
@@ -721,7 +721,6 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
             'selectedWorkspace' => $workspace,
             'selectedWorkspaceName' => $workspace->getName(),
             'sites' => $this->workspaceChangesService->getDocumentsWithChanges($workspace, $dimensionValues),
-            'autoLoad' => !$reload,
             // The document that is open stays marked, even when the tree is loaded again.
             'selectedDocument' => $selectedDocument,
         ]);
@@ -747,9 +746,8 @@ class WorkspacesController extends \Neos\Neos\Controller\Module\Management\Works
         $this->view->assignMultiple([
             'selectedWorkspace' => $workspace,
             'selectedWorkspaceName' => $workspace->getName(),
-            // The list of documents travels with the answer, so that the tree can mark the
-            // document that is open.
-            'sites' => $this->workspaceChangesService->getDocumentsWithChanges($workspace, $dimensionValues),
+            // The list of the documents does not travel with this answer: opening a document
+            // changes nothing, and the list is the expensive part of the answer.
             'selectedDocument' => $document,
             'changes' => $changes,
             'document' => $documentItem,

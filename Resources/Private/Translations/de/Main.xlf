@@ -571,6 +571,21 @@
             	<target>gelöscht</target>
             </trans-unit>
 
+            <trans-unit id="review.changeMovedFrom" xml:space="preserve">
+                <source>Moved from {0}</source>
+                <target>Verschoben von {0}</target>
+            </trans-unit>
+
+            <trans-unit id="review.changeRenamedFrom" xml:space="preserve">
+                <source>Renamed from "{0}"</source>
+                <target>Umbenannt von "{0}"</target>
+            </trans-unit>
+
+            <trans-unit id="review.changeMoved" xml:space="preserve">
+                <source>This content has been moved.</source>
+                <target>Dieser Inhalt wurde verschoben.</target>
+            </trans-unit>
+
             <trans-unit id="review.selectChange" xml:space="preserve">
             	<source>Select this change</source>
             	<target>Diese Änderung auswählen</target>

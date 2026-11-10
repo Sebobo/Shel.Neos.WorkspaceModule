@@ -185,6 +185,51 @@ class ChangeDescriptionServiceTest extends WorkspaceTestCase
     }
 
     #[Test]
+    public function aMovedChangeKnowsWhereItCameFrom(): void
+    {
+        $text = $this->textOfHomePage();
+        $aboutUs = $this->nodeInTestWorkspace($this->sitePath('/about-us'));
+        self::assertInstanceOf(NodeInterface::class, $aboutUs);
+        $main = $aboutUs->getNode('main');
+        self::assertInstanceOf(NodeInterface::class, $main);
+        // The texts of the collections are named "text" - the move needs a free name.
+        $twoColumn = $main->createNode(
+            'two-column',
+            $this->nodeTypeManager->getNodeType('Acme.Demo:TwoColumn')
+        );
+        $column = $twoColumn->getNode('column0');
+        self::assertInstanceOf(NodeInterface::class, $column);
+        $text->moveInto($column);
+        $this->persistenceManager->persistAll();
+
+        $change = $this->changeDescriptionService->describeChange($text);
+
+        self::assertSame('moved', $change->type);
+        self::assertNotNull($change->movedFrom);
+        self::assertStringContainsString('Home', $change->movedFrom);
+        self::assertStringContainsString('main', $change->movedFrom);
+        self::assertNull($change->previousName);
+    }
+
+    #[Test]
+    public function aMovedChangeKnowsItsPreviousLabel(): void
+    {
+        $team = $this->nodeInTestWorkspace($this->sitePath('/home/team'));
+        self::assertInstanceOf(NodeInterface::class, $team);
+        $services = $this->nodeInTestWorkspace($this->sitePath('/home/services'));
+        self::assertInstanceOf(NodeInterface::class, $services);
+        $team->moveInto($services);
+        $team->setProperty('title', 'The new team');
+        $this->persistenceManager->persistAll();
+
+        $change = $this->changeDescriptionService->describeChange($team);
+
+        self::assertSame('moved', $change->type);
+        self::assertSame('Home', $change->movedFrom);
+        self::assertSame('Team', $change->previousLabel);
+    }
+
+    #[Test]
     public function aChangedValueObjectIsShownWithItsValues(): void
     {
         $shop = $this->shopInTestWorkspace();

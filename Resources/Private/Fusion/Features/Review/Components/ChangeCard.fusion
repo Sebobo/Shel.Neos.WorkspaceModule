@@ -77,6 +77,26 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeCard) < prototype(Neos.Fusio
                     <span class="neos-content-change-node-type">{props.change.nodeTypeLabel}</span>
                 </div>
                 <table class="neos-content-diff">
+                    <tr @if.hasMoveNote={props.change.type == 'moved'}>
+                        <td colspan="3" class="workspace-review-change-move-note">
+                            <span @if.hasMovedFrom={props.change.movedFrom != null} class="workspace-review-change-move-line">
+                                <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-arrow-right"/>
+                                {private.i18n.id('review.changeMovedFrom').arguments([props.change.movedFrom]).translate()}
+                            </span>
+                            <span @if.hasPreviousLabel={props.change.previousLabel != null} class="workspace-review-change-move-line">
+                                <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-pen"/>
+                                {private.i18n.id('review.changeRenamedFrom').arguments([props.change.previousLabel]).translate()}
+                            </span>
+                            <span @if.hasPreviousName={props.change.previousLabel == null && props.change.previousName != null} class="workspace-review-change-move-line">
+                                <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-pen"/>
+                                {private.i18n.id('review.changeRenamedFrom').arguments([props.change.previousName]).translate()}
+                            </span>
+                            <span @if.hasMoveOnly={props.change.movedFrom == null && props.change.previousLabel == null && props.change.previousName == null} class="workspace-review-change-move-line">
+                                <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-arrow-right"/>
+                                {private.i18n.id('review.changeMoved').translate()}
+                            </span>
+                        </td>
+                    </tr>
                     <Neos.Fusion:Loop @if.hasContentChanges={props.change.contentChanges.items != [] && props.change.type != 'deleted'} items={props.change.contentChanges.items} itemName="contentChange">
                         <tr>
                             <th colspan="3" class="neos-content-diff-property">
@@ -92,7 +112,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeCard) < prototype(Neos.Fusio
                             </td>
                         </tr>
                     </Neos.Fusion:Loop>
-                    <tr @if.noContentChanges={props.change.contentChanges.items == [] || props.change.type == 'deleted'}>
+                    <tr @if.noContentChanges={(props.change.contentChanges.items == [] || props.change.type == 'deleted') && props.change.type != 'moved'}>
                         <td colspan="3" class="neos-content-diff-empty">
                             {private.emptyNotes[props.change.type]}
                         </td>

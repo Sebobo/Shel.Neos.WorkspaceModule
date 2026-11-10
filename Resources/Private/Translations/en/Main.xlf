@@ -507,6 +507,18 @@
                 <source>deleted</source>
             </trans-unit>
 
+            <trans-unit id="review.changeMovedFrom">
+                <source>Moved from {0}</source>
+            </trans-unit>
+
+            <trans-unit id="review.changeRenamedFrom">
+                <source>Renamed from "{0}"</source>
+            </trans-unit>
+
+            <trans-unit id="review.changeMoved">
+                <source>This content has been moved.</source>
+            </trans-unit>
+
             <trans-unit id="review.changePublished">
                 <source>The change has been published</source>
             </trans-unit>

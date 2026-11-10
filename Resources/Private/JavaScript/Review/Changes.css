@@ -205,6 +205,28 @@
         background: var(--colors-Warn);
     }
 
+    /*
+     * What a moved change says about itself: the place it came from and the name it had
+     * before, when either of them differs from the place and the name in the header.
+     */
+    .workspace-review-change-move-note {
+        color: var(--review-text-muted);
+    }
+
+    .workspace-review-change-move-line {
+        display: flex;
+        align-items: center;
+        gap: 1ch;
+
+        & + & {
+            margin-top: var(--spacing-Quarter);
+        }
+
+        i {
+            color: var(--review-text-faint);
+        }
+    }
+
     .neos-content-diff .neos-content-diff-property {
         padding: var(--review-padding) var(--spacing-Full) 6px;
         color: var(--textOnGray);
@@ -249,6 +271,15 @@
         white-space: normal;
         font-style: italic;
         color: var(--review-text-faint);
+    }
+
+    /*
+     * The description of a move is a cell as well, and it has to wrap like the empty note.
+     */
+    .neos-content-diff .workspace-review-change-move-note {
+        padding: var(--review-padding) var(--spacing-Full);
+        white-space: normal;
+        line-height: var(--review-line-height);
     }
 
     /*

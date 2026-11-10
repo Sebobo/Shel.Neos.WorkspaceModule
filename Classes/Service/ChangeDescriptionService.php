@@ -71,6 +71,24 @@ final class ChangeDescriptionService
             $type = 'moved';
         }
 
+        // A move and a rename are both a change of the path. The path in the base workspace
+        // tells where the change came from and what it was called there.
+        $baseNode = $type === 'moved' ? $this->nodeTreeService->baseNode($node) : null;
+        $movedFrom = null;
+        $previousLabel = null;
+        $previousName = null;
+        if ($baseNode !== null) {
+            if ($baseNode->getParentPath() !== $node->getParentPath()) {
+                $movedFrom = $this->breadcrumbOf($this->nodeTreeService->baseAncestorsOf($node));
+            }
+            if ($baseNode->getLabel() !== $node->getLabel()) {
+                $previousLabel = $baseNode->getLabel();
+            }
+            if ($baseNode->getName() !== $node->getName()) {
+                $previousName = $baseNode->getName();
+            }
+        }
+
         return new ChangeItem(
             contextPath: $node->getContextPath(),
             label: $node->getLabel(),
@@ -86,7 +104,25 @@ final class ChangeDescriptionService
             contentChanges: $this->renderContentChanges($node),
             requiredParents: [],
             ancestors: $this->describeAncestors($ancestors),
+            movedFrom: $movedFrom,
+            previousLabel: $previousLabel,
+            previousName: $previousName,
         );
+    }
+
+    /**
+     * The labels of a chain of nodes as one breadcrumb, from the topmost node down.
+     *
+     * @param list<NodeInterface> $ancestors the ancestors, the nearest one first
+     */
+    private function breadcrumbOf(array $ancestors): ?string
+    {
+        $labels = array_map(
+            static fn (NodeInterface $ancestor): string => $ancestor->getLabel(),
+            array_reverse($ancestors),
+        );
+
+        return $labels === [] ? null : implode(' / ', $labels);
     }
 
     /**

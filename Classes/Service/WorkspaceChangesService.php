@@ -190,6 +190,9 @@ final class WorkspaceChangesService
                     ? [$requiredParent->getContextPath()]
                     : [],
                 ancestors: $change->ancestors,
+                movedFrom: $change->movedFrom,
+                previousLabel: $change->previousLabel,
+                previousName: $change->previousName,
             );
         }
 

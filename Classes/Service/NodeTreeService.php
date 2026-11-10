@@ -266,6 +266,39 @@ final class NodeTreeService
     }
 
     /**
+     * The containers a node sat in in the workspace the workspace is based on, the nearest one
+     * first.
+     *
+     * The chain ends below the site root, the way the breadcrumb of a document does. It
+     * contains the document the node was in as well, because that document can be a different
+     * one than the document the change is shown in.
+     *
+     * @return list<NodeInterface>
+     */
+    public function baseAncestorsOf(NodeInterface $node): array
+    {
+        $baseNode = $this->baseNode($node);
+        if ($baseNode === null) {
+            return [];
+        }
+
+        $siteNodeName = $this->siteNodeNameOf($baseNode);
+        if ($siteNodeName === '') {
+            return [];
+        }
+
+        $sitePath = '/sites/' . $siteNodeName;
+        $ancestors = [];
+        $parent = $baseNode->getParent();
+        while ($parent !== null && $parent->getPath() !== $sitePath) {
+            $ancestors[] = $parent;
+            $parent = $parent->getParent();
+        }
+
+        return $ancestors;
+    }
+
+    /**
      * The context path of a node in the workspace the workspace of the node is based on.
      *
      * The path of a node can be different in the base workspace - a node that was moved has

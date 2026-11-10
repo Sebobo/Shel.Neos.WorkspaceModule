@@ -25,6 +25,9 @@ final readonly class ChangeItem
     /**
      * @param list<string> $requiredParents the context paths of the changes that have to be published or discarded with this change
      * @param list<AncestorItem> $ancestors the containers the change sits in, from the topmost one down to the nearest
+     * @param string|null $movedFrom the breadcrumb of the containers the change was moved from, when its parent changed
+     * @param string|null $previousLabel the label the change had before it was moved or renamed, when it differs
+     * @param string|null $previousName the node name the change had before it was renamed, when it differs
      */
     public function __construct(
         public string $contextPath,
@@ -37,6 +40,9 @@ final readonly class ChangeItem
         public ContentChangeItems $contentChanges,
         public array $requiredParents,
         public array $ancestors,
+        public ?string $movedFrom,
+        public ?string $previousLabel,
+        public ?string $previousName,
     ) {
     }
 }

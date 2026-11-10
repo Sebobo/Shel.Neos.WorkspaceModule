@@ -471,10 +471,14 @@ final class WorkspaceChangesService
         }
         foreach ($documentsOfSite as $siteNodeName => $siteDocuments) {
             // The documents in the order of the content tree, so that a document comes after
-            // the document it sits below.
+            // the document it sits below. The order follows the variants as well: the
+            // documents of one variant are grouped below the document of that variant.
             usort(
                 $siteDocuments,
-                static fn (DocumentChanges $left, DocumentChanges $right): int => strcmp($left->document->getPath(), $right->document->getPath())
+                fn (DocumentChanges $left, DocumentChanges $right): int => $this->compareTreeKeys(
+                    $this->nodeTreeService->treeKeyOf($left->document),
+                    $this->nodeTreeService->treeKeyOf($right->document)
+                )
             );
             $documentsOfSite[$siteNodeName] = $siteDocuments;
         }
@@ -503,6 +507,30 @@ final class WorkspaceChangesService
         }
 
         return $grouped;
+    }
+
+    /**
+     * Compares two documents by the order of the tree.
+     *
+     * The keys are the chains of the ancestors of the documents: the documents that sit
+     * below the same document are next to each other, and the document that is the ancestor
+     * of the other one comes first.
+     *
+     * @param list<string> $left
+     * @param list<string> $right
+     */
+    private function compareTreeKeys(array $left, array $right): int
+    {
+        $common = min(count($left), count($right));
+        for ($index = 0; $index < $common; $index++) {
+            $comparison = strcmp($left[$index], $right[$index]);
+            if ($comparison !== 0) {
+                return $comparison;
+            }
+        }
+
+        // The chains are the same up to here: the shorter one is the ancestor of the other.
+        return count($left) <=> count($right);
     }
 
     /**

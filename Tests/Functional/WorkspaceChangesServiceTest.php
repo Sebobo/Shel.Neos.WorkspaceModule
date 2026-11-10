@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace Shel\Neos\WorkspaceModule\Tests\Functional;
 
 use Neos\ContentRepository\Domain\Model\NodeInterface;
+use Neos\ContentRepository\Domain\Service\ContentDimensionPresetSourceInterface;
+use Neos\ContentRepository\Domain\Service\Context;
 use PHPUnit\Framework\Attributes\Test;
 use Shel\Neos\WorkspaceModule\Service\WorkspaceChangesService;
 
@@ -183,6 +185,64 @@ class WorkspaceChangesServiceTest extends WorkspaceTestCase
     }
 
     #[Test]
+    public function theDocumentsOfAVariantAreGroupedBelowTheDocumentOfThatVariant(): void
+    {
+        $variantContext = $this->contextOfASecondVariant();
+        if ($variantContext === null) {
+            self::markTestSkipped('The installation has no dimension with a second value.');
+        }
+
+        // The home page and the page below it are changed in the variant of the installation
+        // and in a second one.
+        $home = $this->nodeInTestWorkspace($this->sitePath('/home'));
+        self::assertInstanceOf(NodeInterface::class, $home);
+        $team = $this->nodeInTestWorkspace($this->sitePath('/home/team'));
+        self::assertInstanceOf(NodeInterface::class, $team);
+        $home->setProperty('title', 'A new title');
+        $team->setProperty('title', 'A new team');
+
+        $liveHome = $this->nodeInLiveWorkspace($this->sitePath('/home'));
+        self::assertInstanceOf(NodeInterface::class, $liveHome);
+        $liveTeam = $this->nodeInLiveWorkspace($this->sitePath('/home/team'));
+        self::assertInstanceOf(NodeInterface::class, $liveTeam);
+        $variantHome = $liveHome->createVariantForContext($variantContext);
+        $variantTeam = $liveTeam->createVariantForContext($variantContext);
+        $variantHome->setProperty('title', 'Another new title');
+        $variantTeam->setProperty('title', 'Another new team');
+
+        $this->persistenceManager->persistAll();
+        $this->workspaceChangesService->clearCache();
+
+        $documents = $this->workspaceChangesService->getDocumentsWithChanges($this->testWorkspace());
+        $site = array_values($documents)[0];
+        $documentsOfSite = $site['documents'];
+
+        // The home page and the document below it, in the variant of the installation and in
+        // the other one.
+        self::assertCount(4, $documentsOfSite);
+
+        // A document follows the document it sits below - and the document it sits below is
+        // the one of its own variant.
+        foreach ($documentsOfSite as $index => $document) {
+            if ($document->parent === null) {
+                continue;
+            }
+            $positionOfParent = array_search(
+                $document->parent,
+                array_column($documentsOfSite, 'contextPath'),
+                true
+            );
+            self::assertIsInt($positionOfParent, 'the document the one sits below is in the list');
+            self::assertSame(
+                $positionOfParent + 1,
+                $index,
+                'the document below a document follows the document of its own variant'
+            );
+            self::assertSame(1, $document->level);
+        }
+    }
+
+    #[Test]
     public function theNumberOfTheChangesIsCountedByTheirKind(): void
     {
         $home = $this->nodeInTestWorkspace($this->sitePath('/home'));
@@ -206,5 +266,50 @@ class WorkspaceChangesServiceTest extends WorkspaceTestCase
         self::assertSame(1, $pendingChanges->changed);
         self::assertSame(1, $pendingChanges->removed);
         self::assertSame(3, $pendingChanges->total);
+    }
+
+    /**
+     * The context of a variant of the content - the variant of the test workspace that is
+     * not the one the content is read with by default.
+     *
+     * Null when the installation has no dimension with a second value.
+     */
+    private function contextOfASecondVariant(): ?Context
+    {
+        $presetSource = $this->getObject(ContentDimensionPresetSourceInterface::class);
+        foreach ($presetSource->getAllPresets() as $dimensionName => $dimensionConfiguration) {
+            $values = [];
+            foreach ((array)($dimensionConfiguration['presets'] ?? []) as $presetConfiguration) {
+                foreach ((array)($presetConfiguration['values'] ?? []) as $value) {
+                    $values[(string)$value] = true;
+                }
+            }
+            $values = array_keys($values);
+            if (count($values) < 2) {
+                continue;
+            }
+
+            // The variant the content is in by default is the one of the home page.
+            $home = $this->nodeInTestWorkspace($this->sitePath('/home'));
+            self::assertInstanceOf(NodeInterface::class, $home);
+            $defaultValues = $home->getDimensions()[(string)$dimensionName] ?? [];
+            $secondValue = null;
+            foreach ($values as $value) {
+                if (!in_array($value, (array)$defaultValues, true)) {
+                    $secondValue = $value;
+                    break;
+                }
+            }
+            if ($secondValue === null) {
+                continue;
+            }
+
+            return $this->contextFactory->create([
+                'workspaceName' => 'test',
+                'dimensions' => [(string)$dimensionName => [$secondValue]],
+            ]);
+        }
+
+        return null;
     }
 }

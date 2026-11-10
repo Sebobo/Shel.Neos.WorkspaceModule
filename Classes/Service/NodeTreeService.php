@@ -83,6 +83,40 @@ final class NodeTreeService
     }
 
     /**
+     * The chain of the ancestors of a document and the document itself, each of them with
+     * the dimension values of its own variant.
+     *
+     * The variants of a document share their path in the content repository - the
+     * dimension values are what tells them apart. The chain of the ancestors is what puts
+     * the documents of one variant below the document of that variant: a document and the
+     * documents below it are next to each other in the list of the documents.
+     *
+     * @return list<string>
+     */
+    public function treeKeyOf(NodeInterface $document): array
+    {
+        $key = [];
+        foreach (array_reverse($this->documentAncestors($document)) as $ancestor) {
+            $key[] = $this->variantKeyOf($ancestor);
+        }
+        $key[] = $this->variantKeyOf($document);
+
+        return $key;
+    }
+
+    /**
+     * The path of a node with the dimension values of its own variant.
+     *
+     * The dimension values of the context of a node are the values of the preset it was
+     * read with - the chain of the fallback - and not the values of the node itself. The
+     * values of the node are the ones that tell its variants apart.
+     */
+    private function variantKeyOf(NodeInterface $node): string
+    {
+        return $node->getPath() . ':' . json_encode($node->getDimensions());
+    }
+
+    /**
      * The ancestors of a node, from its parent up to the document the changes belong to.
      *
      * @return list<NodeInterface>

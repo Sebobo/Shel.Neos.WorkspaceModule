@@ -37,7 +37,6 @@ final readonly class ChangeItem
         public ContentChangeItems $contentChanges,
         public array $requiredParents,
         public array $ancestors,
-        public int $depth,
     ) {
     }
 }

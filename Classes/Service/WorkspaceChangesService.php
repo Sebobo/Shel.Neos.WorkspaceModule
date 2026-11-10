@@ -190,7 +190,6 @@ final class WorkspaceChangesService
                     ? [$requiredParent->getContextPath()]
                     : [],
                 ancestors: $change->ancestors,
-                depth: $change->depth,
             );
         }
 

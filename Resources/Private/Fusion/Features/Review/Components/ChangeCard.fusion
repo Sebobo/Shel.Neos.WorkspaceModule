@@ -50,8 +50,15 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeCard) < prototype(Neos.Fusio
         <div
             class={'neos-content-change ' + private.legendClasses[props.change.type]}
             data-nodepath={props.change.contextPath}
-            style={'--depth: ' + props.change.depth}
         >
+            <div @if.hasAncestors={props.change.ancestors != []} class="workspace-review-change-context">
+                <Neos.Fusion:Loop items={props.change.ancestors} itemName="ancestor">
+                    <span class="workspace-review-change-ancestor">
+                        <i class={ancestor.icon}></i>
+                        {ancestor.label}
+                    </span>
+                </Neos.Fusion:Loop>
+            </div>
             <div class="neos-content-change-main">
                 <div class="neos-content-change-header">
                     <label class="neos-checkbox" title={private.i18n.id('review.selectChange').translate()}>
@@ -68,14 +75,6 @@ prototype(Shel.Neos.WorkspaceModule:Component.ChangeCard) < prototype(Neos.Fusio
                     </span>
                     <Shel.Neos.WorkspaceModule:Component.ChangeBadge type={props.change.type}/>
                     <span class="neos-content-change-node-type">{props.change.nodeTypeLabel}</span>
-                </div>
-                <div @if.hasAncestors={props.change.ancestors != []} class="workspace-review-change-context">
-                    <Neos.Fusion:Loop items={props.change.ancestors} itemName="ancestor">
-                        <span class="workspace-review-change-ancestor">
-                            <i class={ancestor.icon}></i>
-                            {ancestor.label}
-                        </span>
-                    </Neos.Fusion:Loop>
                 </div>
                 <table class="neos-content-diff">
                     <Neos.Fusion:Loop @if.hasContentChanges={props.change.contentChanges.items != [] && props.change.type != 'deleted'} items={props.change.contentChanges.items} itemName="contentChange">

@@ -86,7 +86,6 @@ final class ChangeDescriptionService
             contentChanges: $this->renderContentChanges($node),
             requiredParents: [],
             ancestors: $this->describeAncestors($ancestors),
-            depth: max(count($ancestors) - 1, 0),
         );
     }
 

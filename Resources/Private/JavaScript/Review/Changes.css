@@ -51,29 +51,25 @@
     /*
      * A change and its diff.
      *
-     * The change is a row of three columns: the change itself with its diff, the date of
+     * The change is a grid of three columns: the change itself with its diff, the date of
      * the change and the buttons that publish or discard it. The buttons are a column of
      * their own and not a row below the date, so that a change with a long diff does not
      * become taller than it has to be.
+     *
+     * The breadcrumb of the containers the change sits in spans the full width above the
+     * three columns: nesting is shown by that bar alone, not by indenting the change.
      */
     .neos-content-change {
-        display: flex;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
         align-items: flex-start;
         border: var(--review-border);
         border-left: var(--review-legend-width) solid var(--colors-Warn);
         margin-bottom: var(--spacing-Full);
         background: var(--grayDark);
-
-        /*
-         * The changes are indented by the containers they sit in, so that it can be seen
-         * that a text belongs to a column of a multi column element. The whole block is
-         * indented, not only its header.
-         */
-        margin-left: calc(var(--depth, 0) * var(--spacing-Full));
     }
 
     .neos-content-change-main {
-        flex: 1 1 auto;
         min-width: 0;
     }
 
@@ -153,16 +149,19 @@
     }
 
     /*
-     * The containers a change sits in, named above the diff.
+     * The containers a change sits in, as a slightly gray bar above the change. The bar
+     * spans the full width of the change, so that a nested change is recognisable at a
+     * glance without indenting the change itself.
      */
     .workspace-review-change-context {
+        grid-column: 1 / -1;
         display: flex;
         align-items: center;
         flex-wrap: wrap;
         gap: var(--spacing-Quarter);
-        margin: -var(--spacing-Quarter) var(--spacing-Full) var(--spacing-Half) var(--spacing-GoldenUnit);
-        padding-left: var(--spacing-Full);
-        border-left: var(--review-border);
+        padding: var(--spacing-Half) var(--spacing-Full);
+        background: var(--grayMedium);
+        border-bottom: var(--review-border);
         color: var(--review-text-faint);
         font-size: var(--fontSize-Small);
     }

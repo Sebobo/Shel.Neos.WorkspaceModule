@@ -143,6 +143,7 @@ prototype(Shel.Neos.WorkspaceModule:Component.Review) < prototype(Neos.Fusion:Co
                 <Shel.Neos.WorkspaceModule:Component.Button
                     customClass="workspace-review-reset"
                     icon="fas fa-times-circle"
+                    label={private.i18n.id('review.resetSelection').translate()}
                     title={private.i18n.id('review.resetSelection').translate()}
                     disabled={true}
                     attributes={{

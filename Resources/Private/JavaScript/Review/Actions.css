@@ -59,13 +59,11 @@
     }
 
     /*
-     * The button that resets the selection carries an icon and nothing else - it is as wide
-     * as the button that opens the menu of a combo.
+     * The button that resets the selection carries its label like the buttons of the combos
+     * next to it - the icon and the label are one gap apart.
      */
-    .workspace-review-reset {
-        width: 32px;
-        margin: 0;
-        padding: 0;
+    .workspace-review-reset > i {
+        margin-right: 1ch;
     }
 
     /*

@@ -205,6 +205,15 @@
         }
     }
 
+    /*
+     * The last document closes the list: the line below it would sit on the line of its site
+     * and on the border of the panel. Only a document that has another one below it is
+     * separated.
+     */
+    .workspace-review-site:last-child .workspace-review-document-row:last-child {
+        border-bottom: 0;
+    }
+
     .workspace-review-document-checkbox {
         flex: 0 0 auto;
         margin: 0;
@@ -294,6 +303,11 @@
 
     .workspace-review-site {
         border-bottom: var(--review-border);
+    }
+
+    /* the site that ends the list has no successor to separate */
+    .workspace-review-site:last-child {
+        border-bottom: 0;
     }
 
     /*

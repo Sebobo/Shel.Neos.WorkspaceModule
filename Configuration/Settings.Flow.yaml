@@ -1,15 +1,44 @@
 Neos:
   Flow:
+    aop:
+      # The policy of the module decides about the access to shared workspaces with the
+      # workspaces the current user is allowed to see. The matcher refers to them as
+      # "current.workspaceDetails", which is a global object.
+      globalObjects:
+        workspaceDetails: Shel\Neos\WorkspaceModule\WorkspaceDetailsContext
+
+    mvc:
+      # The preview of a document is a route of the module, not one of the backend module
+      # routes of Neos.Neos: it is reached on the host of the review, with a user. It is
+      # registered before the routes of Neos.Neos, so that the backend module route does
+      # not claim the path first.
+      routes:
+        'Shel.Neos.WorkspaceModule':
+          position: 'before Neos.Neos'
+
+      flashMessages:
+        containers:
+          'Shel.Neos.WorkspaceModule:httpHeaderFlashMessages':
+            storage: 'Shel\Neos\WorkspaceModule\Mvc\HttpHeaderFlashMessageStorage'
+            requestPatterns:
+              'htmx':
+                pattern: 'Shel\Neos\WorkspaceModule\Mvc\HtmxRequestPattern'
+
     security:
       authentication:
         providers:
-          Neos.Neos:Backend:
+          'Neos.Neos:Backend':
+            # The preview of a document is a route of the module, so its controller is not
+            # one of the controllers the patterns of Neos.Neos match. Without a pattern of its
+            # own, the token of the backend is not active for the request - and a request
+            # without an active token has no user at all.
+            #
+            # The pattern is of the same type as the ones of Neos.Neos on purpose: the
+            # patterns of a type are alternatives - a request pattern is active when at least
+            # one pattern of its type matches - so a pattern of a second type would have to
+            # match as well, and the token would never be active at all.
             requestPatterns:
-              Shel.Neos.WorkspaceModule:Controller:
+              'Shel.Neos.WorkspaceModule:PreviewController':
                 pattern: 'ControllerObjectName'
                 patternOptions:
-                  controllerObjectNamePattern: 'Shel\Neos\WorkspaceModule\Controller\.*'
-
-    aop:
-      globalObjects:
-        workspaceDetails: Shel\Neos\WorkspaceModule\WorkspaceDetailsContext
+                  controllerObjectNamePattern: 'Shel\Neos\WorkspaceModule\Controller\PreviewController'

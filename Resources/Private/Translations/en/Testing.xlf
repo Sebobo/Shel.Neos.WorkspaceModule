@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file original="" product="Shel.Neos.WorkspaceModule" source-language="en" datatype="plaintext">
+        <body>
+            <!-- The labels of the select box of the node type of the tests. -->
+            <trans-unit id="review.test.color.red">
+                <source>Red</source>
+            </trans-unit>
+            <trans-unit id="review.test.color.green">
+                <source>Green</source>
+            </trans-unit>
+            <trans-unit id="review.test.color.blue">
+                <source>Blue</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

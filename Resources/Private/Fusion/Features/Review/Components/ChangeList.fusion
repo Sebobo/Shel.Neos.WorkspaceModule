@@ -1,0 +1,138 @@
+##
+# The changes of one document.
+#
+# The document the changes belong to is named above them: its label and its icon, with the
+# documents it sits below as the breadcrumb. The changes are loaded again by the button next
+# to the name.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.ChangeList) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = false
+        changes = ${PropTypes.arrayOf(PropTypes.any)}
+        document = ${PropTypes.any}
+        documentIdentifier = ${PropTypes.string}
+        selectedWorkspaceName = ${PropTypes.string}
+        selectedDimensions = ${PropTypes.string}
+        baseWorkspaceLabel = ${PropTypes.string}
+        outOfBand = ${PropTypes.boolean}
+        canPublishToBaseWorkspace = ${PropTypes.boolean}
+    }
+
+    @private {
+        i18n = ${I18n.id('').source('Main').package('Shel.Neos.WorkspaceModule')}
+        changesUriTemplate = Neos.Fusion:UriBuilder {
+            action = 'documentChanges'
+            format = 'htmx'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = ${props.selectedDimensions}
+            arguments.document = '---document---'
+        }
+        publishUri = Neos.Fusion:UriBuilder {
+            action = 'publishChange'
+            format = 'htmx'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = ${props.selectedDimensions}
+            arguments.node = '---node---'
+        }
+        # The content module with the document that is open: the module of the neos.ui, which
+        # takes the node as its argument. The document is addressed by its context path, so
+        # that the variant of the review is the one that is opened.
+        #
+        # The uri is built for the *main* request: the request of the review is a subrequest
+        # with an argument namespace, and the arguments of a uri that is built for it would
+        # end up in that namespace - the content module would not find the node.
+        contentModuleUriTemplate = Neos.Fusion:ActionUri {
+            request = ${request.parentRequest}
+            package = 'Neos.Neos.Ui'
+            controller = 'Backend'
+            action = 'index'
+            format = 'html'
+            arguments.node = '---node---'
+        }
+        # The preview of the document: the page as it is rendered in a workspace.
+        #
+        # The preview is rendered on the host the review is opened on, by the action of the
+        # module: the site the document belongs to is taken from its path, so a document of
+        # another site is previewed with the layout of its own site - without that site
+        # being reachable.
+        previewUrl = ${props.document.previewUrl}
+        # A document that was created in the workspace has no published version - there is
+        # nothing to compare it with.
+        previewBaseUrl = ${props.document.previewBaseUrl}
+    }
+    renderer = afx`
+        <div
+            id="document-changes"
+            hx-swap-oob={props.outOfBand ? 'true' : null}
+            data-document={props.documentIdentifier}
+        >
+            <div class="neos-content-change-document-header">
+                <span class="neos-content-change-document-breadcrumb">
+                    <Neos.Fusion:Loop items={props.document.breadcrumb} itemName="crumb">
+                        <span class="neos-content-change-document-crumb">{crumb}</span>
+                    </Neos.Fusion:Loop>
+                    <span class="neos-content-change-document-crumb neos-content-change-document-crumb-current">
+                        <Shel.Neos.WorkspaceModule:Component.Icon icon={props.document.icon}/>
+                        <span class="neos-content-change-document-label">{props.document.label}</span>
+                        <span @if.hasDimension={props.document.dimensionLabel != ''} class="neos-content-change-document-dimension">
+                            {props.document.dimensionLabel}
+                        </span>
+                    </span>
+                </span>
+                <button
+                    @if.hasDocument={props.documentIdentifier != ''}
+                    type="button"
+                    id="document-preview-button"
+                    class="workspace-review-reload workspace-review-preview"
+                    title={private.i18n.id('review.preview').translate()}
+                    data-neos-toggle="tooltip"
+                    data-preview-url={private.previewUrl}
+                    data-preview-base-url={private.previewBaseUrl}
+                    data-preview-title={props.document.label}
+                    disabled={props.document.isAccessible ? null : 'disabled'}
+                >
+                    <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-eye"/>
+                </button>
+                <a
+                    @if.hasDocument={props.documentIdentifier != ''}
+                    class="workspace-review-reload workspace-review-open"
+                    title={private.i18n.id('review.openInContentModule').translate()}
+                    data-neos-toggle="tooltip"
+                    href={String.replace(private.contentModuleUriTemplate, '---node---', props.documentIdentifier)}
+                    target="_blank"
+                    rel="noopener"
+                >
+                    <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-external-link-alt"/>
+                </a>
+                <button
+                    @if.hasDocument={props.documentIdentifier != ''}
+                    type="button"
+                    id="document-changes-reload"
+                    class="workspace-review-reload"
+                    title={private.i18n.id('review.reload').translate()}
+                    data-neos-toggle="tooltip"
+                    hx-get={String.replace(private.changesUriTemplate, '---document---', props.documentIdentifier)}
+                    hx-target="#document-changes"
+                    hx-swap="outerHTML"
+                    hx-indicator="#document-changes-reload"
+                >
+                    <Shel.Neos.WorkspaceModule:Component.Icon icon="fas fa-sync"/>
+                </button>
+            </div>
+            <div class="workspace-review-change-list">
+                <Neos.Fusion:Loop items={props.changes.items} itemName="change">
+                    <Shel.Neos.WorkspaceModule:Component.ChangeCard
+                        change={change}
+                        selectedWorkspaceName={props.selectedWorkspaceName}
+                        selectedDimensions={props.selectedDimensions}
+                        baseWorkspaceLabel={props.baseWorkspaceLabel}
+                        canPublishToBaseWorkspace={props.canPublishToBaseWorkspace}
+                    />
+                </Neos.Fusion:Loop>
+            </div>
+            <div @if.noChanges={props.changes.items == []} class="workspace-review-no-changes">
+                {private.i18n.id('review.noChanges').translate()}
+            </div>
+        </div>
+    `
+}

@@ -1,0 +1,42 @@
+##
+# A button.
+#
+# The button carries the attributes it needs - the ones of htmx for example - in the
+# "attributes" of the component, so that a caller does not have to know how a button of the
+# module is built.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.Button) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = false
+        title = ${PropTypes.string}
+        label = ${PropTypes.string}
+        icon = ${PropTypes.string}
+        isDanger = ${PropTypes.boolean}
+        isWarning = ${PropTypes.boolean}
+        isPrimary = ${PropTypes.boolean}
+        disabled = ${PropTypes.boolean}
+        customClass = ${PropTypes.string}
+        attributes = ${PropTypes.any}
+    }
+
+    attributes = Neos.Fusion:DataStructure
+
+    renderer = afx`
+        <button
+            type="button"
+            title={props.title}
+            class={[
+                'neos-button',
+                props.isDanger && 'neos-button-danger',
+                props.isWarning && 'neos-button-warning',
+                props.isPrimary && 'neos-button-primary',
+                props.customClass
+            ]}
+            disabled={props.disabled ? 'disabled' : null}
+            {...props.attributes}
+        >
+            <Shel.Neos.WorkspaceModule:Component.Icon icon={props.icon}/>
+            {props.label}
+        </button>
+    `
+}

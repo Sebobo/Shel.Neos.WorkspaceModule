@@ -1,0 +1,21 @@
+##
+# The actions of the review that answer with the changes of the document that is open.
+#
+# The actions that change something answer with the list of the documents as well: the list
+# travels with the answer, so that the tree is refreshed together with the changes - a
+# document whose last change was published or discarded leaves the list.
+#
+# Opening a document changes nothing, so its answer holds the changes of the document alone -
+# the list of the documents is not needed a second time.
+#
+Shel.Neos.WorkspaceModule.WorkspacesController {
+    documentChanges = Shel.Neos.WorkspaceModule:Component.ChangesAnswer
+    publishChange = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    discardChange = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    publishSelected = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    discardSelected = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    publishDocument = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    discardDocument = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    publishAll = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+    discardAll = Shel.Neos.WorkspaceModule:Component.ReviewAnswer
+}

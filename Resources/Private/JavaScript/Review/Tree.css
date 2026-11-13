@@ -1,0 +1,361 @@
+/*
+ * The list of the documents of the workspace, with the switcher of the content dimensions
+ * above it and the hint that tells what changed in a document.
+ */
+.neos-module-management-workspaces {
+    /*
+     * The switcher of the content dimensions, above the list of the documents.
+     *
+     * The trigger shows the dimension and the preset that is chosen, the list of the presets
+     * opens over the tree.
+     */
+    .workspace-review-dimension-switcher {
+        border-bottom: var(--review-border);
+    }
+
+    .workspace-review-dimension {
+        position: relative;
+    }
+
+    .workspace-review-dimension-trigger {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-Half);
+        width: 100%;
+        margin: 0;
+        padding: var(--review-padding-row);
+        color: var(--review-text-muted);
+        font-size: var(--fontSize-Small);
+        text-transform: uppercase;
+        letter-spacing: var(--review-letter-spacing);
+        text-align: left;
+        background: none;
+        border: 0;
+        cursor: pointer;
+
+        &:hover {
+            color: var(--textOnGray);
+        }
+    }
+
+    .workspace-review-dimension-name {
+        flex: 0 0 auto;
+    }
+
+    /* the preset that is chosen is the one that matters */
+    .workspace-review-dimension-value {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        color: var(--textOnGray);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /*
+     * The list of the presets is a popup of the browser: it sits in the layer above the
+     * page, so that the sidebar of the review - which scrolls - cannot cut it off.
+     */
+    .workspace-review-dimension-list {
+        position: fixed;
+        inset: auto;
+        margin: 0;
+        padding: 0;
+        min-width: 220px;
+        background: var(--grayDark);
+        border: var(--review-border);
+        box-shadow: var(--review-shadow);
+        display: none;
+
+        &:popover-open {
+            display: block;
+        }
+    }
+
+    .workspace-review-dimension-preset {
+        display: block;
+        padding: var(--spacing-Half) var(--review-padding);
+        color: var(--textOnGray);
+        text-decoration: none;
+        white-space: nowrap;
+
+        &:hover {
+            background: var(--grayLight);
+        }
+
+        i {
+            margin-right: 1ch;
+        }
+
+        /* the check marks the chosen preset - the space of it is kept in the other entries */
+        i.invisible {
+            visibility: hidden;
+        }
+    }
+
+    /*
+     * The review: the documents with changes on the left, the changes of the selected
+     * document on the right.
+     */
+    .workspace-review {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        margin-top: 24px;
+    }
+
+    .workspace-review-sidebar {
+        /*
+         * The list of the documents takes a third of the review, and it can be made wider or
+         * narrower with the grip in its lower corner. The width is the property the grip
+         * changes, so it has to be the one the layout takes - not the flex basis.
+         */
+        flex: 0 0 auto;
+        width: 30%;
+        min-width: 220px;
+        max-width: 70%;
+        resize: horizontal;
+        /* the grip only shows on an element that scrolls */
+        overflow: auto;
+        box-sizing: border-box;
+        border: var(--review-border);
+        background: var(--grayDark);
+    }
+
+    /*
+     * The list of documents scrolls, the header of the tree does not - so that the button
+     * that loads the tree again and the indicator stay in sight.
+     *
+     * The list is a grid with a single column that is as wide as its widest entry: every row
+     * is as wide as the longest one, so that the lines between them all reach the right of
+     * the list - even when it is scrolled to the side.
+     */
+    .workspace-review-document-list {
+        display: grid;
+        /* the column is as wide as the list, and wider when a document needs the space */
+        grid-template-columns: minmax(100%, max-content);
+        max-height: calc(100vh - 304px);
+        overflow: auto;
+    }
+
+    .workspace-review-content {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .workspace-review-document {
+        display: block;
+        width: 100%;
+        /* the entry is a button, and a button is not measured by its border box by default -
+           the padding would push it over the width of the sidebar and raise a scrollbar */
+        box-sizing: border-box;
+        padding: var(--review-padding-row);
+        color: var(--textOnGray);
+        text-align: left;
+        text-decoration: none;
+        background: none;
+        border: 0;
+        cursor: pointer;
+    }
+
+    /*
+     * The row of a document: the checkbox that selects the document and the button that
+     * opens it. The documents below a document are indented, so that the place of a document
+     * in the hierarchy of the documents can be seen.
+     */
+    .workspace-review-document-row {
+        display: flex;
+        align-items: center;
+        padding-left: calc(var(--review-padding) + var(--level, 0) * 18px);
+        border-bottom: var(--review-border);
+
+        .workspace-review-document {
+            padding: var(--review-padding-row) 10px var(--spacing-Quarter);
+        }
+
+        /* the pointer is over the row, not only over the label of the document */
+        &:hover {
+            background: var(--grayLight);
+        }
+
+        /*
+         * The document that is open is marked by the colour of its label - the way the
+         * neos.ui marks the node in its tree. The bar at the left of the row belongs to the
+         * kind of the change.
+         */
+        &.active .workspace-review-document-label {
+            color: var(--blue);
+        }
+
+        /*
+         * The kind of the change of the document, as a bar at the very left of the row: a
+         * deleted document is red, a created one green, a changed one orange - the colours
+         * of the kinds of the changes.
+         */
+        &[data-kind='deleted'] {
+            box-shadow: inset var(--review-kind-bar-width) 0 0 var(--colors-Error);
+        }
+
+        &[data-kind='created'] {
+            box-shadow: inset var(--review-kind-bar-width) 0 0 var(--colors-Success);
+        }
+
+        &[data-kind='edited'] {
+            box-shadow: inset var(--review-kind-bar-width) 0 0 var(--colors-Warn);
+        }
+    }
+
+    /*
+     * The last document closes the list: the line below it would sit on the line of its site
+     * and on the border of the panel. Only a document that has another one below it is
+     * separated.
+     */
+    .workspace-review-site:last-child .workspace-review-document-row:last-child {
+        border-bottom: 0;
+    }
+
+    .workspace-review-document-checkbox {
+        flex: 0 0 auto;
+        margin: 0;
+    }
+
+    /*
+     * The documents a document sits below, named above it - only when its parent is not in
+     * the list itself, otherwise the list shows the place of the document.
+     */
+    .workspace-review-document-breadcrumb {
+        padding: var(--spacing-Quarter) var(--review-padding) 0 calc(var(--review-padding) + var(--level, 0) * 18px);
+        color: var(--review-text-faint);
+        font-size: var(--fontSize-Small);
+        /* the chain of the documents is one line, cropped when it is too long */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .workspace-review-document-breadcrumb-ancestor i {
+        margin-right: var(--spacing-Quarter);
+    }
+
+    .workspace-review-document-breadcrumb-ancestor + .workspace-review-document-breadcrumb-ancestor::before {
+        content: ' › ';
+    }
+
+    /*
+     * The hint of a document: how many of its changes are selected. It is a popup of the
+     * browser, so that it is not cut off by the list of the documents.
+     */
+    .workspace-review-document-hint {
+        position: fixed;
+        inset: auto;
+        margin: 0;
+        padding: 6px 10px;
+        max-width: 260px;
+        font-size: var(--fontSize-Small);
+        color: var(--textOnGray);
+        background: var(--grayDark);
+        border: var(--review-border);
+        box-shadow: var(--review-shadow);
+        display: none;
+
+        &:popover-open {
+            display: block;
+        }
+    }
+
+    /* the hint has two lines: what changed in the document, and how much of it is selected */
+    .workspace-review-document-hint-changes,
+    .workspace-review-document-hint-selection {
+        display: block;
+    }
+
+    .workspace-review-document-hint-selection {
+        color: var(--review-text-muted);
+    }
+
+    .workspace-review-document-title {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-Half);
+        line-height: var(--review-line-height);
+    }
+
+    .workspace-review-document-label {
+        flex: 1 1 auto;
+        /* the label is cropped, so that the badge with the number of changes always fits */
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /*
+     * The variant of a document, so that the variants of a document can be told apart in
+     * the list of the documents.
+     */
+    .workspace-review-document-dimension {
+        flex: 0 0 auto;
+        color: var(--review-text-muted);
+        font-size: var(--fontSize-Small);
+        text-transform: uppercase;
+        letter-spacing: var(--review-letter-spacing);
+    }
+
+    .workspace-review-site {
+        border-bottom: var(--review-border);
+    }
+
+    /* the site that ends the list has no successor to separate */
+    .workspace-review-site:last-child {
+        border-bottom: 0;
+    }
+
+    /*
+     * The header of the tree: its title and the button that loads the tree again. The room
+     * on the right is for the indicator, which is in the corner of the panel.
+     */
+    .workspace-review-panel-header {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-Half);
+        padding: var(--review-padding-row);
+        border-bottom: var(--review-border);
+        color: var(--review-text-muted);
+        font-size: var(--fontSize-Small);
+        text-transform: uppercase;
+        letter-spacing: var(--review-letter-spacing);
+    }
+
+    .workspace-review-panel-title {
+        flex: 1 1 auto;
+    }
+
+    .workspace-review-site-label {
+        padding: var(--review-padding) var(--review-padding) var(--spacing-Quarter);
+        color: var(--review-text-muted);
+        font-size: var(--fontSize-Small);
+        text-transform: uppercase;
+        letter-spacing: var(--review-letter-spacing);
+    }
+
+    .workspace-review-no-documents,
+    .workspace-review-no-changes {
+        padding: var(--review-padding);
+        color: var(--review-text-muted);
+        font-style: italic;
+    }
+}
+
+/*
+ * A part of the changes of the document is selected: the check is greyed, and the box is a
+ * muted blue - the blue says that something is selected, the grey that not everything is.
+ *
+ * The selector repeats the one of the core, so that the colour of the core does not win.
+ */
+.neos.neos-module.neos-module-management-workspaces {
+    .workspace-review-document-select[data-state='partial'] + span::before {
+        background-color: var(--review-checkbox-partial);
+        border-color: var(--review-text-muted);
+        color: var(--review-text-muted);
+    }
+}

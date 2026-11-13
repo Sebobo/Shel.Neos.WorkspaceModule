@@ -1,0 +1,26 @@
+##
+# The indicator that shows that something is loading.
+#
+# The indicator is shown by htmx while the request of the element it belongs to is running.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.Indicator) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = false
+        id = ${PropTypes.string}
+        icon = ${PropTypes.string}
+    }
+
+    @private {
+        i18n = ${I18n.id('').source('Main').package('Shel.Neos.WorkspaceModule')}
+    }
+
+    renderer = afx`
+        <span
+            id={props.id}
+            class="workspace-review-reload workspace-review-reload-placeholder htmx-indicator"
+            title={private.i18n.id('review.reload').translate()}
+        >
+            <Shel.Neos.WorkspaceModule:Component.Icon icon={props.icon}/>
+        </span>
+    `
+}

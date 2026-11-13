@@ -1,0 +1,145 @@
+##
+# The list of documents that have changes in the reviewed workspace, grouped by their site.
+#
+# The tree is loaded on its own when the review opens and travels with every answer that
+# changes something afterwards, so that it stays in step with the changes. It is marked as the
+# document that is open.
+#
+# Every document has a checkbox of its own: it selects the document with all the documents
+# below it, so that the changes of several documents can be published at once. The checkbox
+# knows three states - nothing selected, everything selected and a part of it selected - and a
+# popup tells how many changes are selected.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.DocumentTree) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = false
+        sites = ${PropTypes.arrayOf(PropTypes.any)}
+        selectedWorkspaceName = ${PropTypes.string}
+        selectedDimensions = ${PropTypes.string}
+        selectedDocument = ${PropTypes.string}
+        outOfBand = ${PropTypes.boolean}
+    }
+
+    @private {
+        i18n = ${I18n.id('').source('Main').package('Shel.Neos.WorkspaceModule')}
+        changesUriTemplate = Neos.Fusion:UriBuilder {
+            action = 'documentChanges'
+            format = 'htmx'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = ${props.selectedDimensions}
+            arguments.document = '---document---'
+        }
+        treeUri = Neos.Fusion:UriBuilder {
+            action = 'documentTree'
+            format = 'htmx'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = ${props.selectedDimensions}
+        }
+        treeReloadUri = Neos.Fusion:UriBuilder {
+            action = 'documentTree'
+            format = 'htmx'
+            arguments.workspace = ${props.selectedWorkspaceName}
+            arguments.dimensions = ${props.selectedDimensions}
+            arguments.selectedDocument = '---document---'
+        }
+    }
+
+    renderer = afx`
+        <div id="document-tree" hx-swap-oob={props.outOfBand ? 'true' : null}>
+            <div class="workspace-review-panel-header">
+                <span class="workspace-review-panel-title">
+                    {private.i18n.id('review.documents').translate()}
+                </span>
+                <button
+                    type="button"
+                    id="document-tree-reload"
+                    class="workspace-review-reload"
+                    title={private.i18n.id('review.reload').translate()}
+                    data-neos-toggle="tooltip"
+                    hx-get={String.replace(private.treeReloadUri, '---document---', props.selectedDocument)}
+                    hx-target="#document-tree"
+                    hx-swap="outerHTML"
+                    hx-indicator="#document-tree-reload"
+                >
+                    <i class="fas fa-sync"></i>
+                </button>
+            </div>
+            <div class="workspace-review-document-list">
+                <Neos.Fusion:Loop items={props.sites} itemName="site">
+                    <div class="workspace-review-site">
+                        <div class="workspace-review-site-label">
+                            {site.siteNodeName ? site.label : private.i18n.id('review.noSite').translate()}
+                        </div>
+                        <Neos.Fusion:Loop items={site.documents} itemName="document" iterationName="iteration">
+                            <div
+                                @if.showBreadcrumb={!document.parentIsInList && document.breadcrumb != []}
+                                class="workspace-review-document-breadcrumb"
+                                style={'--level: ' + document.level}
+                            >
+                                <Neos.Fusion:Loop items={document.breadcrumb} itemName="ancestor">
+                                    <span class="workspace-review-document-breadcrumb-ancestor">
+                                        {ancestor}
+                                    </span>
+                                </Neos.Fusion:Loop>
+                            </div>
+                            <div
+                                class={'workspace-review-document-row' + (document.contextPath == props.selectedDocument ? ' active' : '')}
+                                style={'--level: ' + document.level}
+                                data-document={document.contextPath}
+                                data-parent={document.parent}
+                                data-kind={document.kind}
+                                data-count={document.pendingChanges.total + ''}
+                                data-counts-new={document.pendingChanges.new + ''}
+                                data-counts-changed={document.pendingChanges.changed + ''}
+                                data-counts-removed={document.pendingChanges.removed + ''}
+                                data-hint-changes={private.i18n.id('review.hintChanges').quantity(2).arguments(['{0}']).translate()}
+                                data-hint-changes-one={private.i18n.id('review.hintChanges').quantity(1).arguments(['{0}']).translate()}
+                                data-hint-new={private.i18n.id('review.hintNew').arguments(['{0}']).translate()}
+                                data-hint-changed={private.i18n.id('review.hintChanged').arguments(['{0}']).translate()}
+                                data-hint-removed={private.i18n.id('review.hintRemoved').arguments(['{0}']).translate()}
+                                data-hint-none={private.i18n.id('review.selectionNone').translate()}
+                                data-hint-all={private.i18n.id('review.selectionAll').arguments(['{0}']).translate()}
+                                data-hint-some={private.i18n.id('review.selectionSome').arguments(['{0}', '{1}']).translate()}
+                            >
+                                <label class="neos-checkbox workspace-review-document-checkbox">
+                                    <input
+                                        type="checkbox"
+                                        class="workspace-review-document-select"
+                                    />
+                                    <span></span>
+                                </label>
+                                <button
+                                    type="button"
+                                    hx-get={String.replace(private.changesUriTemplate, '---document---', document.contextPath)}
+                                    hx-target="#document-changes"
+                                    hx-swap="outerHTML"
+                                    hx-indicator="#document-changes-reload"
+                                    class={document.contextPath == props.selectedDocument ? 'workspace-review-document active' : 'workspace-review-document'}
+                                >
+                                    <span class="workspace-review-document-title">
+                                        <Shel.Neos.WorkspaceModule:Component.Icon icon={document.icon}/>
+                                        <span class="workspace-review-document-label">{document.label}</span>
+                                        <span @if.hasDimension={document.dimensionLabel != ''} class="workspace-review-document-dimension">
+                                            {document.dimensionLabel}
+                                        </span>
+                                    </span>
+                                </button>
+                                <div
+                                    id={'workspace-review-document-hint-' + iteration.index}
+                                    class="workspace-review-document-hint"
+                                    popover="manual"
+                                >
+                                    <span class="workspace-review-document-hint-changes"></span>
+                                    <span class="workspace-review-document-hint-selection"></span>
+                                </div>
+                            </div>
+                        </Neos.Fusion:Loop>
+                    </div>
+                </Neos.Fusion:Loop>
+                <div @if.noDocuments={props.sites == []} class="workspace-review-no-documents">
+                    {private.i18n.id('review.noDocuments').translate()}
+                </div>
+            </div>
+        </div>
+    `
+}

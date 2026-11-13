@@ -1,0 +1,124 @@
+##
+# The diff of one property, rendered by the kind of the property.
+#
+# A value that is not there is marked: a property that was never set and a property that was
+# set to an empty value are told apart, so that a change reads as what it is.
+#
+prototype(Shel.Neos.WorkspaceModule:Component.ChangeDiff) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = false
+        type = ${PropTypes.string}
+        changes = ${PropTypes.any}
+    }
+
+    @private {
+        i18n = ${I18n.id('').source('Main').package('Shel.Neos.WorkspaceModule')}
+        notSet = ${I18n.id('review.value.notSet').source('Main').package('Shel.Neos.WorkspaceModule').translate()}
+        empty = ${I18n.id('review.value.empty').source('Main').package('Shel.Neos.WorkspaceModule').translate()}
+        valueTrue = ${I18n.id('review.value.true').source('Main').package('Shel.Neos.WorkspaceModule').translate()}
+        valueFalse = ${I18n.id('review.value.false').source('Main').package('Shel.Neos.WorkspaceModule').translate()}
+    }
+
+    renderer = afx`
+        <table>
+            <Neos.Fusion:Loop @if.isText={props.type == 'text'} items={props.changes.diff} itemName="blocks">
+                <Neos.Fusion:Loop items={blocks} itemName="block">
+                    <tr>
+                        <td class="diff-property-content-left">
+                            <span @if.isEmpty={block.baseIsEmpty} class="neos-content-diff-no-value">
+                                {props.changes.originalIsNull ? private.notSet : private.empty}
+                            </span>
+                            <Neos.Fusion:Loop items={block.base.lines} itemName="line">
+                                <div>{line}</div>
+                            </Neos.Fusion:Loop>
+                        </td>
+                        <td class="diff-property-content-right">
+                            <span @if.isEmpty={block.changedIsEmpty} class="neos-content-diff-no-value">
+                                {props.changes.changedIsNull ? private.notSet : private.empty}
+                            </span>
+                            <Neos.Fusion:Loop items={block.changed.lines} itemName="line">
+                                <div>{line}</div>
+                            </Neos.Fusion:Loop>
+                        </td>
+                    </tr>
+                </Neos.Fusion:Loop>
+            </Neos.Fusion:Loop>
+            <Neos.Fusion:Loop @if.isBoolean={props.type == 'boolean'} items={[0]} itemName="unused">
+                <tr>
+                    <td class="diff-property-content-left">
+                        <i
+                            @if.hasValue={props.changes.original != null}
+                            class={props.changes.original ? 'fas fa-check' : 'fas fa-times'}
+                            title={props.changes.original ? private.valueTrue : private.valueFalse}
+                            data-neos-toggle="tooltip"
+                        ></i>
+                        <span @if.hasNoValue={props.changes.original == null} class="neos-content-diff-no-value">
+                            {private.notSet}
+                        </span>
+                    </td>
+                    <td class="diff-property-content-right">
+                        <i
+                            @if.hasValue={props.changes.changed != null}
+                            class={props.changes.changed ? 'fas fa-check' : 'fas fa-times'}
+                            title={props.changes.changed ? private.valueTrue : private.valueFalse}
+                            data-neos-toggle="tooltip"
+                        ></i>
+                        <span @if.hasNoValue={props.changes.changed == null} class="neos-content-diff-no-value">
+                            {private.notSet}
+                        </span>
+                    </td>
+                </tr>
+            </Neos.Fusion:Loop>
+            <tr @if.isImage={props.type == 'image'}>
+                <td class="diff-property-content-left">
+                    <Neos.Neos:ImageTag @if.hasOriginal={props.changes.original} asset={props.changes.original} allowCropping="false" maximumWidth="500" maximumHeight="500" alt=""/>
+                    <span @if.hasNoOriginal={props.changes.original == null} class="neos-content-diff-no-value">
+                        {private.notSet}
+                    </span>
+                </td>
+                <td class="diff-property-content-right">
+                    <Neos.Neos:ImageTag @if.hasChanged={props.changes.changed} asset={props.changes.changed} allowCropping="false" maximumWidth="500" maximumHeight="500" alt=""/>
+                    <span @if.hasNoChanged={props.changes.changed == null} class="neos-content-diff-no-value">
+                        {private.notSet}
+                    </span>
+                </td>
+            </tr>
+            <tr @if.isAsset={props.type == 'asset'}>
+                <td class="diff-property-content-left">
+                    <Neos.Fusion:Link.Resource @if.hasOriginal={props.changes.original && props.changes.original.resource} class="resource-link" href.path={props.changes.original.resource}>
+                        {props.changes.original.resource.filename}
+                    </Neos.Fusion:Link.Resource>
+                    <span @if.hasNoOriginal={props.changes.original == null} class="neos-content-diff-no-value">
+                        {private.notSet}
+                    </span>
+                </td>
+                <td class="diff-property-content-right">
+                    <Neos.Fusion:Link.Resource @if.hasChanged={props.changes.changed && props.changes.changed.resource} class="resource-link" href.path={props.changes.changed.resource}>
+                        {props.changes.changed.resource.filename}
+                    </Neos.Fusion:Link.Resource>
+                    <span @if.hasNoChanged={props.changes.changed == null} class="neos-content-diff-no-value">
+                        {private.notSet}
+                    </span>
+                </td>
+            </tr>
+            <tr @if.isDatetime={props.type == 'datetime'}>
+                <td class="diff-property-content-left">
+                    <span @if.hasOriginal={props.changes.original != null}>
+                        {Date.format(props.changes.original, 'd.m.Y H:i')}
+                    </span>
+                    <span @if.hasNoOriginal={props.changes.original == null} class="neos-content-diff-no-value">
+                        {private.notSet}
+                    </span>
+                </td>
+                <td class="diff-property-content-right">
+                    <span @if.hasChanged={props.changes.changed != null}>
+                        {Date.format(props.changes.changed, 'd.m.Y H:i')}
+                    </span>
+                    <span @if.hasNoChanged={props.changes.changed == null} class="neos-content-diff-no-value">
+                        {private.notSet}
+                    </span>
+                </td>
+            </tr>
+        </table>
+    `
+}

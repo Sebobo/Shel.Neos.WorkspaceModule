@@ -1,0 +1,27 @@
+##
+# The review of a workspace.
+#
+# The action opens the review: the documents with changes on the left, the changes of the
+# selected document on the right.
+#
+Shel.Neos.WorkspaceModule.WorkspacesController.show = Neos.Fusion:Component {
+    selectedWorkspaceName = ${selectedWorkspaceName}
+    selectedWorkspaceLabel = ${selectedWorkspaceLabel}
+    baseWorkspaceLabel = ${baseWorkspaceLabel}
+    canPublishToBaseWorkspace = ${canPublishToBaseWorkspace}
+    contentDimensions = ${contentDimensions}
+    selectedDimensions = ${selectedDimensions}
+    flashMessages = ${flashMessages}
+    lastActivity = ${lastActivity}
+
+    renderer = Shel.Neos.WorkspaceModule:Component.Review {
+        selectedWorkspaceName = ${props.selectedWorkspaceName}
+        selectedWorkspaceLabel = ${props.selectedWorkspaceLabel}
+        baseWorkspaceLabel = ${props.baseWorkspaceLabel}
+        canPublishToBaseWorkspace = ${props.canPublishToBaseWorkspace}
+        contentDimensions = ${props.contentDimensions}
+        selectedDimensions = ${props.selectedDimensions}
+        flashMessages = ${props.flashMessages}
+        lastActivity = ${props.lastActivity}
+    }
+}

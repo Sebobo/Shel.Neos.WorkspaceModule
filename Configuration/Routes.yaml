@@ -1,0 +1,18 @@
+##
+# The preview of a document of the review.
+#
+# The preview is rendered on the host the review is opened on, so that a document of another
+# site can be previewed without that site being reachable and without handing the session of
+# the backend over to another host.
+-
+  name: 'Shel.Neos.WorkspaceModule:Preview'
+  uriPattern: 'neos/workspace-review/preview'
+  defaults:
+    '@package': 'Shel.Neos.WorkspaceModule'
+    '@controller': 'Preview'
+    '@action': 'preview'
+    '@format': 'html'
+  # The document to be previewed is passed as the argument "node" - it is the context path of
+  # the document, which carries its workspace and its dimensions.
+  appendExceedingArguments: true
+  httpMethods: ['GET']
